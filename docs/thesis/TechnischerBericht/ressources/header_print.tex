@@ -1,0 +1,93 @@
+%
+% Base Document
+%
+
+\documentclass[11pt,twoside,a4paper,parskip, abstract=on, openright]{scrreprt}
+\usepackage[inner=2.5cm,outer=2cm,top=2cm,bottom=2cm,includefoot]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+%
+% Packages
+%fancy
+\usepackage[hidelinks]{hyperref}   % Hyperlinks and PDF Meta Info
+%\usepackage{url}   % Hyperlinks and PDF Meta Info
+\usepackage{graphicx}   % Pictures
+%\usepackage{fancyhdr}   % Header/Footer
+\usepackage{titleps}
+\usepackage{blindtext}  % ExampleText
+\usepackage{listings}   % Codesnippets
+\usepackage{booktabs}   % Tables
+\usepackage{lscape}     % Querformat für eine Seite
+\usepackage{rotating}   % Querformat für eine Seite
+\usepackage{pdflscape}  % Querformat für eine Seite
+\usepackage{float}		% Bilderfix
+\usepackage[acronym]{glossaries} % Glossary with acronyms
+\usepackage{pdfpages}
+\usepackage{tocvsec2}
+\usepackage{tikz}
+%\usepackage{emptypage} %Empty page complete empty
+% Only for biblatex >= 3.5
+\usepackage[backend=biber,urldate=edtf,date=edtf,seconds=true]{biblatex} % bibliography
+% Legacy
+%\usepackage[backend=biber,urldate=iso8601,date=iso8601,seconds=false]{biblatex} % bibliography
+
+%
+% Settings
+%
+\lstset{language=bash}  % Setting for "listings": Codesnippet
+\urlstyle{same} % Setting for "url"
+
+%
+% Metainfos
+%
+
+\subject{\SUBTITLE}
+\title{\TITLE}
+\author{\AUTHOR \\ \EMAIL}
+
+\hypersetup{ % hyperref setup
+    pdftitle={\TITLE},      % title
+    pdfauthor={\AUTHOR},    % author
+    pdfsubject={\SUBTITLE}, % subject of the document
+    pdfkeywords={\KEYWORDS}, % list of keywords
+    colorlinks=black,       % false: boxed links; true: colored links
+    linkcolor=black,          % color of internal links (change box color with linkbordercolor)
+    citecolor=black,        % color of links to bibliography
+    filecolor=black,      % color of file links
+    urlcolor=black           % color of external links
+}
+
+
+%
+% Header & Footer
+%
+%\pagestyle{fancy}
+\newpagestyle{main}[\small]{
+%  \setheadrule{0.5pt}
+%  \setfootrule{0.5pt}
+  \sethead[\thepage][\SHORTSUBTITLE][]
+          {}{\AUTHOR}{\thepage}
+%  \setfoot[\thepage][][\AUTHOR]
+%          {\AUTHOR}{}{\thepage}
+}
+
+\newcommand*{\SignatureAndDate}[1]{%
+    \vspace{1.25cm}
+    \par\noindent\makebox[6cm]{\hrulefill} \hfill\makebox[6cm]{\hrulefill}%
+    \par\noindent\makebox[6cm][l]{Ort, Datum} \hfill\makebox[6cm][l]{#1}%
+}
+
+\RedeclareSectionCommand[beforeskip=0pt, afterskip=1cm]{chapter} % Chapter Text Top and Bottom Distance
+\renewcommand*{\chapterpagestyle}{main}
+
+\pagestyle{main}
+%\lhead{\leftmark}
+%\chead{\TITLE}
+%\rhead{\SHORTSUBTITLE}
+%\lfoot{\AUTHOR}
+%\cfoot{}
+%\rfoot{Seite \thepage}
+%\renewcommand{\headrulewidth}{1pt} %Linewidth
+%\renewcommand{\footrulewidth}{1pt} %Linewidth

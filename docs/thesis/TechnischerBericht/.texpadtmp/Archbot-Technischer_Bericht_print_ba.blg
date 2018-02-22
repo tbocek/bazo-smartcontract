@@ -1,0 +1,9 @@
+[0] Config.pm:354> INFO - This is Biber 2.7
+[0] Config.pm:357> INFO - Logfile is '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_print_ba.blg'
+[44] biber-darwin:303> INFO - === Tue Feb 20, 2018, 19:27:48
+[66] Biber.pm:359> INFO - Reading '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_print_ba.bcf'
+[163] Biber.pm:835> INFO - Found 0 citekeys in bib section 0
+[170] Utils.pm:164> WARN - The file '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_print_ba.bcf' does not contain any citations!
+[177] bbl.pm:608> INFO - Writing '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_print_ba.bbl' with encoding 'UTF-8'
+[177] bbl.pm:712> INFO - Output to /Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_print_ba.bbl
+[178] Biber.pm:109> INFO - WARNINGS: 1

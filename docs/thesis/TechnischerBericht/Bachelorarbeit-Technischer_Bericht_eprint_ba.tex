@@ -1,0 +1,41 @@
+%------------------------------------------------------------------
+% Variables to Set
+%------------------------------------------------------------------
+\newcommand{\masterstyle}{../Latex/LatexMasterStyle} %Set Path to Masterstyle
+\newcommand{\TITLE}{Titel der Arbeit} %Set DocumentTitel
+%------------------------------------------------------------------
+\input{\masterstyle/documentinfo.tex}
+\input{ressources/header_eprint}
+\addbibresource{./bibliography/bibliography.bib} % Import Bibliography
+\input{glossary/glossary.tex} % Import Glossary
+\listfiles % Extended Log
+\begin{document}
+\selectlanguage{english}
+\input{ressources/titlepage_ba.tex}
+\include{chapter/abstract}
+\include{chapter/managementSummary}
+\setcounter{tocdepth}{2}
+\tableofcontents
+\printglossary
+
+%------------------------------------------------------------------
+% Chapters
+%------------------------------------------------------------------
+\include{chapter/sampleChapter1}
+
+%------------------------------------------------------------------
+% Appendix
+%------------------------------------------------------------------
+\listoffigures
+\begingroup
+\renewcommand{\bibname}{}
+\chapter*{Bibliography}
+\let\clearpage\relax
+\printbibliography[heading=none]
+\endgroup
+\thispagestyle{main}
+\appendix
+\settocdepth{chapter}
+\include{appendix/declarationofauthorship}
+\include{appendix/rightsofuse}
+\end{document}

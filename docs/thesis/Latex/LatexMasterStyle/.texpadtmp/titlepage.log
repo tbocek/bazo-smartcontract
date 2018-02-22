@@ -1,0 +1,120 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdftex 2015.12.10)  11 DEC 2017 13:54
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**titlepage.tex
+(./titlepage.tex
+./titlepage.tex:1: Undefined control sequence.
+l.1 \begin
+          {titlepage}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:2: Undefined control sequence.
+l.2 \begin
+          {flushleft}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:4: Undefined control sequence.
+l.4 \begin
+          {figure}[tbp]
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:5: Undefined control sequence.
+l.5   \begin
+            {minipage}[c]{0.4\textwidth}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:5: Undefined control sequence.
+l.5   \begin{minipage}[c]{0.4\textwidth
+                                       }
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:6: Undefined control sequence.
+l.6     \includegraphics
+                        [width=\textwidth]{\masterstyle/images/hsr_logo.pdf}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:6: Undefined control sequence.
+l.6     \includegraphics[width=\textwidth
+                                         ]{\masterstyle/images/hsr_logo.pdf}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:6: Undefined control sequence.
+l.6 ...ludegraphics[width=\textwidth]{\masterstyle
+                                                  /images/hsr_logo.pdf}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./titlepage.tex:6: Missing $ inserted.
+<inserted text> 
+                $
+<to be read again> 
+                   _
+l.6 ...[width=\textwidth]{\masterstyle/images/hsr_
+                                                  logo.pdf}
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+./titlepage.tex:6: Extra }, or forgotten $.
+l.6 ...extwidth]{\masterstyle/images/hsr_logo.pdf}
+                                                  
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+./titlepage.tex:7: Missing $ inserted.
+<inserted text> 
+                $
+<to be read again> 
+                   \end 
+l.7   \end
+          {minipage}
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+[1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] )
+(\end occurred inside a group at level 1)
+
+### simple group (level 1) entered at line 6 ({)
+### bottom level</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
+Output written on "/Users/enniomeier/Documents/Studium/HS17/Studienarbeit/Local Repositories/BotSpencerDocumentation/doc/Latex/LatexMasterStyle/.texpadtmp/titlepage.pdf" (1 page, 31152 bytes).
+PDF statistics:
+ 20 PDF objects out of 1000 (max. 8388607)
+ 13 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

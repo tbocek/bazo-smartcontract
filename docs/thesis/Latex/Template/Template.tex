@@ -1,0 +1,33 @@
+%------------------------------------------------------------------
+% Variables to Set
+%------------------------------------------------------------------
+\newcommand{\masterstyle}{../LatexMasterStyle} %Set Path to Masterstyle
+\newcommand{\TITLE}{TemplateDocument} %Set DocumentTitel
+%------------------------------------------------------------------
+
+\input{\masterstyle/documentinfo.tex}
+\input{\masterstyle/header.tex}
+\input{glossary/glossary.tex} % Import Glossary
+\addbibresource{./bibliography/bibliography.bib} % Import Bibliography
+
+\begin{document}
+\input{\masterstyle/titlepage.tex}
+\setcounter{tocdepth}{1}
+\tableofcontents
+\thispagestyle{fancy} % Set Footer and Header
+
+\include{chapter/sampleChapter1}
+
+\newpage
+\listoffigures
+\thispagestyle{fancy} % Set Footer and Header
+\listoftables
+\thispagestyle{fancy} % Set Footer and Header
+\printglossary[type=\acronymtype]
+\thispagestyle{fancy} % Set Footer and Header
+\printglossary
+\thispagestyle{fancy} % Set Footer and Header
+\printbibliography
+\thispagestyle{fancy} % Set Footer and Header % Set Footer and Header
+
+\end{document}

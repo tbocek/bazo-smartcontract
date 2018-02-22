@@ -1,0 +1,61 @@
+This is LuaTeX, Version beta-0.80.0 (TeX Live 2015) (rev 5238)  (format=luatex 2015.12.10)  12 DEC 2017 10:16
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+**Archbot-Technischer_Bericht.tex
+(./Archbot-Technischer_Bericht.tex
+./Archbot-Technischer_Bericht.tex:4: Undefined control sequence.
+l.4 \newcommand
+             {\masterstyle}{../Latex/LatexMasterStyle} %Set Path to Masterstyle
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./Archbot-Technischer_Bericht.tex:4: Undefined control sequence.
+l.4 \newcommand{\masterstyle
+                          }{../Latex/LatexMasterStyle} %Set Path to Masterstyle
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./Archbot-Technischer_Bericht.tex:5: Undefined control sequence.
+l.5 \newcommand
+             {\TITLE}{TemplateDocument} %Set DocumentTitel
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./Archbot-Technischer_Bericht.tex:5: Undefined control sequence.
+l.5 \newcommand{\TITLE
+                    }{TemplateDocument} %Set DocumentTitel
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./Archbot-Technischer_Bericht.tex:8: Undefined control sequence.
+l.8 \input{\masterstyle
+                     /documentinfo.tex}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+./Archbot-Technischer_Bericht.tex:8: I can't find file `/documentinfo.tex'.
+l.8 \input{\masterstyle/documentinfo.tex}
+                                       
+(Press Enter to retry, or Control-D to exit)
+Please type another input file name
+./Archbot-Technischer_Bericht.tex:8: Emergency stop.
+l.8 \input{\masterstyle/documentinfo.tex}
+                                       
+*** (job aborted, file error in nonstop mode)
+
+./Archbot-Technischer_Bericht.tex:8:  ==> Fatal error occurred, no output PDF file produced!

@@ -1,0 +1,15 @@
+[0] Config.pm:354> INFO - This is Biber 2.7
+[0] Config.pm:357> INFO - Logfile is '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_eprint_ba.blg'
+[49] biber-darwin:303> INFO - === Wed Feb 21, 2018, 10:03:15
+[73] Biber.pm:359> INFO - Reading '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_eprint_ba.bcf'
+[161] Biber.pm:835> INFO - Found 3 citekeys in bib section 0
+[173] Biber.pm:3670> INFO - Processing section 0
+[191] Biber.pm:3840> INFO - Looking for bibtex format file '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/./bibliography/bibliography.bib' for section 0
+[192] bibtex.pm:1435> INFO - Decoding LaTeX character macros into UTF-8
+[196] bibtex.pm:1292> INFO - Found BibTeX data source '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/./bibliography/bibliography.bib'
+[216] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[216] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[217] Biber.pm:3499> INFO - Sorting list 'nty/global/' of type 'entry' with scheme 'nty' and locale 'en-US'
+[217] Biber.pm:3505> INFO - No sort tailoring available for locale 'en-US'
+[221] bbl.pm:608> INFO - Writing '/Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_eprint_ba.bbl' with encoding 'UTF-8'
+[221] bbl.pm:712> INFO - Output to /Users/enniomeier/Documents/Studium/FS18/Bachelorarbeit/Dokumentation/TechnischerBericht/.texpadtmp/Archbot-Technischer_Bericht_eprint_ba.bbl
