@@ -1,4 +1,4 @@
-package bazo_vm
+package main
 
 const (
 	// Push Operations

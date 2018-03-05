@@ -6,13 +6,13 @@ type byteArray []byte
 
 type stack struct {
 	size int
+	//TODO maybe allocate an array with a certain size
 	stack []byteArray
 }
 
 func (s stack) getSize() int{
 	return s.size
 }
-
 
 func newStack() stack{
 	return stack{
@@ -22,7 +22,9 @@ func newStack() stack{
 }
 
 func (s *stack) push(element byteArray){
-
+	//TODO Probably better to use a Linked list
+	s.stack = append(s.stack, element)
+	s.size = s.size + 1
 }
 
 func (s *stack) pop() (ba byteArray, err error) {
