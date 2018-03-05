@@ -62,7 +62,7 @@ func TestPushAndPopElement(t *testing.T) {
 
 	s.push(5)
 
-	if s.getLength() != 2 {
+	if s.getLength() != 1 {
 		t.Errorf("Expected size to be 1 but was %v", s.getLength())
 	}
 }
