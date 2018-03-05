@@ -23,9 +23,18 @@ func (s *stack) push(element int) {
 func (s *stack) pop() (element int, err error) {
 	if (*s).getLength() > 0 {
 		element = (*s).stack[s.getLength()-1]
-		return element, err
+		s.stack = s.stack[:s.getLength()-1]
+		return element, nil
 	} else {
 		return -1, errors.New("Pop() on empty stack!")
 	}
+}
 
+func (s *stack) peek() (element int, err error) {
+	if (*s).getLength() > 0 {
+		element = (*s).stack[s.getLength()-1]
+		return element, nil
+	} else {
+		return -1, errors.New("Peek() on empty stack!")
+	}
 }
