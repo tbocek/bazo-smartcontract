@@ -14,6 +14,16 @@ func TestNewVM(t *testing.T) {
 	}
 }
 
+func TestProgramExecution(t *testing.T){
+	program := []byte{PUSH0, 0x50, PUSH0, 0x50, ADD}
+	vm := newVM(program)
+
+	result := vm.run()
+
+	if result != 0 {
+		t.Errorf("Expected result to be 0 but was %v", result)
+	}
+}
 
 
 

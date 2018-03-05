@@ -15,3 +15,12 @@ func newVM(program []byte) virtualMachine{
 func (vm virtualMachine) getProgram() []byte {
 	return vm.program
 }
+
+func (vm virtualMachine) run() int{
+	for _, opCode := range vm.program{
+		vm.executionEngine.executeOperation(opCode)
+	}
+
+	return 0;
+
+}
