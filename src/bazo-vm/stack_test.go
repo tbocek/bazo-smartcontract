@@ -19,6 +19,29 @@ func TestStackPopWhenEmpty(t *testing.T) {
 	}
 }
 
+func TestStackPopIfRemoves(t *testing.T) {
+	s := newStack()
+
+	s.push(3)
+	s.pop()
+
+	_, err := s.pop()
+	if err == nil {
+		t.Errorf("Expected empty stack to throw an error when using pop() but it didn't")
+	}
+}
+
+func TestStackPeek(t *testing.T) {
+	s := newStack()
+
+	s.push(3)
+	s.peek()
+
+	if s.getLength() != 1 {
+		t.Errorf("Expected stack with size 1 but got %v", s.getLength())
+	}
+}
+
 func TestPushAndPopElement(t *testing.T) {
 	s := newStack()
 
