@@ -6,11 +6,16 @@ type executionEngine struct {
 	stack stack
 }
 
-func (ee executionEngine) executeOperation(opCode []byte) {
+func newExecutionEngine() executionEngine{
+	return executionEngine{
+		stack: newStack(),
+	}
+}
+
+func (ee executionEngine) executeOperation(opCode byte) {
 
 	switch opCode {
 	case PUSH0:
-		stack.push(opCode)
 	case ADD:
 		fmt.Println("ADD")
 	case SUB:
