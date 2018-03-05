@@ -20,7 +20,11 @@
 # *.pdf
 
 ## Generated if empty string is given at "Please type another file name for output:"
-Bachelorarbeit-Technischer_Bericht_eprint_ba.pdf
+.pdf
+
+## Explicitly Excluded files
+docs/thesis/TechnischerBericht/Bachelorarbeit-Technischer_Bericht_eprint_ba.tex
+
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
