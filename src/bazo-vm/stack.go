@@ -1,38 +1,42 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"log"
+)
 
-type stack struct {
+type Stack struct {
 	stack []int
 }
 
-func (s stack) getLength() int {
-	return len(s.stack)
-}
-
-func newStack() stack {
-	return stack{
+func NewStack() Stack {
+	return Stack{
 		stack: []int{},
 	}
 }
 
-func (s *stack) push(element int) {
+func (s Stack) GetLength() int {
+	return len(s.stack)
+}
+
+func (s *Stack) Push(element int) {
 	s.stack = append(s.stack, element)
 }
 
-func (s *stack) pop() (element int, err error) {
-	if (*s).getLength() > 0 {
-		element = (*s).stack[s.getLength()-1]
-		s.stack = s.stack[:s.getLength()-1]
-		return element, nil
+func (s *Stack) Pop() (element int) {
+	if (*s).GetLength() > 0 {
+		element = (*s).stack[s.GetLength()-1]
+		s.stack = s.stack[:s.GetLength()-1]
+		return element
 	} else {
-		return -1, errors.New("Pop() on empty stack!")
+		log.Fatal(errors.New("Pop() on empty stack"))
+		return -1
 	}
 }
 
-func (s *stack) peek() (element int, err error) {
-	if (*s).getLength() > 0 {
-		element = (*s).stack[s.getLength()-1]
+func (s *Stack) Peek() (element int, err error) {
+	if (*s).GetLength() > 0 {
+		element = (*s).stack[s.GetLength()-1]
 		return element, nil
 	} else {
 		return -1, errors.New("Peek() on empty stack!")

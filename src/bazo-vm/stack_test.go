@@ -5,64 +5,64 @@ import (
 )
 
 func TestNewStack(t *testing.T) {
-	s := newStack()
-	if s.getLength() != 0 {
-		t.Errorf("Expected stack with size 0 but got %v", s.getLength())
+	s := NewStack()
+	if s.GetLength() != 0 {
+		t.Errorf("Expected stack with size 0 but got %v", s.GetLength())
 	}
 }
 
 func TestStackPopWhenEmpty(t *testing.T) {
-	s := newStack()
-	_, err := s.pop()
+	s := NewStack()
+	val, err := s.Peek()
+
 	if err == nil {
-		t.Errorf("Expected empty stack to throw an error when using pop() but it didn't")
+		t.Errorf("Throw error because val was %v", val)
 	}
 }
 
 func TestStackPopIfRemoves(t *testing.T) {
-	s := newStack()
+	s := NewStack()
 
-	s.push(3)
-	s.pop()
+	s.Push(3)
+	s.Pop()
 
-	_, err := s.pop()
-	if err == nil {
+	if s.GetLength() != 0 {
 		t.Errorf("Expected empty stack to throw an error when using pop() but it didn't")
 	}
 }
 
 func TestStackPeek(t *testing.T) {
-	s := newStack()
+	s := NewStack()
 
-	s.push(3)
-	s.peek()
+	s.Push(3)
+	s.Peek()
 
-	if s.getLength() != 1 {
-		t.Errorf("Expected stack with size 1 but got %v", s.getLength())
+	if s.GetLength() != 1 {
+		t.Errorf("Expected stack with size 1 but got %v", s.GetLength())
 	}
 }
 
 func TestPushAndPopElement(t *testing.T) {
-	s := newStack()
+	s := NewStack()
 
-	if s.getLength() != 0 {
-		t.Errorf("Expected size before push to be 0, but was %v", s.getLength())
+	if s.GetLength() != 0 {
+		t.Errorf("Expected size before push to be 0, but was %v", s.GetLength())
 	}
 
-	s.push(2)
+	s.Push(2)
 
-	if s.getLength() != 1 {
-		t.Errorf("Expected size to be 1 but was %v", s.getLength())
+	if s.GetLength() != 1 {
+		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
 
-	val, _ := s.pop()
+	val := s.Pop()
 	if val != 2 {
 		t.Errorf("Expected val of element to be 2, but was %v", val)
 	}
 
-	s.push(5)
+	s.Push(5)
 
-	if s.getLength() != 1 {
-		t.Errorf("Expected size to be 1 but was %v", s.getLength())
+	if s.GetLength() != 1 {
+		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
 }
