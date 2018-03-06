@@ -51,6 +51,21 @@ func (vm *VM) Exec(c []int, trace bool) {
 			left := vm.evaluationStack.Pop()
 			vm.evaluationStack.Push(left + right)
 
+		case SUB:
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+			vm.evaluationStack.Push(left - right)
+
+		case MULT:
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+			vm.evaluationStack.Push(left * right)
+
+		case DIV:
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+			vm.evaluationStack.Push(left / right)
+
 		case PRINT:
 			val, _ := vm.evaluationStack.Peek()
 			fmt.Println(val)
