@@ -1,4 +1,4 @@
-package main
+package bazo_vm
 
 import (
 	"testing"
@@ -124,4 +124,72 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 
 	vm := NewVM()
 	vm.Exec(code, true)
+}
+
+func TestProgramExecutionAnd(t *testing.T) {
+	code := []int{
+		PUSH, 4, //0, 4
+		PUSH, 4, //0, 4
+		AND, 4,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4", val)
+	}
+}
+
+func TestProgramExecutionOr(t *testing.T) {
+	code := []int{
+		PUSH, 4, //0, 4
+		PUSH, 3, //0, 4
+		OR, 4,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4 or 4 with 3", val)
+	}
+}
+
+func TestProgramExecutionEq(t *testing.T) {
+	code := []int{
+		PUSH, 4, //0, 4
+		EQ, 4,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4", val)
+	}
 }

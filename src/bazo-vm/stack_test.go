@@ -1,4 +1,4 @@
-package main
+package bazo_vm
 
 import (
 	"testing"

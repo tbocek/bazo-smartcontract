@@ -1,4 +1,4 @@
-package main
+package bazo_vm
 
 import "fmt"
 
@@ -65,6 +65,49 @@ func (vm *VM) Exec(c []int, trace bool) {
 			right := vm.evaluationStack.Pop()
 			left := vm.evaluationStack.Pop()
 			vm.evaluationStack.Push(left / right)
+
+		case MOD:
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+			vm.evaluationStack.Push(left % right)
+
+		case AND:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+
+			if right == val && left == val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
+		case OR:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+
+			if right == val || left == val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
+		case EQ:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+
+			if right == val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
 
 		case PRINT:
 			val, _ := vm.evaluationStack.Peek()
