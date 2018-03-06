@@ -5,6 +5,9 @@ go:
   - "1.8"
   - "1.10.x"
   - master
+    
+notifications:
+  email: false
 
 notifications:
   email: false
