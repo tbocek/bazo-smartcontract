@@ -193,3 +193,139 @@ func TestProgramExecutionEq(t *testing.T) {
 		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4", val)
 	}
 }
+
+func TestProgramExecutionNeq(t *testing.T) {
+	code := []int{
+		PUSH, 4, //0, 4
+		NEQ, 4,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 0 {
+		t.Errorf("Actual value is %v, sould be 0 after comparing 4 with 4", val)
+	}
+}
+
+func TestProgramExecutionLt(t *testing.T) {
+	code := []int{
+		PUSH, 4, //0, 4
+		LT, 6,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after evaluating 4 < 6", val)
+	}
+}
+
+func TestProgramExecutionGt(t *testing.T) {
+	code := []int{
+		PUSH, 6, //0, 4
+		GT, 4,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 > 4", val)
+	}
+}
+
+func TestProgramExecutionLte(t *testing.T) {
+	code := []int{
+		PUSH, 4, //0, 4
+		LTE, 6,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after evaluating 4 <= 6", val)
+	}
+
+	code1 := []int{
+		PUSH, 6, //0, 4
+		LTE, 6,
+		HALT,
+	}
+
+	vm1 := NewVM()
+	vm1.Exec(code1, true)
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 <= 6", val)
+	}
+}
+
+func TestProgramExecutionGte(t *testing.T) {
+	code := []int{
+		PUSH, 6, //0, 4
+		GTE, 4,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 > 4", val)
+	}
+
+	code1 := []int{
+		PUSH, 6, //0, 4
+		GTE, 6,
+		HALT,
+	}
+
+	vm1 := NewVM()
+	vm1.Exec(code1, true)
+
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 >= 6", val)
+	}
+}

@@ -109,6 +109,66 @@ func (vm *VM) Exec(c []int, trace bool) {
 				vm.evaluationStack.Push(0)
 			}
 
+		case NEQ:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+
+			if right != val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
+		case LT:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+
+			if right < val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
+		case GT:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+
+			if right > val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
+		case LTE:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+
+			if right <= val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
+		case GTE:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			right := vm.evaluationStack.Pop()
+
+			if right >= val {
+				vm.evaluationStack.Push(1)
+			} else {
+				vm.evaluationStack.Push(0)
+			}
+
 		case PRINT:
 			val, _ := vm.evaluationStack.Peek()
 			fmt.Println(val)
