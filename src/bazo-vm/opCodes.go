@@ -7,14 +7,13 @@ const (
 	MULT
 	DIV
 	MOD
-	AND
-	OR
 	EQ
 	NEQ
 	LT
 	GT
 	LTE
 	GTE
+	JMP
 	JMPIF
 	PRINT
 	HALT
@@ -32,14 +31,13 @@ var OpCodes = map[int]OpCode{
 	MULT:  OpCode{"mult", 0},
 	DIV:   OpCode{"div", 0},
 	MOD:   OpCode{"mod", 0},
-	AND:   OpCode{"and", 1},
-	OR:    OpCode{"or", 1},
 	EQ:    OpCode{"eq", 1},
 	NEQ:   OpCode{"neq", 1},
 	LT:    OpCode{"lt", 1},
 	GT:    OpCode{"gt", 1},
 	LTE:   OpCode{"lte", 1},
 	GTE:   OpCode{"gte", 1},
+	JMP:   OpCode{"jmp", 1},
 	JMPIF: OpCode{"jmpif", 1},
 	PRINT: OpCode{"print", 0},
 	HALT:  OpCode{"halt", 0},

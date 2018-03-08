@@ -71,37 +71,11 @@ func (vm *VM) Exec(c []int, trace bool) {
 			left := vm.evaluationStack.Pop()
 			vm.evaluationStack.Push(left % right)
 
-		case AND:
-			val := vm.code[vm.pc]
-			vm.pc++
-
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-
-			if right == val && left == val {
-				vm.evaluationStack.Push(1)
-			} else {
-				vm.evaluationStack.Push(0)
-			}
-
-		case OR:
-			val := vm.code[vm.pc]
-			vm.pc++
-
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-
-			if right == val || left == val {
-				vm.evaluationStack.Push(1)
-			} else {
-				vm.evaluationStack.Push(0)
-			}
-
 		case EQ:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right := vm.evaluationStack.Pop()
+			right, _ := vm.evaluationStack.Peek()
 
 			if right == val {
 				vm.evaluationStack.Push(1)
@@ -113,7 +87,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right := vm.evaluationStack.Pop()
+			right, _ := vm.evaluationStack.Peek()
 
 			if right != val {
 				vm.evaluationStack.Push(1)
@@ -137,7 +111,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right := vm.evaluationStack.Pop()
+			right, _ := vm.evaluationStack.Peek()
 
 			if right > val {
 				vm.evaluationStack.Push(1)
@@ -149,7 +123,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right := vm.evaluationStack.Pop()
+			right, _ := vm.evaluationStack.Peek()
 
 			if right <= val {
 				vm.evaluationStack.Push(1)
@@ -161,13 +135,20 @@ func (vm *VM) Exec(c []int, trace bool) {
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right := vm.evaluationStack.Pop()
+			right, _ := vm.evaluationStack.Peek()
 
 			if right >= val {
 				vm.evaluationStack.Push(1)
 			} else {
 				vm.evaluationStack.Push(0)
 			}
+
+		case JMP:
+			val := vm.code[vm.pc]
+
+			//right := vm.evaluationStack.Pop()
+
+			vm.pc = val
 
 		case JMPIF:
 			val := vm.code[vm.pc]

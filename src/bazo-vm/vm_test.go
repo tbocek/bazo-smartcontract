@@ -126,52 +126,6 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 	vm.Exec(code, true)
 }
 
-func TestProgramExecutionAnd(t *testing.T) {
-	code := []int{
-		PUSH, 4, //0, 4
-		PUSH, 4, //0, 4
-		AND, 4,
-		HALT,
-	}
-
-	vm := NewVM()
-	vm.Exec(code, true)
-
-	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
-
-	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
-	}
-
-	if val != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4", val)
-	}
-}
-
-func TestProgramExecutionOr(t *testing.T) {
-	code := []int{
-		PUSH, 4, //0, 4
-		PUSH, 3, //0, 4
-		OR, 4,
-		HALT,
-	}
-
-	vm := NewVM()
-	vm.Exec(code, true)
-
-	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
-
-	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
-	}
-
-	if val != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4 or 4 with 3", val)
-	}
-}
-
 func TestProgramExecutionEq(t *testing.T) {
 	code := []int{
 		PUSH, 4, //0, 4
@@ -335,7 +289,7 @@ func TestProgramExecutionJmpif(t *testing.T) {
 		PUSH, 3,
 		PUSH, 4,
 		ADD,
-		LT, 20,
+		LT, 15,
 		JMPIF, 2,
 		HALT,
 	}
@@ -350,7 +304,33 @@ func TestProgramExecutionJmpif(t *testing.T) {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
 	}
 
-	if val != 23 {
+	if val != 15 {
 		t.Errorf("Actual value is %v, sould be 23 after executing program", val)
+	}
+}
+
+func TestProgramExecutionJmp(t *testing.T) {
+	code := []int{
+		PUSH, 3,
+		JMP, 10,
+		PUSH, 4,
+		ADD,
+		PUSH, 15,
+		ADD,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 3 {
+		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
 	}
 }
