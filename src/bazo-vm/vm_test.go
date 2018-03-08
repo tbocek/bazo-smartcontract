@@ -329,3 +329,28 @@ func TestProgramExecutionGte(t *testing.T) {
 		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 >= 6", val)
 	}
 }
+
+func TestProgramExecutionJmpif(t *testing.T) {
+	code := []int{
+		PUSH, 3,
+		PUSH, 4,
+		ADD,
+		LT, 20,
+		JMPIF, 2,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if val != 23 {
+		t.Errorf("Actual value is %v, sould be 23 after executing program", val)
+	}
+}

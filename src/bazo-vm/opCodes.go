@@ -15,6 +15,7 @@ const (
 	GT
 	LTE
 	GTE
+	JMPIF
 	PRINT
 	HALT
 )
@@ -30,7 +31,7 @@ var OpCodes = map[int]OpCode{
 	SUB:   OpCode{"sub", 0},
 	MULT:  OpCode{"mult", 0},
 	DIV:   OpCode{"div", 0},
-	MOD:   OpCode{"div", 0},
+	MOD:   OpCode{"mod", 0},
 	AND:   OpCode{"and", 1},
 	OR:    OpCode{"or", 1},
 	EQ:    OpCode{"eq", 1},
@@ -39,6 +40,7 @@ var OpCodes = map[int]OpCode{
 	GT:    OpCode{"gt", 1},
 	LTE:   OpCode{"lte", 1},
 	GTE:   OpCode{"gte", 1},
+	JMPIF: OpCode{"jmpif", 1},
 	PRINT: OpCode{"print", 0},
 	HALT:  OpCode{"halt", 0},
 }

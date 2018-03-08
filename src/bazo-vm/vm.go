@@ -29,7 +29,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 
 	vm.code = c
 
-	// Infinite Loop until break called
+	// Infinite Loop until return called
 	for {
 		if trace {
 			vm.trace()
@@ -125,7 +125,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right := vm.evaluationStack.Pop()
+			right, _ := vm.evaluationStack.Peek()
 
 			if right < val {
 				vm.evaluationStack.Push(1)
@@ -167,6 +167,17 @@ func (vm *VM) Exec(c []int, trace bool) {
 				vm.evaluationStack.Push(1)
 			} else {
 				vm.evaluationStack.Push(0)
+			}
+
+		case JMPIF:
+			val := vm.code[vm.pc]
+
+			right := vm.evaluationStack.Pop()
+
+			if right == 1 {
+				vm.pc = val
+			} else {
+				vm.pc++
 			}
 
 		case PRINT:
