@@ -4,18 +4,20 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"encoding/hex"
+
 	"golang.org/x/crypto/sha3"
 )
 
 type VM struct {
-	code            []int
+	code            []byte
 	pc              int // Program counter
 	evaluationStack Stack
 }
 
 func NewVM(startInstruction int) VM {
 	return VM{
-		code:            []int{},
+		code:            []byte{},
 		pc:              startInstruction,
 		evaluationStack: NewStack(),
 	}
@@ -24,13 +26,13 @@ func NewVM(startInstruction int) VM {
 // Private function, that can be activated by Exec call, useful for debugging
 func (vm *VM) trace() {
 	addr := vm.pc
-	opCode := OpCodes[vm.code[vm.pc]]
+	opCode := OpCodes[int(vm.code[vm.pc])]
 	args := vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 	stack := vm.evaluationStack
 	fmt.Printf("%04d: %s %v \t%v\n", addr, opCode.name, args, stack)
 }
 
-func (vm *VM) Exec(c []int, trace bool) {
+func (vm *VM) Exec(c []byte, trace bool) {
 
 	vm.code = c
 
@@ -46,119 +48,138 @@ func (vm *VM) Exec(c []int, trace bool) {
 
 		// Decode
 		switch opCode {
-		case PUSH:
+		case PUSHI:
+			val := int(vm.code[vm.pc])
+			vm.pc++
+			vm.evaluationStack.PushInt(val)
+
+		case PUSHS:
 			val := vm.code[vm.pc]
 			vm.pc++
-			vm.evaluationStack.Ipush(val)
+
+			firstRun := true
+			word := ""
+			for firstRun == true || val != 0x00 {
+				firstRun = false
+				word += string([]byte{val})
+				val = vm.code[vm.pc]
+				vm.pc++
+			}
+			vm.evaluationStack.PushStr(word)
 
 		case ADD:
-			right := vm.evaluationStack.Ipop()
-			left := vm.evaluationStack.Ipop()
-			vm.evaluationStack.Ipush(left + right)
+			right := vm.evaluationStack.Pop()
+			left := vm.evaluationStack.Pop()
+
+			if left.dataType == STRING && right.dataType == STRING {
+				result := string(left.byteArray) + string(right.byteArray)
+				vm.evaluationStack.PushStr(string(result))
+			}
+
+			if left.dataType == INT && right.dataType == INT {
+				vm.evaluationStack.PushInt(int(left.byteArray[0]) + int(right.byteArray[0]))
+			}
 
 		case SUB:
-			right := vm.evaluationStack.Ipop()
-			left := vm.evaluationStack.Ipop()
-			vm.evaluationStack.Ipush(left - right)
+			right := vm.evaluationStack.PopInt()
+			left := vm.evaluationStack.PopInt()
+			vm.evaluationStack.PushInt(left - right)
 
 		case MULT:
-			right := vm.evaluationStack.Ipop()
-			left := vm.evaluationStack.Ipop()
-			vm.evaluationStack.Ipush(left * right)
+			right := vm.evaluationStack.PopInt()
+			left := vm.evaluationStack.PopInt()
+			vm.evaluationStack.PushInt(left * right)
 
 		case DIV:
-			right := vm.evaluationStack.Ipop()
-			left := vm.evaluationStack.Ipop()
-			vm.evaluationStack.Ipush(left / right)
+			right := vm.evaluationStack.PopInt()
+			left := vm.evaluationStack.PopInt()
+			vm.evaluationStack.PushInt(left / right)
 
 		case MOD:
-			right := vm.evaluationStack.Ipop()
-			left := vm.evaluationStack.Ipop()
-			vm.evaluationStack.Ipush(left % right)
+			right := vm.evaluationStack.PopInt()
+			left := vm.evaluationStack.PopInt()
+			vm.evaluationStack.PushInt(left % right)
 
 		case EQ:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Ipeek()
+			right, _ := vm.evaluationStack.PeekInt()
 
 			if right == val {
-				vm.evaluationStack.Ipush(1)
+				vm.evaluationStack.PushInt(1)
 			} else {
-				vm.evaluationStack.Ipush(0)
+				vm.evaluationStack.PushInt(0)
 			}
 
 		case NEQ:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Ipeek()
+			right, _ := vm.evaluationStack.PeekInt()
 
 			if right != val {
-				vm.evaluationStack.Ipush(1)
+				vm.evaluationStack.PushInt(1)
 			} else {
-				vm.evaluationStack.Ipush(0)
+				vm.evaluationStack.PushInt(0)
 			}
 
 		case LT:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Ipeek()
+			right, _ := vm.evaluationStack.PeekInt()
 
 			if right < val {
-				vm.evaluationStack.Ipush(1)
+				vm.evaluationStack.PushInt(1)
 			} else {
-				vm.evaluationStack.Ipush(0)
+				vm.evaluationStack.PushInt(0)
 			}
 
 		case GT:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Ipeek()
+			right, _ := vm.evaluationStack.PeekInt()
 
 			if right > val {
-				vm.evaluationStack.Ipush(1)
+				vm.evaluationStack.PushInt(1)
 			} else {
-				vm.evaluationStack.Ipush(0)
+				vm.evaluationStack.PushInt(0)
 			}
 
 		case LTE:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Ipeek()
+			right, _ := vm.evaluationStack.PeekInt()
 
 			if right <= val {
-				vm.evaluationStack.Ipush(1)
+				vm.evaluationStack.PushInt(1)
 			} else {
-				vm.evaluationStack.Ipush(0)
+				vm.evaluationStack.PushInt(0)
 			}
 
 		case GTE:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Ipeek()
+			right, _ := vm.evaluationStack.PeekInt()
 
 			if right >= val {
-				vm.evaluationStack.Ipush(1)
+				vm.evaluationStack.PushInt(1)
 			} else {
-				vm.evaluationStack.Ipush(0)
+				vm.evaluationStack.PushInt(0)
 			}
 
 		case JMP:
-			val := vm.code[vm.pc]
-
-			//right := vm.evaluationStack.Ipop()
-
+			val := int(vm.code[vm.pc])
 			vm.pc = val
 
 		case JMPIF:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 
-			right := vm.evaluationStack.Ipop()
+			right := vm.evaluationStack.PopInt()
 
 			if right == 1 {
 				vm.pc = val
@@ -167,7 +188,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 			}
 
 		case SHA3:
-			val := vm.code[vm.pc]
+			val := int(vm.code[vm.pc])
 			vm.pc++
 
 			bs := make([]byte, 4)
@@ -175,10 +196,12 @@ func (vm *VM) Exec(c []int, trace bool) {
 
 			hasher := sha3.New256()
 			hasher.Write(bs)
-			vm.evaluationStack.Push(hasher.Sum(nil))
+
+			sha3_hash := hex.EncodeToString(hasher.Sum(nil))
+			vm.evaluationStack.PushStr(sha3_hash)
 
 		case PRINT:
-			val, _ := vm.evaluationStack.Ipeek()
+			val, _ := vm.evaluationStack.PeekInt()
 			fmt.Println(val)
 
 		case HALT:

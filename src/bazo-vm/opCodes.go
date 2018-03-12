@@ -1,7 +1,8 @@
 package bazo_vm
 
 const (
-	PUSH = iota
+	PUSHI = iota
+	PUSHS
 	ADD
 	SUB
 	MULT
@@ -26,7 +27,8 @@ type OpCode struct {
 }
 
 var OpCodes = map[int]OpCode{
-	PUSH:  OpCode{"push", 1},
+	PUSHI: OpCode{"pushi", 1},
+	PUSHS: OpCode{"pushs", 1},
 	ADD:   OpCode{"add", 0},
 	SUB:   OpCode{"sub", 0},
 	MULT:  OpCode{"mult", 0},

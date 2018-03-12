@@ -1,7 +1,6 @@
 package bazo_vm
 
 import (
-	"encoding/hex"
 	"fmt"
 	"testing"
 )
@@ -19,9 +18,9 @@ func TestNewVM(t *testing.T) {
 }
 
 func TestProgramExecutionAddition(t *testing.T) {
-	code := []int{
-		PUSH, 2, //0, 2
-		PUSH, 3, //0, 3
+	code := []byte{
+		PUSHI, 2, //0, 2
+		PUSHI, 3, //0, 3
 		ADD, //1
 		HALT,
 	}
@@ -30,7 +29,7 @@ func TestProgramExecutionAddition(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -42,9 +41,9 @@ func TestProgramExecutionAddition(t *testing.T) {
 }
 
 func TestProgramExecutionSubtraction(t *testing.T) {
-	code := []int{
-		PUSH, 5, //0, 5
-		PUSH, 2, //0, 2
+	code := []byte{
+		PUSHI, 5, //0, 5
+		PUSHI, 2, //0, 2
 		SUB,
 		HALT,
 	}
@@ -53,7 +52,7 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -65,9 +64,9 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 }
 
 func TestProgramExecutionMultiplication(t *testing.T) {
-	code := []int{
-		PUSH, 5, //0, 5
-		PUSH, 2, //0, 2
+	code := []byte{
+		PUSHI, 5, //0, 5
+		PUSHI, 2, //0, 2
 		MULT,
 		HALT,
 	}
@@ -76,7 +75,7 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -88,9 +87,9 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 }
 
 func TestProgramExecutionDivision(t *testing.T) {
-	code := []int{
-		PUSH, 6, //0, 6
-		PUSH, 2, //0, 2
+	code := []byte{
+		PUSHI, 6, //0, 6
+		PUSHI, 2, //0, 2
 		DIV,
 		HALT,
 	}
@@ -99,7 +98,7 @@ func TestProgramExecutionDivision(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -117,9 +116,9 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 		}
 	}()
 
-	code := []int{
-		PUSH, 6, //0, 6
-		PUSH, 0, //0, 0
+	code := []byte{
+		PUSHI, 6, //0, 6
+		PUSHI, 0, //0, 0
 		DIV,
 		HALT,
 	}
@@ -129,8 +128,8 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 }
 
 func TestProgramExecutionEq(t *testing.T) {
-	code := []int{
-		PUSH, 4, //0, 4
+	code := []byte{
+		PUSHI, 4, //0, 4
 		EQ, 4,
 		HALT,
 	}
@@ -139,7 +138,7 @@ func TestProgramExecutionEq(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -151,8 +150,8 @@ func TestProgramExecutionEq(t *testing.T) {
 }
 
 func TestProgramExecutionNeq(t *testing.T) {
-	code := []int{
-		PUSH, 4, //0, 4
+	code := []byte{
+		PUSHI, 4, //0, 4
 		NEQ, 4,
 		HALT,
 	}
@@ -161,7 +160,7 @@ func TestProgramExecutionNeq(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -173,8 +172,8 @@ func TestProgramExecutionNeq(t *testing.T) {
 }
 
 func TestProgramExecutionLt(t *testing.T) {
-	code := []int{
-		PUSH, 4, //0, 4
+	code := []byte{
+		PUSHI, 4, //0, 4
 		LT, 6,
 		HALT,
 	}
@@ -183,7 +182,7 @@ func TestProgramExecutionLt(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -195,8 +194,8 @@ func TestProgramExecutionLt(t *testing.T) {
 }
 
 func TestProgramExecutionGt(t *testing.T) {
-	code := []int{
-		PUSH, 6, //0, 4
+	code := []byte{
+		PUSHI, 6, //0, 4
 		GT, 4,
 		HALT,
 	}
@@ -205,7 +204,7 @@ func TestProgramExecutionGt(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -217,8 +216,8 @@ func TestProgramExecutionGt(t *testing.T) {
 }
 
 func TestProgramExecutionLte(t *testing.T) {
-	code := []int{
-		PUSH, 4, //0, 4
+	code := []byte{
+		PUSHI, 4, //0, 4
 		LTE, 6,
 		HALT,
 	}
@@ -227,7 +226,7 @@ func TestProgramExecutionLte(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -237,8 +236,8 @@ func TestProgramExecutionLte(t *testing.T) {
 		t.Errorf("Actual value is %v, sould be 1 after evaluating 4 <= 6", val)
 	}
 
-	code1 := []int{
-		PUSH, 6, //0, 4
+	code1 := []byte{
+		PUSHI, 6, //0, 4
 		LTE, 6,
 		HALT,
 	}
@@ -252,8 +251,8 @@ func TestProgramExecutionLte(t *testing.T) {
 }
 
 func TestProgramExecutionGte(t *testing.T) {
-	code := []int{
-		PUSH, 6, //0, 4
+	code := []byte{
+		PUSHI, 6, //0, 4
 		GTE, 4,
 		HALT,
 	}
@@ -262,7 +261,7 @@ func TestProgramExecutionGte(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -272,8 +271,8 @@ func TestProgramExecutionGte(t *testing.T) {
 		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 > 4", val)
 	}
 
-	code1 := []int{
-		PUSH, 6, //0, 4
+	code1 := []byte{
+		PUSHI, 6, //0, 4
 		GTE, 6,
 		HALT,
 	}
@@ -287,9 +286,9 @@ func TestProgramExecutionGte(t *testing.T) {
 }
 
 func TestProgramExecutionJmpif(t *testing.T) {
-	code := []int{
-		PUSH, 3,
-		PUSH, 4,
+	code := []byte{
+		PUSHI, 3,
+		PUSHI, 4,
 		ADD,
 		LT, 15,
 		JMPIF, 2,
@@ -300,7 +299,7 @@ func TestProgramExecutionJmpif(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -312,12 +311,12 @@ func TestProgramExecutionJmpif(t *testing.T) {
 }
 
 func TestProgramExecutionJmp(t *testing.T) {
-	code := []int{
-		PUSH, 3,
+	code := []byte{
+		PUSHI, 3,
 		JMP, 10,
-		PUSH, 4,
+		PUSHI, 4,
 		ADD,
-		PUSH, 15,
+		PUSHI, 15,
 		ADD,
 		HALT,
 	}
@@ -326,7 +325,7 @@ func TestProgramExecutionJmp(t *testing.T) {
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Ipeek()
+	val, err := vm.evaluationStack.PeekInt()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -338,8 +337,8 @@ func TestProgramExecutionJmp(t *testing.T) {
 }
 
 func TestProgramExecutionSha3(t *testing.T) {
-	code := []int{
-		PUSH, 3,
+	code := []byte{
+		PUSHI, 3,
 		SHA3, 5,
 		HALT,
 	}
@@ -347,6 +346,36 @@ func TestProgramExecutionSha3(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(code, true)
 
-	val, _ := vm.evaluationStack.Peek()
-	fmt.Println(hex.EncodeToString(val))
+	val := vm.evaluationStack.PopStr()
+	fmt.Println(val)
+}
+
+func TestProgramExecutionPushs(t *testing.T) {
+	code := []byte{
+		PUSHS, 'a', 'b', 'c', 'd', 0x00,
+		PUSHS, 'x', 'y', 'z', 0x00,
+		PUSHI, 5,
+		HALT,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+}
+
+func TestProgramExecutionAddStrings(t *testing.T) {
+	code := []byte{
+		PUSHS, 'a', 'b', 'c', 'd', 0x00,
+		PUSHS, 'x', 'y', 'z', 0x00,
+		ADD,
+		HALT,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+
+	val := vm.evaluationStack.PopStr()
+
+	if val != "abcdxyz" {
+		t.Errorf("Actual value is %v, sould be abcdxyz after adding string abcd and xyz", val)
+	}
 }
