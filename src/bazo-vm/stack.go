@@ -3,15 +3,18 @@ package bazo_vm
 import (
 	"errors"
 	"log"
+	"encoding/binary"
 )
 
+type byteArray []byte
+
 type Stack struct {
-	stack []int
+	stack []byteArray
 }
 
 func NewStack() Stack {
 	return Stack{
-		stack: []int{},
+		stack: []byteArray{},
 	}
 }
 
@@ -19,26 +22,28 @@ func (s Stack) GetLength() int {
 	return len(s.stack)
 }
 
-func (s *Stack) Push(element int) {
-	s.stack = append(s.stack, element)
+func (s *Stack) Ipush(element int) {
+	ba := make(byteArray, 8)
+	binary.LittleEndian.PutUint64(ba, uint64(element))
+	s.stack = append(s.stack, ba)
 }
 
-func (s *Stack) Pop() (element int) {
+func (s *Stack) Ipop() (element int) {
 	if (*s).GetLength() > 0 {
-		element = (*s).stack[s.GetLength()-1]
+		element = int(binary.LittleEndian.Uint64((*s).stack[s.GetLength()-1]))
 		s.stack = s.stack[:s.GetLength()-1]
 		return element
 	} else {
-		log.Fatal(errors.New("Pop() on empty stack"))
+		log.Fatal(errors.New("Ipop() on empty stack"))
 		return -1
 	}
 }
 
-func (s *Stack) Peek() (element int, err error) {
+func (s *Stack) Ipeek() (element int, err error) {
 	if (*s).GetLength() > 0 {
-		element = (*s).stack[s.GetLength()-1]
+		element = int(binary.LittleEndian.Uint64((*s).stack[s.GetLength()-1]))
 		return element, nil
 	} else {
-		return -1, errors.New("Peek() on empty stack!")
+		return -1, errors.New("Ipeek() on empty stack!")
 	}
 }

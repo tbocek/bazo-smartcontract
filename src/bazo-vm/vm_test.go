@@ -5,7 +5,7 @@ import (
 )
 
 func TestNewVM(t *testing.T) {
-	vm := NewVM()
+	vm := NewVM(0)
 
 	if len(vm.code) > 0 {
 		t.Errorf("Actual code length is %v, should be 0 after initialization", len(vm.code))
@@ -24,11 +24,11 @@ func TestProgramExecutionAddition(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -47,11 +47,11 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -70,11 +70,11 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -93,11 +93,11 @@ func TestProgramExecutionDivision(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -122,7 +122,7 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 }
 
@@ -133,11 +133,11 @@ func TestProgramExecutionEq(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -155,11 +155,11 @@ func TestProgramExecutionNeq(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -177,11 +177,11 @@ func TestProgramExecutionLt(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -199,11 +199,11 @@ func TestProgramExecutionGt(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -221,11 +221,11 @@ func TestProgramExecutionLte(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -241,7 +241,7 @@ func TestProgramExecutionLte(t *testing.T) {
 		HALT,
 	}
 
-	vm1 := NewVM()
+	vm1 := NewVM(0)
 	vm1.Exec(code1, true)
 
 	if val != 1 {
@@ -256,11 +256,11 @@ func TestProgramExecutionGte(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -276,7 +276,7 @@ func TestProgramExecutionGte(t *testing.T) {
 		HALT,
 	}
 
-	vm1 := NewVM()
+	vm1 := NewVM(0)
 	vm1.Exec(code1, true)
 
 	if val != 1 {
@@ -294,11 +294,11 @@ func TestProgramExecutionJmpif(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
@@ -320,11 +320,11 @@ func TestProgramExecutionJmp(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM()
+	vm := NewVM(0)
 	vm.Exec(code, true)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
+	val, err := vm.evaluationStack.Ipeek()
 
 	if err != nil {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")

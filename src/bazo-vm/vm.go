@@ -8,10 +8,10 @@ type VM struct {
 	evaluationStack Stack
 }
 
-func NewVM() VM {
+func NewVM(startInstruction int) VM {
 	return VM{
 		code:            []int{},
-		pc:              0,
+		pc:              startInstruction,
 		evaluationStack: NewStack(),
 	}
 }
@@ -44,116 +44,116 @@ func (vm *VM) Exec(c []int, trace bool) {
 		case PUSH:
 			val := vm.code[vm.pc]
 			vm.pc++
-			vm.evaluationStack.Push(val)
+			vm.evaluationStack.Ipush(val)
 
 		case ADD:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-			vm.evaluationStack.Push(left + right)
+			right := vm.evaluationStack.Ipop()
+			left := vm.evaluationStack.Ipop()
+			vm.evaluationStack.Ipush(left + right)
 
 		case SUB:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-			vm.evaluationStack.Push(left - right)
+			right := vm.evaluationStack.Ipop()
+			left := vm.evaluationStack.Ipop()
+			vm.evaluationStack.Ipush(left - right)
 
 		case MULT:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-			vm.evaluationStack.Push(left * right)
+			right := vm.evaluationStack.Ipop()
+			left := vm.evaluationStack.Ipop()
+			vm.evaluationStack.Ipush(left * right)
 
 		case DIV:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-			vm.evaluationStack.Push(left / right)
+			right := vm.evaluationStack.Ipop()
+			left := vm.evaluationStack.Ipop()
+			vm.evaluationStack.Ipush(left / right)
 
 		case MOD:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
-			vm.evaluationStack.Push(left % right)
+			right := vm.evaluationStack.Ipop()
+			left := vm.evaluationStack.Ipop()
+			vm.evaluationStack.Ipush(left % right)
 
 		case EQ:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Peek()
+			right, _ := vm.evaluationStack.Ipeek()
 
 			if right == val {
-				vm.evaluationStack.Push(1)
+				vm.evaluationStack.Ipush(1)
 			} else {
-				vm.evaluationStack.Push(0)
+				vm.evaluationStack.Ipush(0)
 			}
 
 		case NEQ:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Peek()
+			right, _ := vm.evaluationStack.Ipeek()
 
 			if right != val {
-				vm.evaluationStack.Push(1)
+				vm.evaluationStack.Ipush(1)
 			} else {
-				vm.evaluationStack.Push(0)
+				vm.evaluationStack.Ipush(0)
 			}
 
 		case LT:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Peek()
+			right, _ := vm.evaluationStack.Ipeek()
 
 			if right < val {
-				vm.evaluationStack.Push(1)
+				vm.evaluationStack.Ipush(1)
 			} else {
-				vm.evaluationStack.Push(0)
+				vm.evaluationStack.Ipush(0)
 			}
 
 		case GT:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Peek()
+			right, _ := vm.evaluationStack.Ipeek()
 
 			if right > val {
-				vm.evaluationStack.Push(1)
+				vm.evaluationStack.Ipush(1)
 			} else {
-				vm.evaluationStack.Push(0)
+				vm.evaluationStack.Ipush(0)
 			}
 
 		case LTE:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Peek()
+			right, _ := vm.evaluationStack.Ipeek()
 
 			if right <= val {
-				vm.evaluationStack.Push(1)
+				vm.evaluationStack.Ipush(1)
 			} else {
-				vm.evaluationStack.Push(0)
+				vm.evaluationStack.Ipush(0)
 			}
 
 		case GTE:
 			val := vm.code[vm.pc]
 			vm.pc++
 
-			right, _ := vm.evaluationStack.Peek()
+			right, _ := vm.evaluationStack.Ipeek()
 
 			if right >= val {
-				vm.evaluationStack.Push(1)
+				vm.evaluationStack.Ipush(1)
 			} else {
-				vm.evaluationStack.Push(0)
+				vm.evaluationStack.Ipush(0)
 			}
 
 		case JMP:
 			val := vm.code[vm.pc]
 
-			//right := vm.evaluationStack.Pop()
+			//right := vm.evaluationStack.Ipop()
 
 			vm.pc = val
 
 		case JMPIF:
 			val := vm.code[vm.pc]
 
-			right := vm.evaluationStack.Pop()
+			right := vm.evaluationStack.Ipop()
 
 			if right == 1 {
 				vm.pc = val
@@ -162,7 +162,7 @@ func (vm *VM) Exec(c []int, trace bool) {
 			}
 
 		case PRINT:
-			val, _ := vm.evaluationStack.Peek()
+			val, _ := vm.evaluationStack.Ipeek()
 			fmt.Println(val)
 
 		case HALT:
