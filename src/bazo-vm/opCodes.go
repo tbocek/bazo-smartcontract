@@ -15,6 +15,7 @@ const (
 	GTE
 	JMP
 	JMPIF
+	SHA3
 	PRINT
 	HALT
 )
@@ -39,6 +40,7 @@ var OpCodes = map[int]OpCode{
 	GTE:   OpCode{"gte", 1},
 	JMP:   OpCode{"jmp", 1},
 	JMPIF: OpCode{"jmpif", 1},
+	SHA3:  OpCode{"sha3", 1},
 	PRINT: OpCode{"print", 0},
 	HALT:  OpCode{"halt", 0},
 }

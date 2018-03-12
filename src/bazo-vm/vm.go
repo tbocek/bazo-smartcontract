@@ -1,6 +1,11 @@
 package bazo_vm
 
-import "fmt"
+import (
+	"encoding/binary"
+	"fmt"
+
+	"golang.org/x/crypto/sha3"
+)
 
 type VM struct {
 	code            []int
@@ -160,6 +165,17 @@ func (vm *VM) Exec(c []int, trace bool) {
 			} else {
 				vm.pc++
 			}
+
+		case SHA3:
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			bs := make([]byte, 4)
+			binary.LittleEndian.PutUint32(bs, uint32(val))
+
+			hasher := sha3.New256()
+			hasher.Write(bs)
+			vm.evaluationStack.Push(hasher.Sum(nil))
 
 		case PRINT:
 			val, _ := vm.evaluationStack.Ipeek()

@@ -1,6 +1,8 @@
 package bazo_vm
 
 import (
+	"encoding/hex"
+	"fmt"
 	"testing"
 )
 
@@ -333,4 +335,18 @@ func TestProgramExecutionJmp(t *testing.T) {
 	if val != 3 {
 		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
 	}
+}
+
+func TestProgramExecutionSha3(t *testing.T) {
+	code := []int{
+		PUSH, 3,
+		SHA3, 5,
+		HALT,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+
+	val, _ := vm.evaluationStack.Peek()
+	fmt.Println(hex.EncodeToString(val))
 }
