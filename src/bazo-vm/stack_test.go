@@ -37,10 +37,9 @@ func TestStackPopStr(t *testing.T) {
 
 	s.PushStr("asdfasdf")
 	val := s.PopStr()
-	fmt.Println(val)
 
 	if val != "asdfasdf" {
-		t.Errorf("askdöhfk", s.GetLength())
+		t.Errorf("Expected asdfasdf but value was %v ", val)
 	}
 }
 
