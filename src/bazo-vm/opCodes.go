@@ -28,7 +28,7 @@ type OpCode struct {
 
 type instruction struct {
 	opCode byte
-	args   byteArray
+	args   []byte
 }
 
 var OpCodes = map[int]OpCode{
