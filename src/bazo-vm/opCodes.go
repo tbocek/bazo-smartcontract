@@ -14,6 +14,8 @@ const (
 	GT
 	LTE
 	GTE
+	SHIFTL
+	SHIFTR
 	JMP
 	JMPIF
 	SHA3
@@ -28,7 +30,7 @@ type OpCode struct {
 
 type instruction struct {
 	opCode byte
-	args   byteArray
+	args   []byte
 }
 
 var OpCodes = map[int]OpCode{
@@ -45,6 +47,8 @@ var OpCodes = map[int]OpCode{
 	GT:    OpCode{"gt", 1},
 	LTE:   OpCode{"lte", 1},
 	GTE:   OpCode{"gte", 1},
+	SHIFTL:{"shiftl",1},
+	SHIFTR:{"shiftl",1},
 	JMP:   OpCode{"jmp", 1},
 	JMPIF: OpCode{"jmpif", 1},
 	SHA3:  OpCode{"sha3", 1},

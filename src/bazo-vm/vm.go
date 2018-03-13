@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"golang.org/x/crypto/sha3"
+	"encoding/binary"
 )
 
 type VM struct {
@@ -142,6 +143,22 @@ func (vm *VM) Exec(c []instruction, trace bool) {
 			} else {
 				vm.evaluationStack.PushInt(0)
 			}
+
+		case SHIFTL:
+			var nrOfShifts uint64 = binary.LittleEndian.Uint64(args)
+			ba := vm.evaluationStack.Pop().byteArray
+			value := ByteArrayToInt(ba)
+			value = value << nrOfShifts
+			vm.evaluationStack.Push(INT, IntToByteArray(value))
+
+		case SHIFTR:
+			var nrOfShifts uint64 = binary.LittleEndian.Uint64(args)
+			ba := vm.evaluationStack.Pop().byteArray
+
+			value := ByteArrayToInt(ba)
+			value = value >> nrOfShifts
+			vm.evaluationStack.Push(INT, IntToByteArray(value))
+
 
 		case JMP:
 			val := ByteArrayToInt(args)

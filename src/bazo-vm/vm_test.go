@@ -21,12 +21,12 @@ func TestProgramExecutionAddition(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(50)},
 		{PUSHI, IntToByteArray(3)},
-		{ADD, byteArray{}},
-		{HALT, byteArray{}},
+		{ADD, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -45,12 +45,12 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(5)},
 		{PUSHI, IntToByteArray(2)},
-		{SUB, byteArray{}},
-		{HALT, byteArray{}},
+		{SUB, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -68,12 +68,12 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(5)},
 		{PUSHI, IntToByteArray(2)},
-		{MULT, byteArray{}},
-		{HALT, byteArray{}},
+		{MULT, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -91,12 +91,12 @@ func TestProgramExecutionDivision(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(2)},
-		{DIV, byteArray{}},
-		{HALT, byteArray{}},
+		{DIV, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -120,24 +120,24 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(0)},
-		{DIV, byteArray{}},
-		{HALT, byteArray{}},
+		{DIV, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 }
 
 func TestProgramExecutionEq(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(6)},
-		{EQ, byteArray{}},
-		{HALT, byteArray{}},
+		{EQ, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -155,12 +155,12 @@ func TestProgramExecutionNeq(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(5)},
-		{NEQ, byteArray{}},
-		{HALT, byteArray{}},
+		{NEQ, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -178,12 +178,12 @@ func TestProgramExecutionLt(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(4)},
 		{PUSHI, IntToByteArray(6)},
-		{LT, byteArray{}},
-		{HALT, byteArray{}},
+		{LT, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -201,12 +201,12 @@ func TestProgramExecutionGt(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(4)},
-		{GT, byteArray{}},
-		{HALT, byteArray{}},
+		{GT, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -224,12 +224,12 @@ func TestProgramExecutionLte(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(4)},
 		{PUSHI, IntToByteArray(6)},
-		{LTE, byteArray{}},
-		{HALT, byteArray{}},
+		{LTE, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -245,12 +245,12 @@ func TestProgramExecutionLte(t *testing.T) {
 	code1 := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(6)},
-		{LTE, byteArray{}},
-		{HALT, byteArray{}},
+		{LTE, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm1 := NewVM(0)
-	vm1.Exec(code1, true)
+	vm1.Exec(code1, false)
 
 	if val != 1 {
 		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 <= 6", val)
@@ -261,12 +261,12 @@ func TestProgramExecutionGte(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(4)},
-		{GTE, byteArray{}},
-		{HALT, byteArray{}},
+		{GTE, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -282,15 +282,49 @@ func TestProgramExecutionGte(t *testing.T) {
 	code1 := []instruction{
 		{PUSHI, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(6)},
-		{GTE, byteArray{}},
-		{HALT, byteArray{}},
+		{GTE, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm1 := NewVM(0)
-	vm1.Exec(code1, true)
+	vm1.Exec(code1, false)
 
 	if val != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 >= 6", val)
+		t.Errorf("Actual value is %v, should be 1 after evaluating 6 >= 6", val)
+	}
+}
+
+func TestProgramExectuionShiftl(t *testing.T) {
+	code := []instruction{
+		{PUSHI, IntToByteArray(1)},
+		{SHIFTL, IntToByteArray(3)},
+		{HALT, []byte{}},
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, false)
+
+	result := ByteArrayToInt(vm.evaluationStack.Pop().byteArray)
+
+	if result != 8 {
+		t.Errorf("Expected result to be 8 but was %v", result)
+	}
+}
+
+func TestProgramExectuionShiftr(t *testing.T) {
+	code := []instruction{
+		{PUSHI, IntToByteArray(8)},
+		{SHIFTR, IntToByteArray(3)},
+		{HALT, []byte{}},
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, false)
+
+	result := ByteArrayToInt(vm.evaluationStack.Pop().byteArray)
+
+	if result != 1 {
+		t.Errorf("Expected result to be 1 but was %v", result)
 	}
 }
 
@@ -298,19 +332,19 @@ func TestProgramExecutionJmpif(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(3)},
 		{PUSHI, IntToByteArray(4)},
-		{ADD, byteArray{}},
+		{ADD, []byte{}},
 		{PUSHI, IntToByteArray(15)},
-		{LT, byteArray{}},
+		{LT, []byte{}},
 		{JMPIF, IntToByteArray(7)},
 		{PUSHI, IntToByteArray(456)},
 		{PUSHI, IntToByteArray(10)},
 		{PUSHI, IntToByteArray(10)},
-		{ADD, byteArray{}},
-		{HALT, byteArray{}},
+		{ADD, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -329,14 +363,14 @@ func TestProgramExecutionJmp(t *testing.T) {
 		{PUSHI, IntToByteArray(3)},
 		{JMP, IntToByteArray(6)},
 		{PUSHI, IntToByteArray(4)},
-		{ADD, byteArray{}},
+		{ADD, []byte{}},
 		{PUSHI, IntToByteArray(15)},
-		{ADD, byteArray{}},
-		{HALT, byteArray{}},
+		{ADD, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.PeekInt()
@@ -353,15 +387,14 @@ func TestProgramExecutionJmp(t *testing.T) {
 func TestProgramExecutionSha3(t *testing.T) {
 	code := []instruction{
 		{PUSHI, IntToByteArray(3)},
-		{SHA3, byteArray{}},
-		{HALT, byteArray{}},
+		{SHA3, []byte{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	val := vm.evaluationStack.PopStr()
-	fmt.Println(val)
 
 	if val != "8dfdf0627f9577b519a37dd574796c2110717e5ffe213df69c7cf0dab8853427" {
 		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
@@ -373,11 +406,11 @@ func TestProgramExecutionPushs(t *testing.T) {
 		{PUSHS, StrToByteArray("Lecker")},
 		{PUSHS, StrToByteArray("Bierchen")},
 		{PUSHS, StrToByteArray("trinken")},
-		{HALT, byteArray{}},
+		{HALT, []byte{}},
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	vm.evaluationStack.PopStr()
 	second := vm.evaluationStack.PopStr()
