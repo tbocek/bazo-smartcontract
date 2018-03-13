@@ -26,6 +26,11 @@ type OpCode struct {
 	nargs int
 }
 
+type instruction struct {
+	opCode byte
+	args   byteArray
+}
+
 var OpCodes = map[int]OpCode{
 	PUSHI: OpCode{"pushi", 1},
 	PUSHS: OpCode{"pushs", 1},

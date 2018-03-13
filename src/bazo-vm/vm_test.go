@@ -18,11 +18,11 @@ func TestNewVM(t *testing.T) {
 }
 
 func TestProgramExecutionAddition(t *testing.T) {
-	code := []byte{
-		PUSHI, 2, //0, 2
-		PUSHI, 3, //0, 3
-		ADD, //1
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(50)},
+		{PUSHI, IntToByteArray(3)},
+		{ADD, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -35,17 +35,18 @@ func TestProgramExecutionAddition(t *testing.T) {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
 	}
 
-	if val != 5 {
-		t.Errorf("Actual value is %v, sould be 5 after adding up 2 and 3", val)
+	if val != 53 {
+		t.Errorf("Actual value is %v, sould be 53 after adding up 50 and 3", val)
 	}
+	fmt.Println(val)
 }
 
 func TestProgramExecutionSubtraction(t *testing.T) {
-	code := []byte{
-		PUSHI, 5, //0, 5
-		PUSHI, 2, //0, 2
-		SUB,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(5)},
+		{PUSHI, IntToByteArray(2)},
+		{SUB, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -64,11 +65,11 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 }
 
 func TestProgramExecutionMultiplication(t *testing.T) {
-	code := []byte{
-		PUSHI, 5, //0, 5
-		PUSHI, 2, //0, 2
-		MULT,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(5)},
+		{PUSHI, IntToByteArray(2)},
+		{MULT, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -87,11 +88,11 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 }
 
 func TestProgramExecutionDivision(t *testing.T) {
-	code := []byte{
-		PUSHI, 6, //0, 6
-		PUSHI, 2, //0, 2
-		DIV,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(2)},
+		{DIV, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -116,11 +117,11 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 		}
 	}()
 
-	code := []byte{
-		PUSHI, 6, //0, 6
-		PUSHI, 0, //0, 0
-		DIV,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(0)},
+		{DIV, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -128,10 +129,11 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 }
 
 func TestProgramExecutionEq(t *testing.T) {
-	code := []byte{
-		PUSHI, 4, //0, 4
-		EQ, 4,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(6)},
+		{EQ, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -150,10 +152,11 @@ func TestProgramExecutionEq(t *testing.T) {
 }
 
 func TestProgramExecutionNeq(t *testing.T) {
-	code := []byte{
-		PUSHI, 4, //0, 4
-		NEQ, 4,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(5)},
+		{NEQ, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -166,16 +169,17 @@ func TestProgramExecutionNeq(t *testing.T) {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
 	}
 
-	if val != 0 {
-		t.Errorf("Actual value is %v, sould be 0 after comparing 4 with 4", val)
+	if val != 1 {
+		t.Errorf("Actual value is %v, sould be 1 after comparing 6 with 5 to not be equal", val)
 	}
 }
 
 func TestProgramExecutionLt(t *testing.T) {
-	code := []byte{
-		PUSHI, 4, //0, 4
-		LT, 6,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(4)},
+		{PUSHI, IntToByteArray(6)},
+		{LT, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -194,10 +198,11 @@ func TestProgramExecutionLt(t *testing.T) {
 }
 
 func TestProgramExecutionGt(t *testing.T) {
-	code := []byte{
-		PUSHI, 6, //0, 4
-		GT, 4,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(4)},
+		{GT, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -216,10 +221,11 @@ func TestProgramExecutionGt(t *testing.T) {
 }
 
 func TestProgramExecutionLte(t *testing.T) {
-	code := []byte{
-		PUSHI, 4, //0, 4
-		LTE, 6,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(4)},
+		{PUSHI, IntToByteArray(6)},
+		{LTE, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -236,10 +242,11 @@ func TestProgramExecutionLte(t *testing.T) {
 		t.Errorf("Actual value is %v, sould be 1 after evaluating 4 <= 6", val)
 	}
 
-	code1 := []byte{
-		PUSHI, 6, //0, 4
-		LTE, 6,
-		HALT,
+	code1 := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(6)},
+		{LTE, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm1 := NewVM(0)
@@ -251,10 +258,11 @@ func TestProgramExecutionLte(t *testing.T) {
 }
 
 func TestProgramExecutionGte(t *testing.T) {
-	code := []byte{
-		PUSHI, 6, //0, 4
-		GTE, 4,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(4)},
+		{GTE, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -271,10 +279,11 @@ func TestProgramExecutionGte(t *testing.T) {
 		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 > 4", val)
 	}
 
-	code1 := []byte{
-		PUSHI, 6, //0, 4
-		GTE, 6,
-		HALT,
+	code1 := []instruction{
+		{PUSHI, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(6)},
+		{GTE, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm1 := NewVM(0)
@@ -286,13 +295,18 @@ func TestProgramExecutionGte(t *testing.T) {
 }
 
 func TestProgramExecutionJmpif(t *testing.T) {
-	code := []byte{
-		PUSHI, 3,
-		PUSHI, 4,
-		ADD,
-		LT, 15,
-		JMPIF, 2,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(3)},
+		{PUSHI, IntToByteArray(4)},
+		{ADD, byteArray{}},
+		{PUSHI, IntToByteArray(15)},
+		{LT, byteArray{}},
+		{JMPIF, IntToByteArray(7)},
+		{PUSHI, IntToByteArray(456)},
+		{PUSHI, IntToByteArray(10)},
+		{PUSHI, IntToByteArray(10)},
+		{ADD, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -305,20 +319,20 @@ func TestProgramExecutionJmpif(t *testing.T) {
 		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
 	}
 
-	if val != 15 {
-		t.Errorf("Actual value is %v, sould be 23 after executing program", val)
+	if val != 20 {
+		t.Errorf("Actual value is %v, sould be 20 after executing program", val)
 	}
 }
 
 func TestProgramExecutionJmp(t *testing.T) {
-	code := []byte{
-		PUSHI, 3,
-		JMP, 10,
-		PUSHI, 4,
-		ADD,
-		PUSHI, 15,
-		ADD,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(3)},
+		{JMP, IntToByteArray(6)},
+		{PUSHI, IntToByteArray(4)},
+		{ADD, byteArray{}},
+		{PUSHI, IntToByteArray(15)},
+		{ADD, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -337,10 +351,10 @@ func TestProgramExecutionJmp(t *testing.T) {
 }
 
 func TestProgramExecutionSha3(t *testing.T) {
-	code := []byte{
-		PUSHI, 3,
-		SHA3, 5,
-		HALT,
+	code := []instruction{
+		{PUSHI, IntToByteArray(3)},
+		{SHA3, byteArray{}},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
@@ -348,34 +362,27 @@ func TestProgramExecutionSha3(t *testing.T) {
 
 	val := vm.evaluationStack.PopStr()
 	fmt.Println(val)
+
+	if val != "8dfdf0627f9577b519a37dd574796c2110717e5ffe213df69c7cf0dab8853427" {
+		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
+	}
 }
 
 func TestProgramExecutionPushs(t *testing.T) {
-	code := []byte{
-		PUSHS, 'a', 'b', 'c', 'd', 0x00,
-		PUSHS, 'x', 'y', 'z', 0x00,
-		PUSHI, 5,
-		HALT,
-	}
-
-	vm := NewVM(0)
-	vm.Exec(code, true)
-}
-
-func TestProgramExecutionAddStrings(t *testing.T) {
-	code := []byte{
-		PUSHS, 'a', 'b', 'c', 'd', 0x00,
-		PUSHS, 'x', 'y', 'z', 0x00,
-		ADD,
-		HALT,
+	code := []instruction{
+		{PUSHS, StrToByteArray("Lecker")},
+		{PUSHS, StrToByteArray("Bierchen")},
+		{PUSHS, StrToByteArray("trinken")},
+		{HALT, byteArray{}},
 	}
 
 	vm := NewVM(0)
 	vm.Exec(code, true)
 
-	val := vm.evaluationStack.PopStr()
+	vm.evaluationStack.PopStr()
+	second := vm.evaluationStack.PopStr()
 
-	if val != "abcdxyz" {
-		t.Errorf("Actual value is %v, sould be abcdxyz after adding string abcd and xyz", val)
+	if second != "Bierchen" {
+		t.Errorf("Actual value is %s, sould be 'Bierchen' after popping string", second)
 	}
 }

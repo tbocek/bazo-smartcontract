@@ -34,19 +34,16 @@ func (s Stack) GetLength() int {
 	return len(s.stack)
 }
 
-func (s *Stack) Push(element stackItem) {
-	s.stack = append(s.stack, element)
+func (s *Stack) Push(dataType byte, element byteArray) {
+	s.stack = append(s.stack, stackItem{dataType, element})
 }
 
 func (s *Stack) PushInt(element int) {
-	ba := make(byteArray, 8)
-	binary.LittleEndian.PutUint64(ba, uint64(element))
-	(*s).Push(stackItem{INT, ba})
+	(*s).Push(INT, IntToByteArray(element))
 }
 
 func (s *Stack) PushStr(element string) {
-	ba := []byte(element)
-	(*s).Push(stackItem{STRING, ba})
+	(*s).Push(STRING, StrToByteArray(element))
 }
 
 func (s *Stack) Pop() (element stackItem) {
@@ -91,12 +88,12 @@ func (s *Stack) PeekInt() (element int, err error) {
 	}
 }
 
-func (s *Stack) Peek() (element byteArray, err error) {
+func (s *Stack) Peek() (element stackItem, err error) {
 	if (*s).GetLength() > 0 {
-		element = (*s).stack[s.GetLength()-1].byteArray
+		element = (*s).stack[s.GetLength()-1]
 		return element, nil
 	} else {
-		return byteArray{}, errors.New("Peek() on empty stack!")
+		return stackItem{}, errors.New("Peek() on empty stack!")
 	}
 }
 
@@ -108,12 +105,7 @@ func (s Stack) String() string {
 			result += ", "
 		}
 		firstRun = false
-		switch item.dataType {
-		case INT:
-			result = fmt.Sprint(result, int(binary.LittleEndian.Uint64(item.byteArray)))
-		case STRING:
-			result = fmt.Sprint(result, string(item.byteArray[:]))
-		}
+		result = fmt.Sprint(result, formatData(item.dataType, item.byteArray))
 	}
 	result += "]"
 	return result
