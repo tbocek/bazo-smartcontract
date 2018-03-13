@@ -13,11 +13,9 @@ const (
 	STRING
 )
 
-type byteArray []byte
-
 type stackItem struct {
 	dataType  byte
-	byteArray byteArray
+	byteArray []byte
 }
 
 type Stack struct {
@@ -34,7 +32,7 @@ func (s Stack) GetLength() int {
 	return len(s.stack)
 }
 
-func (s *Stack) Push(dataType byte, element byteArray) {
+func (s *Stack) Push(dataType byte, element []byte) {
 	s.stack = append(s.stack, stackItem{dataType, element})
 }
 
@@ -97,6 +95,7 @@ func (s *Stack) Peek() (element stackItem, err error) {
 	}
 }
 
+// Implement String Method to format Stack printout with data formated according datatypes
 func (s Stack) String() string {
 	result := "["
 	firstRun := true
