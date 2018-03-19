@@ -28,6 +28,7 @@ type Account struct {
 	HashedSeed         [32]byte // 32 Byte
 	StakingBlockHeight uint32   // 4 Byte
 	data 			   [2048]byte
+	meth Method
 }
 
 func NewAccount(address [64]byte, balance uint64, isStaking bool, hashedSeed [32]byte) Account {
