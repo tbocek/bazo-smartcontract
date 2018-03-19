@@ -93,12 +93,11 @@ func (vm *VM) Exec(c []byte, trace bool) {
 			result := ByteArrayToInt(left) + ByteArrayToInt(right)
 			vm.evaluationStack.Push(IntToByteArray(result))
 
-			/*
-				case SUB:
-					right := vm.evaluationStack.PopInt()
-					left := vm.evaluationStack.PopInt()
-					vm.evaluationStack.PushInt(left - right)
-
+		case SUB:
+			right := ByteArrayToInt(vm.evaluationStack.Pop())
+			left := ByteArrayToInt(vm.evaluationStack.Pop())
+			vm.evaluationStack.Push(IntToByteArray(left - right))
+/*
 				case MULT:
 					right := vm.evaluationStack.PopInt()
 					left := vm.evaluationStack.PopInt()

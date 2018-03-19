@@ -26,7 +26,7 @@ func TestProgramExecutionAddition(t *testing.T) {
 	}
 
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.Peek()
@@ -40,28 +40,25 @@ func TestProgramExecutionAddition(t *testing.T) {
 	}
 }
 
-/*func TestProgramExecutionSubtraction(t *testing.T) {
-	code := []instruction{
-		{PUSHI, IntToByteArray(5)},
-		{PUSHI, IntToByteArray(2)},
-		{SUB, []byte{}},
-		{HALT, []byte{}},
+func TestProgramExecutionSubtraction(t *testing.T) {
+	code := []byte{
+		PUSH, 8, 5, 0, 0, 0, 0, 0, 0, 0,
+		PUSH, 8, 2, 0, 0, 0, 0, 0, 0, 0,
+		SUB,
+		HALT,
 	}
 
 	vm := NewVM(0)
 	vm.Exec(code, false)
 
 	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.PeekInt()
-
-	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
-	}
+	val := ByteArrayToInt(vm.evaluationStack.Pop())
 
 	if val != 3 {
 		t.Errorf("Actual value is %v, sould be 3 after subtracting 2 from 5", val)
 	}
 }
+/*
 
 func TestProgramExecutionMultiplication(t *testing.T) {
 	code := []instruction{
