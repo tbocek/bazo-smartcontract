@@ -1,7 +1,6 @@
 package bazo_vm
 
 import (
-	"encoding/hex"
 	"fmt"
 	"reflect"
 
@@ -9,14 +8,14 @@ import (
 )
 
 type VM struct {
-	code            []instruction
+	code            []byte
 	pc              int // Program counter
 	evaluationStack Stack
 }
 
 func NewVM(startInstruction int) VM {
 	return VM{
-		code:            []instruction{},
+		code:            []byte{},
 		pc:              startInstruction,
 		evaluationStack: NewStack(),
 	}
@@ -25,13 +24,13 @@ func NewVM(startInstruction int) VM {
 // Private function, that can be activated by Exec call, useful for debugging
 func (vm *VM) trace() {
 	addr := vm.pc
-	opCode := OpCodes[int(vm.code[vm.pc].opCode)]
-	args := vm.code[vm.pc].args
+	opCode := OpCodes[int(vm.code[vm.pc])]
+	args := vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 	stack := vm.evaluationStack
 	fmt.Printf("%04d: %s %v \t%v\n", addr, opCode.name, args, stack)
 }
 
-func (vm *VM) Exec(c []instruction, trace bool) {
+func (vm *VM) Exec(c []byte, trace bool) {
 
 	vm.code = c
 
@@ -42,116 +41,143 @@ func (vm *VM) Exec(c []instruction, trace bool) {
 			vm.trace()
 		}
 		// Fetch
-		opCode := vm.code[vm.pc].opCode
-		args := vm.code[vm.pc].args
-
+		opCode := vm.code[vm.pc]
 		vm.pc++
 
 		// Decode
 		switch opCode {
-		case PUSHI:
-			val := args
-			vm.evaluationStack.Push(INT, val)
+		case PUSH:
+			byteCount := int(vm.code[vm.pc]) // Amount of bytes pushed
+			vm.pc++                          // First byte
+
+			var ba []byte
+			for i := 0; i < byteCount; i++ {
+				val := vm.code[vm.pc]
+				ba = append(ba, val)
+				vm.pc++
+			}
+			vm.evaluationStack.Push(ba)
 
 		case PUSHS:
-			val := args
-			vm.evaluationStack.Push(STRING, val)
+			val := vm.code[vm.pc]
+			vm.pc++
+
+			firstRun := true
+			var byteArray []byte
+			for firstRun == true || val != 0x00 {
+				firstRun = false
+				byteArray = append(byteArray, val)
+				val = vm.code[vm.pc]
+				vm.pc++
+			}
+			vm.evaluationStack.Push(byteArray)
 
 		case ADD:
-
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
-			vm.evaluationStack.PushInt(left + right)
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			result := ByteArrayToInt(left) + ByteArrayToInt(right)
+			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case SUB:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
-			vm.evaluationStack.PushInt(left - right)
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			result := ByteArrayToInt(left) - ByteArrayToInt(right)
+			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case MULT:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
-			vm.evaluationStack.PushInt(left * right)
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			result := ByteArrayToInt(left) * ByteArrayToInt(right)
+			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case DIV:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
-			vm.evaluationStack.PushInt(left / right)
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			result := ByteArrayToInt(left) / ByteArrayToInt(right)
+			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case MOD:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
-			vm.evaluationStack.PushInt(left % right)
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			result := ByteArrayToInt(left) % ByteArrayToInt(right)
+			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case EQ:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
 
-			if reflect.DeepEqual(left.byteArray, right.byteArray) {
-				vm.evaluationStack.PushInt(1)
+			if reflect.DeepEqual(left, right) {
+				vm.evaluationStack.Push(IntToByteArray(1))
 			} else {
-				vm.evaluationStack.PushInt(0)
+				vm.evaluationStack.Push(IntToByteArray(0))
 			}
 
 		case NEQ:
-			right := vm.evaluationStack.Pop()
-			left := vm.evaluationStack.Pop()
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
 
-			if reflect.DeepEqual(left.byteArray, right.byteArray) {
-				vm.evaluationStack.PushInt(0)
+			if reflect.DeepEqual(left, right) {
+				vm.evaluationStack.Push(IntToByteArray(0))
 			} else {
-				vm.evaluationStack.PushInt(1)
+				vm.evaluationStack.Push(IntToByteArray(1))
 			}
 
 		case LT:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
 
-			if left < right {
-				vm.evaluationStack.PushInt(1)
+			if ByteArrayToInt(left) < ByteArrayToInt(right) {
+				vm.evaluationStack.Push(IntToByteArray(1))
 			} else {
-				vm.evaluationStack.PushInt(0)
+				vm.evaluationStack.Push(IntToByteArray(0))
 			}
 
 		case GT:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
 
-			if left > right {
-				vm.evaluationStack.PushInt(1)
+			if ByteArrayToInt(left) > ByteArrayToInt(right) {
+				vm.evaluationStack.Push(IntToByteArray(1))
 			} else {
-				vm.evaluationStack.PushInt(0)
+				vm.evaluationStack.Push(IntToByteArray(0))
 			}
 
 		case LTE:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
 
-			if left <= right {
-				vm.evaluationStack.PushInt(1)
+			if ByteArrayToInt(left) <= ByteArrayToInt(right) {
+				vm.evaluationStack.Push(IntToByteArray(1))
 			} else {
-				vm.evaluationStack.PushInt(0)
+				vm.evaluationStack.Push(IntToByteArray(0))
 			}
 
 		case GTE:
-			right := vm.evaluationStack.PopInt()
-			left := vm.evaluationStack.PopInt()
+			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
 
-			if left >= right {
-				vm.evaluationStack.PushInt(1)
+			if ByteArrayToInt(left) >= ByteArrayToInt(right) {
+				vm.evaluationStack.Push(IntToByteArray(1))
 			} else {
-				vm.evaluationStack.PushInt(0)
+				vm.evaluationStack.Push(IntToByteArray(0))
 			}
 
+		case SHIFTL:
+			nrOfShifts := uint64(vm.code[vm.pc])
+			vm.pc++
+
+			ba := vm.evaluationStack.Pop()
+			value := ByteArrayToInt(ba)
+			value = value << nrOfShifts
+			vm.evaluationStack.Push(IntToByteArray(value))
+
+		case SHIFTR:
+			nrOfShifts := uint64(vm.code[vm.pc])
+			vm.pc++
+
+			ba := vm.evaluationStack.Pop()
+			value := ByteArrayToInt(ba)
+			value = value >> nrOfShifts
+			vm.evaluationStack.Push(IntToByteArray(value))
+
 		case JMP:
-			val := ByteArrayToInt(args)
+			val := int(vm.code[vm.pc])
 			vm.pc = val
 
 		case JMPIF:
-			val := ByteArrayToInt(args)
-			right := vm.evaluationStack.PopInt()
+			val := int(vm.code[vm.pc])
+			right := vm.evaluationStack.Pop()
 
-			if right == 1 {
+			if ByteArrayToInt(right) == 1 {
 				vm.pc = val
 			} else {
 				vm.pc++
@@ -161,13 +187,13 @@ func (vm *VM) Exec(c []instruction, trace bool) {
 			right := vm.evaluationStack.Pop()
 
 			hasher := sha3.New256()
-			hasher.Write(right.byteArray)
+			hasher.Write(right)
 
-			sha3_hash := hex.EncodeToString(hasher.Sum(nil))
-			vm.evaluationStack.PushStr(sha3_hash)
+			sha3_hash := hasher.Sum(nil)
+			vm.evaluationStack.Push(sha3_hash)
 
 		case PRINT:
-			val, _ := vm.evaluationStack.PeekInt()
+			val, _ := vm.evaluationStack.Peek()
 			fmt.Println(val)
 
 		case HALT:
