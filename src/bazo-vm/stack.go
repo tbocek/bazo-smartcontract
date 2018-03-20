@@ -44,19 +44,3 @@ func (s *Stack) Peek() (element []byte, err error) {
 		return []byte{}, errors.New("Peek() on empty stack!")
 	}
 }
-
-// Implement String Method to format Stack printout with data formated according datatypes
-/*func (s Stack) String() string {
-	result := "["
-	firstRun := true
-	for _, item := range s.stack {
-		if firstRun == false {
-			result += ", "
-		}
-		firstRun = false
-		result = fmt.Sprint(result, formatData(item.dataType, item.byteArray))
-	}
-	result += "]"
-	return result
-}
-*/

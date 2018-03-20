@@ -1,6 +1,7 @@
 package bazo_vm
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -37,23 +38,11 @@ func TestStackPopIfRemoves(t *testing.T) {
 	}
 }
 
-/*
-func TestStackPopStr(t *testing.T) {
-	s := NewStack()
-
-	s.PushStr("asdfasdf")
-	val := s.PopStr()
-
-	if val != "asdfasdf" {
-		t.Errorf("Expected asdfasdf but value was %v ", val)
-	}
-}
-
 func TestStackPeek(t *testing.T) {
 	s := NewStack()
 
-	s.PushInt(3)
-	s.PeekInt()
+	s.Push(IntToByteArray(3))
+	s.Peek()
 
 	if s.GetLength() != 1 {
 		t.Errorf("Expected stack with size 1 but got %v", s.GetLength())
@@ -67,18 +56,18 @@ func TestPushAndPopElement(t *testing.T) {
 		t.Errorf("Expected size before push to be 0, but was %v", s.GetLength())
 	}
 
-	s.PushInt(2)
+	s.Push(IntToByteArray(2))
 
 	if s.GetLength() != 1 {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
 
-	val := s.PopInt()
+	val := ByteArrayToInt(s.Pop())
 	if val != 2 {
 		t.Errorf("Expected val of element to be 2, but was %v", val)
 	}
 
-	s.PushInt(5)
+	s.Push(IntToByteArray(5))
 
 	if s.GetLength() != 1 {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
@@ -86,5 +75,3 @@ func TestPushAndPopElement(t *testing.T) {
 
 	fmt.Print(s)
 }
-
-*/

@@ -8,8 +8,6 @@ func IntToByteArray(element int) []byte {
 	ba := make([]byte, 8)
 	binary.LittleEndian.PutUint64(ba, uint64(element))
 	return ba
-
-	//return []byte(strconv.Itoa(element))
 }
 
 func StrToByteArray(element string) []byte {
@@ -17,21 +15,11 @@ func StrToByteArray(element string) []byte {
 }
 
 func ByteArrayToInt(element []byte) int {
-	return int(binary.LittleEndian.Uint64(element))
+	ba := make([]byte, 8-len(element))
+	ba = append(element, ba...)
+	return int(binary.LittleEndian.Uint64(ba))
 }
 
 func ByteArrayToString(element []byte) string {
 	return string(element[:])
 }
-
-/*func formatData(dataType byte, ba []byte) string {
-	switch dataType {
-	case INT:
-		return fmt.Sprint(ByteArrayToInt(ba))
-	case STRING:
-		return ByteArrayToString(ba)
-	default:
-		return string(ba)
-	}
-}
-*/
