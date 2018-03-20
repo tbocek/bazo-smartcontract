@@ -5,7 +5,7 @@ import (
 )
 
 func IntToByteArray(element int) []byte {
-	ba := make([]byte, 8)
+	ba := make([]byte, 64)
 	binary.LittleEndian.PutUint64(ba, uint64(element))
 	return ba
 }
@@ -15,7 +15,7 @@ func StrToByteArray(element string) []byte {
 }
 
 func ByteArrayToInt(element []byte) int {
-	ba := make([]byte, 8-len(element))
+	ba := make([]byte, 64-len(element))
 	ba = append(element, ba...)
 	return int(binary.LittleEndian.Uint64(ba))
 }
