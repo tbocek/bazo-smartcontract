@@ -68,6 +68,29 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 	}
 }
 
+func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 3,
+		PUSH, 1, 6,
+		SUB,
+		HALT,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if int(ByteArrayToInt(val)) != -3 {
+		t.Errorf("Actual value is %v, sould be -3 after subtracting 6 from 3", val)
+	}
+}
+
 func TestProgramExecutionMultiplication(t *testing.T) {
 	code := []byte{
 		PUSH, 1, 5,
