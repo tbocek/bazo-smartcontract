@@ -18,6 +18,8 @@ const (
 	SHIFTR
 	JMP
 	JMPIF
+	MSTORE
+	MLOAD
 	SHA3
 	PRINT
 	HALT
@@ -46,6 +48,8 @@ var OpCodes = map[int]OpCode{
 	SHIFTR: OpCode{"shiftl", 1},
 	JMP:    OpCode{"jmp", 1},
 	JMPIF:  OpCode{"jmpif", 1},
+	MSTORE: OpCode{"mstore", 0},
+	MLOAD:  OpCode{"mload", 0},
 	SHA3:   OpCode{"sha3", 1},
 	PRINT:  OpCode{"print", 0},
 	HALT:   OpCode{"halt", 0},
