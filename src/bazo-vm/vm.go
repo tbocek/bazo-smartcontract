@@ -30,7 +30,7 @@ func (vm *VM) trace() {
 	fmt.Printf("%04d: %s %v \t%v\n", addr, opCode.name, args, stack)
 }
 
-func (vm *VM) Exec(c []byte, trace bool) {
+func (vm *VM) Exec(c []byte, context Context, trace bool) {
 
 	vm.code = c
 
@@ -42,6 +42,14 @@ func (vm *VM) Exec(c []byte, trace bool) {
 		}
 		// Fetch
 		opCode := vm.code[vm.pc]
+
+		if(opCode != HALT){
+			if(context.amount <= 0){
+				return 
+			}
+			context.amount--
+		}
+
 		vm.pc++
 
 		// Decode
