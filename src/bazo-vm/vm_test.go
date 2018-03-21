@@ -1,10 +1,47 @@
 package bazo_vm
 
 import (
+	"testing"
 	"fmt"
 	"reflect"
-	"testing"
 )
+
+func newTestContextObj() Context {
+	data := map[int][]byte{}
+
+	return Context{
+		transactionSender:      []byte{},
+		transactioninputData:    []byte{},
+		maxGasAmount: 100,
+		smartContract: NewSmartContract([]byte{}, 100, true, []byte{},[]byte{}, data),
+	}
+}
+
+
+func TestVMGasConsumption(t *testing.T){
+	vm := NewVM(0)
+
+	context := newTestContextObj()
+	context.maxGasAmount = 1
+
+	code := []byte{
+		PUSH, 1, 8,
+		PUSH, 1, 8,
+		ADD,
+		HALT,
+	}
+
+	context.smartContract.data.code = code
+
+	vm.Exec(context, true)
+	ba := vm.evaluationStack.Pop()
+	fmt.Printf("Bytearray: %v", ba)
+	val:= ByteArrayToInt(ba)
+
+	if val != 8 {
+		t.Errorf("Expected first value to be 8 but was %v", val)
+	}
+}
 
 func TestNewVM(t *testing.T) {
 	vm := NewVM(0)
@@ -29,19 +66,21 @@ func TestProgramExecutionAddition(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 	fmt.Println(ByteArrayToInt(val))
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if reflect.DeepEqual(val, []byte{123}) {
-		t.Errorf("Actual value is %v, sould be 53 after adding up 50 and 3", val)
+		t.Errorf("Actual value is %v, should be 53 after adding up 50 and 3", val)
 	}
 }
 
@@ -53,18 +92,45 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context,true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 3 {
-		t.Errorf("Actual value is %v, sould be 3 after subtracting 2 from 5", val)
+		t.Errorf("Actual value is %v, should be 3 after subtracting 2 from 5", val)
+	}
+}
+
+func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 3,
+		PUSH, 1, 6,
+		SUB,
+		HALT,
+	}
+
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
+	vm := NewVM(0)
+	vm.Exec(context,true)
+
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if int(ByteArrayToInt(val)) != -3 {
+		t.Errorf("Actual value is %v, should be -3 after subtracting 6 from 3", val)
 	}
 }
 
@@ -76,18 +142,20 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 10 {
-		t.Errorf("Actual value is %v, sould be 10 after multiplying 2 with 5", val)
+		t.Errorf("Actual value is %v, should be 10 after multiplying 2 with 5", val)
 	}
 }
 
@@ -99,18 +167,20 @@ func TestProgramExecutionDivision(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context,true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 3 {
-		t.Errorf("Actual value is %v, sould be 10 after dividing 6 by 2", val)
+		t.Errorf("Actual value is %v, should be 10 after dividing 6 by 2", val)
 	}
 }
 
@@ -128,8 +198,11 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context,true)
 }
 
 func TestProgramExecutionEq(t *testing.T) {
@@ -140,18 +213,20 @@ func TestProgramExecutionEq(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after comparing 4 with 4", val)
+		t.Errorf("Actual value is %v, should be 1 after comparing 4 with 4", val)
 	}
 }
 
@@ -163,18 +238,20 @@ func TestProgramExecutionNeq(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after comparing 6 with 5 to not be equal", val)
+		t.Errorf("Actual value is %v, should be 1 after comparing 6 with 5 to not be equal", val)
 	}
 }
 
@@ -186,18 +263,20 @@ func TestProgramExecutionLt(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after evaluating 4 < 6", val)
+		t.Errorf("Actual value is %v, should be 1 after evaluating 4 < 6", val)
 	}
 }
 
@@ -209,18 +288,20 @@ func TestProgramExecutionGt(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 > 4", val)
+		t.Errorf("Actual value is %v, should be 1 after evaluating 6 > 4", val)
 	}
 }
 
@@ -232,18 +313,20 @@ func TestProgramExecutionLte(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after evaluating 4 <= 6", val)
+		t.Errorf("Actual value is %v, should be 1 after evaluating 4 <= 6", val)
 	}
 
 	code1 := []byte{
@@ -254,10 +337,12 @@ func TestProgramExecutionLte(t *testing.T) {
 	}
 
 	vm1 := NewVM(0)
-	vm1.Exec(code1, true)
+	context1 := newTestContextObj()
+	context1.smartContract.data.code = code1
+	vm1.Exec(context1, true)
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 <= 6", val)
+		t.Errorf("Actual value is %v, should be 1 after evaluating 6 <= 6", val)
 	}
 }
 
@@ -269,18 +354,20 @@ func TestProgramExecutionGte(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+	
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 1 {
-		t.Errorf("Actual value is %v, sould be 1 after evaluating 6 >= 4", val)
+		t.Errorf("Actual value is %v, should be 1 after evaluating 6 >= 4", val)
 	}
 
 	code1 := []byte{
@@ -290,8 +377,11 @@ func TestProgramExecutionGte(t *testing.T) {
 		HALT,
 	}
 
+	context1 := newTestContextObj()
+	context1.smartContract.data.code = code1
+
 	vm1 := NewVM(0)
-	vm1.Exec(code1, true)
+	vm1.Exec(context1, true)
 
 	if ByteArrayToInt(val) != 1 {
 		t.Errorf("Actual value is %v, should be 1 after evaluating 6 >= 6", val)
@@ -305,8 +395,11 @@ func TestProgramExectuionShiftl(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	result := ByteArrayToInt(vm.evaluationStack.Pop())
 
@@ -322,8 +415,11 @@ func TestProgramExectuionShiftr(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	result := ByteArrayToInt(vm.evaluationStack.Pop())
 
@@ -345,18 +441,20 @@ func TestProgramExecutionJmpif(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if !reflect.DeepEqual(val, []byte{0x61, 0x73, 0x64, 0x66}) {
-		t.Errorf("Actual value is %v, sould be {0x61, 0x73, 0x64, 0x66} after executing program", val)
+		t.Errorf("Actual value is %v, should be {0x61, 0x73, 0x64, 0x66} after executing program", val)
 	}
 }
 
@@ -371,18 +469,20 @@ func TestProgramExecutionJmp(t *testing.T) {
 		HALT,
 	}
 
-	vm := NewVM(0)
-	vm.Exec(code, true)
+	context := newTestContextObj()
+	context.smartContract.data.code = code
 
-	// Get evaluationStack top value to compare to expected value
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("%v", err)
 	}
 
 	if ByteArrayToInt(val) != 3 {
-		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
+		t.Errorf("Actual value is %v, should be 3 after jumping to halt", val)
 	}
 }
 
@@ -441,13 +541,16 @@ func TestProgramExecutionSha3(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val := vm.evaluationStack.Pop()
 
 	if !reflect.DeepEqual(val, []byte{227, 237, 86, 189, 8, 109, 137, 88, 72, 58, 18, 115, 79, 160, 174, 127, 92, 139, 177, 96, 239, 144, 146, 198, 126, 130, 237, 155, 25, 228, 199, 178}) {
-		t.Errorf("Actual value is %v, sould be {227, 237, 86, 189...} after jumping to halt", val)
+		t.Errorf("Actual value is %v, should be {227, 237, 86, 189...} after jumping to halt", val)
 	}
 }
 
@@ -457,12 +560,15 @@ func TestProgramExecutionPushs(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	first := vm.evaluationStack.Pop()
 
 	if ByteArrayToString(first) != "asdf" {
-		t.Errorf("Actual value is %s, sould be 'Bierchen' after popping string", first)
+		t.Errorf("Actual value is %s, should be 'Bierchen' after popping string", first)
 	}
 }
