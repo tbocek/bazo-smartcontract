@@ -1,10 +1,47 @@
 package bazo_vm
 
 import (
+	"testing"
 	"fmt"
 	"reflect"
-	"testing"
 )
+
+func newTestContextObj() Context {
+	data := map[int][]byte{}
+
+	return Context{
+		transactionSender:      []byte{},
+		transactioninputData:    []byte{},
+		maxGasAmount: 100,
+		smartContract: NewSmartContract([]byte{}, 100, true, []byte{},[]byte{}, data),
+	}
+}
+
+
+func TestVMGasConsumption(t *testing.T){
+	vm := NewVM(0)
+
+	context := newTestContextObj()
+	context.maxGasAmount = 1
+
+	code := []byte{
+		PUSH, 1, 8,
+		PUSH, 1, 8,
+		ADD,
+		HALT,
+	}
+
+	context.smartContract.data.code = code
+
+	vm.Exec(context, true)
+	ba := vm.evaluationStack.Pop()
+	fmt.Printf("Bytearray: %v", ba)
+	val:= ByteArrayToInt(ba)
+
+	if val != 8 {
+		t.Errorf("Expected first value to be 8 but was %v", val)
+	}
+}
 
 func TestNewVM(t *testing.T) {
 	vm := NewVM(0)
@@ -29,8 +66,11 @@ func TestProgramExecutionAddition(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 	fmt.Println(ByteArrayToInt(val))
@@ -52,8 +92,11 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context,true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -74,8 +117,11 @@ func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context,true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -96,8 +142,11 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -118,8 +167,11 @@ func TestProgramExecutionDivision(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context,true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -146,8 +198,11 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context,true)
 }
 
 func TestProgramExecutionEq(t *testing.T) {
@@ -158,8 +213,11 @@ func TestProgramExecutionEq(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -180,8 +238,11 @@ func TestProgramExecutionNeq(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -202,8 +263,11 @@ func TestProgramExecutionLt(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -224,8 +288,11 @@ func TestProgramExecutionGt(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -246,8 +313,11 @@ func TestProgramExecutionLte(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -267,7 +337,9 @@ func TestProgramExecutionLte(t *testing.T) {
 	}
 
 	vm1 := NewVM(0)
-	vm1.Exec(code1, true)
+	context1 := newTestContextObj()
+	context1.smartContract.data.code = code1
+	vm1.Exec(context1, true)
 
 	if ByteArrayToInt(val) != 1 {
 		t.Errorf("Actual value is %v, should be 1 after evaluating 6 <= 6", val)
@@ -282,8 +354,11 @@ func TestProgramExecutionGte(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 	
 	val, err := vm.evaluationStack.Peek()
 
@@ -302,8 +377,11 @@ func TestProgramExecutionGte(t *testing.T) {
 		HALT,
 	}
 
+	context1 := newTestContextObj()
+	context1.smartContract.data.code = code1
+
 	vm1 := NewVM(0)
-	vm1.Exec(code1, true)
+	vm1.Exec(context1, true)
 
 	if ByteArrayToInt(val) != 1 {
 		t.Errorf("Actual value is %v, should be 1 after evaluating 6 >= 6", val)
@@ -317,8 +395,11 @@ func TestProgramExectuionShiftl(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	result := ByteArrayToInt(vm.evaluationStack.Pop())
 
@@ -334,8 +415,11 @@ func TestProgramExectuionShiftr(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	result := ByteArrayToInt(vm.evaluationStack.Pop())
 
@@ -357,8 +441,11 @@ func TestProgramExecutionJmpif(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -382,8 +469,11 @@ func TestProgramExecutionJmp(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -403,8 +493,11 @@ func TestProgramExecutionSha3(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	val := vm.evaluationStack.Pop()
 
@@ -419,8 +512,11 @@ func TestProgramExecutionPushs(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	first := vm.evaluationStack.Pop()
 

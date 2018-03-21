@@ -30,9 +30,9 @@ func (vm *VM) trace() {
 	fmt.Printf("%04d: %s %v \t%v\n", addr, opCode.name, args, stack)
 }
 
-func (vm *VM) Exec(c []byte, trace bool) {
+func (vm *VM) Exec(context Context, trace bool) {
 
-	vm.code = c
+	vm.code = context.smartContract.data.code
 
 	// Infinite Loop until return called
 	for {
@@ -42,6 +42,14 @@ func (vm *VM) Exec(c []byte, trace bool) {
 		}
 		// Fetch
 		opCode := vm.code[vm.pc]
+
+		if opCode != HALT {
+			if context.maxGasAmount <= 0{
+				return
+			}
+			context.maxGasAmount--
+		}
+
 		vm.pc++
 
 		// Decode
