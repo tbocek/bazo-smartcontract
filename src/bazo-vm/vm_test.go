@@ -1,24 +1,23 @@
 package bazo_vm
 
 import (
-	"testing"
 	"fmt"
 	"reflect"
+	"testing"
 )
 
 func newTestContextObj() Context {
 	data := map[int][]byte{}
 
 	return Context{
-		transactionSender:      []byte{},
-		transactioninputData:    []byte{},
-		maxGasAmount: 100,
-		smartContract: NewSmartContract([]byte{}, 100, true, []byte{},[]byte{}, data),
+		transactionSender:    []byte{},
+		transactioninputData: []byte{},
+		maxGasAmount:         100,
+		smartContract:        NewSmartContract([]byte{}, 100, true, []byte{}, []byte{}, data),
 	}
 }
 
-
-func TestVMGasConsumption(t *testing.T){
+func TestVMGasConsumption(t *testing.T) {
 	vm := NewVM(0)
 
 	context := newTestContextObj()
@@ -36,7 +35,7 @@ func TestVMGasConsumption(t *testing.T){
 	vm.Exec(context, true)
 	ba := vm.evaluationStack.Pop()
 	fmt.Printf("Bytearray: %v", ba)
-	val:= ByteArrayToInt(ba)
+	val := ByteArrayToInt(ba)
 
 	if val != 8 {
 		t.Errorf("Expected first value to be 8 but was %v", val)
@@ -96,7 +95,7 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 	context.smartContract.data.code = code
 
 	vm := NewVM(0)
-	vm.Exec(context,true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -121,7 +120,7 @@ func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
 	context.smartContract.data.code = code
 
 	vm := NewVM(0)
-	vm.Exec(context,true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -171,7 +170,7 @@ func TestProgramExecutionDivision(t *testing.T) {
 	context.smartContract.data.code = code
 
 	vm := NewVM(0)
-	vm.Exec(context,true)
+	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
 
@@ -202,7 +201,7 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 	context.smartContract.data.code = code
 
 	vm := NewVM(0)
-	vm.Exec(context,true)
+	vm.Exec(context, true)
 }
 
 func TestProgramExecutionEq(t *testing.T) {
@@ -359,7 +358,7 @@ func TestProgramExecutionGte(t *testing.T) {
 
 	vm := NewVM(0)
 	vm.Exec(context, true)
-	
+
 	val, err := vm.evaluationStack.Peek()
 
 	if err != nil {
@@ -501,8 +500,11 @@ func TestProgramExecutionCall(t *testing.T) {
 		RET,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	// Get evaluationStack top value to compare to expected value
 }
@@ -519,8 +521,11 @@ func TestProgramExecutionMemory(t *testing.T) {
 		HALT,
 	}
 
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
 	vm := NewVM(0)
-	vm.Exec(code, true)
+	vm.Exec(context, true)
 
 	// Get evaluationStack top value to compare to expected value
 	val, err := vm.evaluationStack.Peek()
