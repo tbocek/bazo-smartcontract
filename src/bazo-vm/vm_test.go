@@ -486,6 +486,54 @@ func TestProgramExecutionJmp(t *testing.T) {
 	}
 }
 
+func TestProgramExecutionCall(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 10,
+		PUSH, 1, 8,
+		CALL, 13, 2,
+		HALT,
+		NOP,
+		NOP,
+		LOAD, 0,
+		LOAD, 1,
+		SUB,
+		PRINT,
+		RET,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+}
+
+func TestProgramExecutionMemory(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 3,
+		MSTORE,
+		PUSH, 1, 5,
+		MSTORE,
+		MLOAD, 1, // Get 5 first
+		MLOAD, 0, // Get 3
+		SUB,
+		HALT,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if ByteArrayToInt(val) != 2 {
+		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
+	}
+}
+
 func TestProgramExecutionSha3(t *testing.T) {
 	code := []byte{
 		PUSH, 1, 3,
