@@ -386,6 +386,27 @@ func TestProgramExecutionJmp(t *testing.T) {
 	}
 }
 
+func TestProgramExecutionCall(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 10,
+		PUSH, 1, 8,
+		CALL, 13, 2,
+		HALT,
+		NOP,
+		NOP,
+		LOAD, 0,
+		LOAD, 1,
+		SUB,
+		PRINT,
+		RET,
+	}
+
+	vm := NewVM(0)
+	vm.Exec(code, true)
+
+	// Get evaluationStack top value to compare to expected value
+}
+
 func TestProgramExecutionMemory(t *testing.T) {
 	code := []byte{
 		PUSH, 1, 3,

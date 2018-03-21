@@ -16,8 +16,13 @@ const (
 	GTE
 	SHIFTL
 	SHIFTR
+	NOP
 	JMP
 	JMPIF
+	CALL
+	RET
+	STORE
+	LOAD
 	MSTORE
 	MLOAD
 	SHA3
@@ -46,10 +51,15 @@ var OpCodes = map[int]OpCode{
 	GTE:    OpCode{"gte", 0},
 	SHIFTL: OpCode{"shiftl", 1},
 	SHIFTR: OpCode{"shiftl", 1},
+	NOP:    OpCode{"nop", 0},
 	JMP:    OpCode{"jmp", 1},
 	JMPIF:  OpCode{"jmpif", 1},
+	CALL:   OpCode{"call", 1},
+	RET:    OpCode{"ret", 1},
+	STORE:  OpCode{"store", 0},
+	LOAD:   OpCode{"load", 1},
 	MSTORE: OpCode{"mstore", 0},
-	MLOAD:  OpCode{"mload", 0},
+	MLOAD:  OpCode{"mload", 1},
 	SHA3:   OpCode{"sha3", 1},
 	PRINT:  OpCode{"print", 0},
 	HALT:   OpCode{"halt", 0},

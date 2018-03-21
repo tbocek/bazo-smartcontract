@@ -11,6 +11,7 @@ type VM struct {
 	code            []byte
 	pc              int // Program counter
 	evaluationStack Stack
+	callStack       CallStack
 	memory          Memory
 }
 
@@ -19,6 +20,7 @@ func NewVM(startInstruction int) VM {
 		code:            []byte{},
 		pc:              startInstruction,
 		evaluationStack: NewStack(),
+		callStack:       NewCallStack(),
 		memory:          NewMemory(),
 	}
 }
@@ -27,9 +29,8 @@ func NewVM(startInstruction int) VM {
 func (vm *VM) trace() {
 	addr := vm.pc
 	opCode := OpCodes[int(vm.code[vm.pc])]
-	args := vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 	stack := vm.evaluationStack
-	fmt.Printf("%04d: %s %v \t%v\n", addr, opCode.name, args, stack)
+	fmt.Printf("%04d: %s \t%v\n", addr, opCode.name, stack)
 }
 
 func (vm *VM) Exec(c []byte, trace bool) {
@@ -171,6 +172,9 @@ func (vm *VM) Exec(c []byte, trace bool) {
 			value = value >> nrOfShifts
 			vm.evaluationStack.Push(IntToByteArray(value))
 
+		case NOP:
+			vm.pc++
+
 		case JMP:
 			val := int(vm.code[vm.pc])
 			vm.pc = val
@@ -184,6 +188,39 @@ func (vm *VM) Exec(c []byte, trace bool) {
 			} else {
 				vm.pc++
 			}
+
+		case CALL:
+			jumpAddress := int(vm.code[vm.pc]) // Shows where to jump after executing
+			vm.pc++
+			argsToLoad := int(vm.code[vm.pc]) // Shows how many elements have to be popped from evaluationStack
+			vm.pc++
+
+			frame := Frame{returnAddress: vm.pc, variables: make(map[int][]byte)}
+
+			for i := argsToLoad - 1; i >= 0; i-- {
+				frame.variables[i] = vm.evaluationStack.Pop()
+			}
+
+			vm.callStack.Push(frame)
+			vm.pc = jumpAddress - 1
+
+		case RET:
+			returnAddress := vm.callStack.Peek().returnAddress
+			vm.callStack.Pop()
+			vm.pc = returnAddress
+
+		case STORE:
+			right := vm.evaluationStack.Pop()
+			vm.pc++
+			address := vm.pc
+			vm.callStack.Peek().variables[address] = right
+
+		case LOAD:
+			address := int(vm.code[vm.pc])
+			vm.pc++
+
+			val := vm.callStack.Peek().variables[address]
+			vm.evaluationStack.Push(val)
 
 		case MSTORE:
 			right := vm.evaluationStack.Pop()
