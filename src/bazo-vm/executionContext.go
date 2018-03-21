@@ -5,14 +5,13 @@ type StateData struct {
 }
 
 type Context struct {
-	sender       []byte
-	maxGasPrice  int
-	inputData    []byte
+	transactionSender       []byte
+	transactioninputData    []byte
 	maxGasAmount int
+	smartContract SmartContract
 	/*
-	owner []byte
 	stateData StateData
 
-	smartContract SmartContract
+
 	blockHeader []byte*/
 }

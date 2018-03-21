@@ -7,17 +7,17 @@ type ContractCode struct {
 }
 
 type SmartContract struct {
-	Address            [64]byte
+	Address            []byte
 	Balance            uint64
-	TxCnt              uint32
+	TxCnt              uint64
 	IsStaking          bool
-	HashedSeed         [32]byte
-	StakingBlockHeight uint32
+	HashedSeed         []byte
+	StakingBlockHeight uint64
 	data               ContractCode
 	contractVariables  map[int][]byte
 }
 
-func NewSmartContract(address [64]byte, balance uint64, isStaking bool, hashedSeed [32]byte, code []byte, data map[int][]byte) SmartContract {
+func NewSmartContract(address []byte, balance uint64, isStaking bool, hashedSeed []byte, code []byte, data map[int][]byte) SmartContract {
 	newSC := SmartContract{
 		address,
 		balance,
@@ -29,4 +29,10 @@ func NewSmartContract(address [64]byte, balance uint64, isStaking bool, hashedSe
 		map[int][]byte{},
 	}
 	return newSC
+}
+
+type ContractCallersTransaction struct {
+	transactionSender       []byte
+	transactioninputData    []byte
+	maxGasAmount int
 }
