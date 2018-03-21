@@ -44,10 +44,10 @@ func (vm *VM) Exec(c []byte, context Context, trace bool) {
 		opCode := vm.code[vm.pc]
 
 		if(opCode != HALT){
-			if(context.amount <= 0){
-				return 
+			if(context.maxGasAmount <= 0){
+				return
 			}
-			context.amount--
+			context.maxGasAmount--
 		}
 
 		vm.pc++

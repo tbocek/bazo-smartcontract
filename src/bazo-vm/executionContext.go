@@ -5,27 +5,14 @@ type StateData struct {
 }
 
 type Context struct {
-	sender []byte
-	maxGasPrice int
-	inputData []byte
-	amount int
+	sender       []byte
+	maxGasPrice  int
+	inputData    []byte
+	maxGasAmount int
 	/*
-		owner []byte
-		stateData StateData
+	owner []byte
+	stateData StateData
 
-		smartContract SmartContract
-		blockHeader []byte*/
+	smartContract SmartContract
+	blockHeader []byte*/
 }
-
-
-/*
-//create new Context Obj before executing run.
-func run(context Context){
-	vm := NewVM(0)
-	//vm.Exec(context.smartContract.data, inputData, maxGasPrice)
-
-
-
-
-
-}*/

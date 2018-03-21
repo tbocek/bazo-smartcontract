@@ -8,9 +8,9 @@ import (
 
 func newTestContextObj() Context {
 	return Context{
-		sender: []byte{},
-		inputData: []byte{},
-		amount: 100,
+		sender:       []byte{},
+		inputData:    []byte{},
+		maxGasAmount: 100,
 	}
 }
 
@@ -19,7 +19,7 @@ func TestVMGasConsumption(t *testing.T){
 	vm := NewVM(0)
 
 	context := newTestContextObj()
-	context.amount = 1
+	context.maxGasAmount = 1
 
 	code := []byte{
 		PUSH, 1, 8,
