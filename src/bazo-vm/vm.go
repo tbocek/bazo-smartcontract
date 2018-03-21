@@ -48,14 +48,9 @@ func (vm *VM) Exec(c []byte, trace bool) {
 		switch opCode {
 		case PUSH:
 			byteCount := int(vm.code[vm.pc]) // Amount of bytes pushed
-			vm.pc++                          // First byte
-
-			var ba []byte
-			for i := 0; i < byteCount; i++ {
-				val := vm.code[vm.pc]
-				ba = append(ba, val)
-				vm.pc++
-			}
+			vm.pc++ // Set pc to first byte of argument
+			var ba byteArray = vm.code[vm.pc: vm.pc + byteCount]
+			vm.pc += byteCount //Sets the pc to the next opCode
 			vm.evaluationStack.Push(ba)
 
 		case PUSHS:
