@@ -1,7 +1,6 @@
 package bazo_vm
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -34,7 +33,6 @@ func TestVMGasConsumption(t *testing.T) {
 
 	vm.Exec(context, true)
 	ba := vm.evaluationStack.Pop()
-	fmt.Printf("Bytearray: %v", ba)
 	val := ByteArrayToInt(ba)
 
 	if val != 8 {
@@ -55,9 +53,6 @@ func TestNewVM(t *testing.T) {
 }
 
 func TestProgramExecutionAddition(t *testing.T) {
-	val := IntToByteArray(5800)
-	fmt.Println(val)
-
 	code := []byte{
 		PUSH, 1, 125,
 		PUSH, 2, 168, 22,
@@ -72,7 +67,6 @@ func TestProgramExecutionAddition(t *testing.T) {
 	vm.Exec(context, true)
 
 	val, err := vm.evaluationStack.Peek()
-	fmt.Println(ByteArrayToInt(val))
 
 	if err != nil {
 		t.Errorf("%v", err)
@@ -506,7 +500,21 @@ func TestProgramExecutionCall(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	// Get evaluationStack top value to compare to expected value
+	val, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if ByteArrayToInt(val) != 2 {
+		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
+	}
+
+	callStackLenght := vm.callStack.GetLength()
+
+	if callStackLenght != 0 {
+		t.Errorf("After calling and returning, callStack lenght should be 0, but is %v", callStackLenght)
+	}
 }
 
 func TestProgramExecutionMemory(t *testing.T) {

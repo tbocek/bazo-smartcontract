@@ -36,8 +36,8 @@ type OpCode struct {
 }
 
 var OpCodes = map[int]OpCode{
-	PUSH:   OpCode{"push", 2},
-	PUSHS:  OpCode{"pushs", 1},
+	PUSH:   OpCode{"push", 0},
+	PUSHS:  OpCode{"pushs", 0}, //Variable nargs, handled direclty in trace function
 	ADD:    OpCode{"add", 0},
 	SUB:    OpCode{"sub", 0},
 	MULT:   OpCode{"mult", 0},
@@ -54,13 +54,13 @@ var OpCodes = map[int]OpCode{
 	NOP:    OpCode{"nop", 0},
 	JMP:    OpCode{"jmp", 1},
 	JMPIF:  OpCode{"jmpif", 1},
-	CALL:   OpCode{"call", 1},
-	RET:    OpCode{"ret", 1},
+	CALL:   OpCode{"call", 2},
+	RET:    OpCode{"ret", 0},
 	STORE:  OpCode{"store", 0},
 	LOAD:   OpCode{"load", 1},
 	MSTORE: OpCode{"mstore", 0},
 	MLOAD:  OpCode{"mload", 1},
-	SHA3:   OpCode{"sha3", 1},
+	SHA3:   OpCode{"sha3", 0},
 	PRINT:  OpCode{"print", 0},
 	HALT:   OpCode{"halt", 0},
 }

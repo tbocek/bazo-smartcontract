@@ -72,7 +72,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			vm.trace()
 		}
 		// Fetch
-		opCode := vm.code[vm.pc]
+		opCode := vm.fetch()
 
 		if opCode != HALT {
 			if context.maxGasAmount <= 0 {
@@ -81,20 +81,16 @@ func (vm *VM) Exec(context Context, trace bool) {
 			context.maxGasAmount--
 		}
 
-		vm.pc++
-
 		// Decode
 		switch opCode {
 		case PUSH:
-			byteCount := int(vm.code[vm.pc]) // Amount of bytes pushed
-			vm.pc++                          // Set pc to first byte of argument
+			byteCount := int(vm.fetch()) // Amount of bytes pushed
 			var ba byteArray = vm.code[vm.pc : vm.pc+byteCount]
 			vm.pc += byteCount //Sets the pc to the next opCode
 			vm.evaluationStack.Push(ba)
 
 		case PUSHS:
-			val := vm.code[vm.pc]
-			vm.pc++
+			val := vm.fetch()
 
 			firstRun := true
 			var byteArray []byte
@@ -186,8 +182,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			}
 
 		case SHIFTL:
-			nrOfShifts := uint64(vm.code[vm.pc])
-			vm.pc++
+			nrOfShifts := uint64(vm.fetch())
 
 			ba := vm.evaluationStack.Pop()
 			value := ByteArrayToInt(ba)
@@ -195,8 +190,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			vm.evaluationStack.Push(IntToByteArray(value))
 
 		case SHIFTR:
-			nrOfShifts := uint64(vm.code[vm.pc])
-			vm.pc++
+			nrOfShifts := uint64(vm.fetch())
 
 			ba := vm.evaluationStack.Pop()
 			value := ByteArrayToInt(ba)
@@ -204,28 +198,23 @@ func (vm *VM) Exec(context Context, trace bool) {
 			vm.evaluationStack.Push(IntToByteArray(value))
 
 		case NOP:
-			vm.pc++
+			vm.fetch()
 
 		case JMP:
-			val := int(vm.code[vm.pc])
+			val := int(vm.fetch())
 			vm.pc = val
 
 		case JMPIF:
-			val := int(vm.code[vm.pc])
+			val := int(vm.fetch())
 			right := vm.evaluationStack.Pop()
 
 			if ByteArrayToInt(right) == 1 {
 				vm.pc = val
-			} else {
-				vm.pc++
 			}
 
 		case CALL:
-			jumpAddress := int(vm.code[vm.pc]) // Shows where to jump after executing
-			vm.pc++
-			argsToLoad := int(vm.code[vm.pc]) // Shows how many elements have to be popped from evaluationStack
-			vm.pc++
-			fmt.Println(vm.pc)
+			jumpAddress := int(vm.fetch()) // Shows where to jump after executing
+			argsToLoad := int(vm.fetch())  // Shows how many elements have to be popped from evaluationStack
 
 			frame := Frame{returnAddress: vm.pc, variables: make(map[int][]byte)}
 
@@ -248,8 +237,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			vm.callStack.Peek().variables[address] = right
 
 		case LOAD:
-			address := int(vm.code[vm.pc])
-			vm.pc++
+			address := int(vm.fetch())
 
 			val := vm.callStack.Peek().variables[address]
 			vm.evaluationStack.Push(val)
@@ -259,8 +247,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			vm.memory.Store(right)
 
 		case MLOAD:
-			index := int(vm.code[vm.pc])
-			vm.pc++
+			index := int(vm.fetch())
 
 			data, _ := vm.memory.Load(index)
 			vm.evaluationStack.Push(data)
@@ -282,4 +269,10 @@ func (vm *VM) Exec(context Context, trace bool) {
 			return
 		}
 	}
+}
+
+func (vm *VM) fetch() byte {
+	tempPc := vm.pc
+	vm.pc++
+	return vm.code[tempPc]
 }
