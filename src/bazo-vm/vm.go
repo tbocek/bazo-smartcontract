@@ -27,10 +27,38 @@ func NewVM(startInstruction int) VM {
 
 // Private function, that can be activated by Exec call, useful for debugging
 func (vm *VM) trace() {
+	stack := vm.evaluationStack
 	addr := vm.pc
 	opCode := OpCodes[int(vm.code[vm.pc])]
-	stack := vm.evaluationStack
-	fmt.Printf("%04d: %s \t%v\n", addr, opCode.name, stack)
+	var args []byte
+
+	switch opCode.name {
+	case "push":
+		nargs := int(vm.code[vm.pc+1])
+		args = vm.code[vm.pc+2 : vm.pc+nargs+2]
+		fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
+
+	case "pushs":
+		tempPc := vm.pc
+		arg := vm.code[tempPc]
+		tempPc++
+
+		firstRun := true
+		var args []byte
+		for firstRun == true || arg != 0x00 {
+			firstRun = false
+			arg = vm.code[tempPc]
+			if arg != 0x00 {
+				args = append(args, arg)
+			}
+			tempPc++
+		}
+		fmt.Printf("%04d: %-6s %-10v \t%v\n", addr, opCode.name, ByteArrayToString(args), stack)
+
+	default:
+		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
+		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.name, args, stack)
+	}
 }
 
 func (vm *VM) Exec(context Context, trace bool) {
@@ -47,7 +75,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 		opCode := vm.code[vm.pc]
 
 		if opCode != HALT {
-			if context.maxGasAmount <= 0{
+			if context.maxGasAmount <= 0 {
 				return
 			}
 			context.maxGasAmount--
@@ -59,8 +87,8 @@ func (vm *VM) Exec(context Context, trace bool) {
 		switch opCode {
 		case PUSH:
 			byteCount := int(vm.code[vm.pc]) // Amount of bytes pushed
-			vm.pc++ // Set pc to first byte of argument
-			var ba byteArray = vm.code[vm.pc: vm.pc + byteCount]
+			vm.pc++                          // Set pc to first byte of argument
+			var ba byteArray = vm.code[vm.pc : vm.pc+byteCount]
 			vm.pc += byteCount //Sets the pc to the next opCode
 			vm.evaluationStack.Push(ba)
 
@@ -197,6 +225,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			vm.pc++
 			argsToLoad := int(vm.code[vm.pc]) // Shows how many elements have to be popped from evaluationStack
 			vm.pc++
+			fmt.Println(vm.pc)
 
 			frame := Frame{returnAddress: vm.pc, variables: make(map[int][]byte)}
 
