@@ -61,7 +61,7 @@ func (vm *VM) trace() {
 	}
 }
 
-func (vm *VM) Exec(context Context, trace bool) {
+func (vm *VM) Exec(context Context, trace bool) bool {
 
 	vm.code = context.smartContract.data.code
 
@@ -76,7 +76,8 @@ func (vm *VM) Exec(context Context, trace bool) {
 
 		if opCode != HALT {
 			if context.maxGasAmount <= 0 {
-				return
+				vm.evaluationStack.Push(StrToByteArray("out of gas"))
+				return false
 			}
 			context.maxGasAmount--
 		}
@@ -87,6 +88,7 @@ func (vm *VM) Exec(context Context, trace bool) {
 			byteCount := int(vm.fetch()) // Amount of bytes pushed
 			var ba byteArray = vm.code[vm.pc : vm.pc+byteCount]
 			vm.pc += byteCount //Sets the pc to the next opCode
+			fmt.Println(ba)
 			vm.evaluationStack.Push(ba)
 
 		case PUSHS:
@@ -101,6 +103,15 @@ func (vm *VM) Exec(context Context, trace bool) {
 				vm.pc++
 			}
 			vm.evaluationStack.Push(byteArray)
+
+		case DUP:
+			val, _ := vm.evaluationStack.Peek()
+			vm.evaluationStack.Push(val)
+
+		case ROLL:
+			arg := vm.fetch() // arg shows how many have to be rolled
+			newTos := vm.evaluationStack.PopIndexAt(vm.evaluationStack.GetLength() - (int(arg) + 2))
+			vm.evaluationStack.Push(newTos)
 
 		case ADD:
 			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
@@ -265,8 +276,11 @@ func (vm *VM) Exec(context Context, trace bool) {
 			val, _ := vm.evaluationStack.Peek()
 			fmt.Println(val)
 
+		case ERRHALT:
+			return false
+
 		case HALT:
-			return
+			return true
 		}
 	}
 }

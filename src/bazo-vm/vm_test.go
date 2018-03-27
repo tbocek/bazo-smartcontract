@@ -20,7 +20,7 @@ func TestVMGasConsumption(t *testing.T) {
 	vm := NewVM(0)
 
 	context := newTestContextObj()
-	context.maxGasAmount = 1
+	context.maxGasAmount = 3
 
 	code := []byte{
 		PUSH, 1, 8,
@@ -35,8 +35,8 @@ func TestVMGasConsumption(t *testing.T) {
 	ba := vm.evaluationStack.Pop()
 	val := ByteArrayToInt(ba)
 
-	if val != 8 {
-		t.Errorf("Expected first value to be 8 but was %v", val)
+	if val != 16 {
+		t.Errorf("Expected first value to be 16 but was %v", val)
 	}
 }
 
@@ -487,7 +487,7 @@ func TestProgramExecutionCall(t *testing.T) {
 		HALT,
 		NOP,
 		NOP,
-		LOAD, 0,
+		LOAD, 0, // Begin of called function at address 13
 		LOAD, 1,
 		SUB,
 		PRINT,
@@ -583,5 +583,29 @@ func TestProgramExecutionPushs(t *testing.T) {
 
 	if ByteArrayToString(first) != "asdf" {
 		t.Errorf("Actual value is %s, should be 'Bierchen' after popping string", first)
+	}
+}
+
+func TestProgramExecutionRoll(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 3,
+		PUSH, 1, 4,
+		PUSH, 1, 5,
+		PUSH, 1, 6,
+		PUSH, 1, 7,
+		ROLL, 2,
+		HALT,
+	}
+
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
+	vm := NewVM(0)
+	vm.Exec(context, true)
+
+	tos := ByteArrayToInt(vm.evaluationStack.Pop())
+
+	if tos != 4 {
+		t.Errorf("Actual value is %s, should be 4 after rolling with two as arg", tos)
 	}
 }

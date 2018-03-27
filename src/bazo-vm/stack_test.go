@@ -49,6 +49,23 @@ func TestStackPeek(t *testing.T) {
 	}
 }
 
+func TestStack_PopIndexAt(t *testing.T) {
+	s := NewStack()
+
+	s.Push(IntToByteArray(3))
+	s.Push(IntToByteArray(4))
+	s.Push(IntToByteArray(5))
+	s.Push(IntToByteArray(6))
+	s.PopIndexAt(2)
+	s.Peek()
+
+	fmt.Println(s)
+
+	if s.GetLength() != 3 {
+		t.Errorf("Expected stack with size 3 but got %v", s.GetLength())
+	}
+}
+
 func TestPushAndPopElement(t *testing.T) {
 	s := NewStack()
 

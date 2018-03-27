@@ -25,14 +25,14 @@ func NewSmartContract(address []byte, balance uint64, isStaking bool, hashedSeed
 		isStaking,
 		hashedSeed,
 		0,
-		ContractCode{code: code,},
+		ContractCode{code: code},
 		map[int][]byte{},
 	}
 	return newSC
 }
 
 type ContractCallersTransaction struct {
-	transactionSender       []byte
-	transactioninputData    []byte
-	maxGasAmount int
+	transactionSender    []byte
+	transactioninputData []byte
+	maxGasAmount         int
 }
