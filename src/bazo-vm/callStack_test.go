@@ -21,7 +21,7 @@ func TestCallStack_Push(t *testing.T) {
 		2: {12, 39, 43},
 	}
 
-	cs.Push(Frame{variables: variables, returnAddress: 3})
+	cs.Push(&Frame{variables: variables, returnAddress: 3})
 	topOfStack := cs.Pop()
 
 	if reflect.DeepEqual(topOfStack, variables) {
@@ -51,9 +51,9 @@ func TestCallStack_MultiplePushPop(t *testing.T) {
 		2: {12, 39, 43},
 	}
 
-	cs.Push(Frame{variables: variables1, returnAddress: 0})
-	cs.Push(Frame{variables: variables2, returnAddress: 0})
-	cs.Push(Frame{variables: variables3, returnAddress: 0})
+	cs.Push(&Frame{variables: variables1, returnAddress: 0})
+	cs.Push(&Frame{variables: variables2, returnAddress: 0})
+	cs.Push(&Frame{variables: variables3, returnAddress: 0})
 
 	if cs.GetLength() != 3 {
 		t.Errorf("Expected Lenght to be 3 after Pushing 3 Frames, but got %v", cs.GetLength())

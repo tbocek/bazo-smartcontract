@@ -11,10 +11,8 @@ type Stack struct {
 	stack []byteArray
 }
 
-func NewStack() Stack {
-	return Stack{
-		stack: []byteArray{},
-	}
+func NewStack() *Stack {
+	return &Stack{}
 }
 
 func (s Stack) GetLength() int {

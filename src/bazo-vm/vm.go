@@ -10,8 +10,8 @@ import (
 type VM struct {
 	code            []byte
 	pc              int // Program counter
-	evaluationStack Stack
-	callStack       CallStack
+	evaluationStack *Stack
+	callStack       *CallStack
 }
 
 func NewVM(startInstruction int) VM {
@@ -230,7 +230,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			jumpAddress := int(vm.fetch()) // Shows where to jump after executing
 			argsToLoad := int(vm.fetch())  // Shows how many elements have to be popped from evaluationStack
 
-			frame := Frame{returnAddress: vm.pc, variables: make(map[int][]byte)}
+			frame := &Frame{returnAddress: vm.pc, variables: make(map[int][]byte)}
 
 			for i := argsToLoad - 1; i >= 0; i-- {
 				frame.variables[i] = vm.evaluationStack.Pop()
