@@ -12,7 +12,6 @@ type VM struct {
 	pc              int // Program counter
 	evaluationStack Stack
 	callStack       CallStack
-	memory          Memory
 }
 
 func NewVM(startInstruction int) VM {
@@ -21,7 +20,6 @@ func NewVM(startInstruction int) VM {
 		pc:              startInstruction,
 		evaluationStack: NewStack(),
 		callStack:       NewCallStack(),
-		memory:          NewMemory(),
 	}
 }
 
@@ -252,16 +250,6 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			val := vm.callStack.Peek().variables[address]
 			vm.evaluationStack.Push(val)
-
-		case MSTORE:
-			right := vm.evaluationStack.Pop()
-			vm.memory.Store(right)
-
-		case MLOAD:
-			index := int(vm.fetch())
-
-			data, _ := vm.memory.Load(index)
-			vm.evaluationStack.Push(data)
 
 		case SHA3:
 			right := vm.evaluationStack.Pop()

@@ -517,36 +517,6 @@ func TestProgramExecutionCall(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionMemory(t *testing.T) {
-	code := []byte{
-		PUSH, 1, 3,
-		MSTORE,
-		PUSH, 1, 5,
-		MSTORE,
-		MLOAD, 1, // Get 5 first
-		MLOAD, 0, // Get 3
-		SUB,
-		HALT,
-	}
-
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
-	vm := NewVM(0)
-	vm.Exec(context, true)
-
-	// Get evaluationStack top value to compare to expected value
-	val, err := vm.evaluationStack.Peek()
-
-	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
-	}
-
-	if ByteArrayToInt(val) != 2 {
-		t.Errorf("Actual value is %v, sould be 3 after jumping to halt", val)
-	}
-}
-
 func TestProgramExecutionSha3(t *testing.T) {
 	code := []byte{
 		PUSH, 1, 3,
@@ -606,6 +576,6 @@ func TestProgramExecutionRoll(t *testing.T) {
 	tos := ByteArrayToInt(vm.evaluationStack.Pop())
 
 	if tos != 4 {
-		t.Errorf("Actual value is %s, should be 4 after rolling with two as arg", tos)
+		t.Errorf("Actual value is %v, should be 4 after rolling with two as arg", tos)
 	}
 }

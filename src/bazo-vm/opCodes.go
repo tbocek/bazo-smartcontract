@@ -25,8 +25,6 @@ const (
 	RET
 	STORE
 	LOAD
-	MSTORE
-	MLOAD
 	SHA3
 	PRINT
 	ERRHALT
@@ -63,8 +61,6 @@ var OpCodes = map[int]OpCode{
 	RET:     OpCode{"ret", 0},
 	STORE:   OpCode{"store", 0},
 	LOAD:    OpCode{"load", 1},
-	MSTORE:  OpCode{"mstore", 0},
-	MLOAD:   OpCode{"mload", 1},
 	SHA3:    OpCode{"sha3", 0},
 	PRINT:   OpCode{"print", 0},
 	HALT:    OpCode{"halt", 0},
