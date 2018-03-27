@@ -22,6 +22,7 @@ const (
 	JMP
 	JMPIF
 	CALL
+	CALLEXT
 	RET
 	STORE
 	LOAD
@@ -58,6 +59,7 @@ var OpCodes = map[int]OpCode{
 	JMP:     OpCode{"jmp", 1},
 	JMPIF:   OpCode{"jmpif", 1},
 	CALL:    OpCode{"call", 2},
+	CALLEXT: OpCode{"callext", 3},
 	RET:     OpCode{"ret", 0},
 	STORE:   OpCode{"store", 0},
 	LOAD:    OpCode{"load", 1},

@@ -53,6 +53,12 @@ func (vm *VM) trace() {
 		}
 		fmt.Printf("%04d: %-6s %-10v \t%v\n", addr, opCode.name, ByteArrayToString(args), stack)
 
+	case "callext":
+		nargs := int(vm.code[vm.pc+37])
+		functionHash := vm.code[vm.pc+33 : vm.pc+37]
+		address := vm.code[vm.pc+1 : vm.pc+33]
+		fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.name, address, functionHash, nargs, stack)
+
 	default:
 		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.name, args, stack)
@@ -86,7 +92,6 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			byteCount := int(vm.fetch()) // Amount of bytes pushed
 			var ba byteArray = vm.code[vm.pc : vm.pc+byteCount]
 			vm.pc += byteCount //Sets the pc to the next opCode
-			fmt.Println(ba)
 			vm.evaluationStack.Push(ba)
 
 		case PUSHS:
@@ -234,6 +239,16 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			vm.callStack.Push(frame)
 			vm.pc = jumpAddress - 1
 
+		case CALLEXT:
+			transactionAddress := vm.code[vm.pc : vm.pc+32] // Addresses are 32 bytes
+			vm.pc += 32                                     // Increase pc by address to get next instruction
+			functionHash := vm.code[vm.pc : vm.pc+4]        // Function hash identifies function in external smart contract, first 4 byte of SHA3 hash
+			vm.pc += 4                                      // Increase pc by function hash to get next instruction
+			argsToLoad := int(vm.fetch())                   // Shows how many arguments to pop from stack and pass to external function
+
+			fmt.Println(transactionAddress, functionHash, argsToLoad)
+			//TODO: Invoke new transaction with function hash and arguments, waiting for integration in bazo blockchain to finish
+
 		case RET:
 			returnAddress := vm.callStack.Peek().returnAddress
 			vm.callStack.Pop()
@@ -268,6 +283,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			return false
 
 		case HALT:
+			fmt.Println(vm.pc)
 			return true
 		}
 	}

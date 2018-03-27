@@ -517,6 +517,21 @@ func TestProgramExecutionCall(t *testing.T) {
 	}
 }
 
+func TestProgramExecutionCallExt(t *testing.T) {
+	code := []byte{
+		PUSH, 1, 10,
+		PUSH, 1, 8,
+		CALLEXT, 227, 237, 86, 189, 8, 109, 137, 88, 72, 58, 18, 115, 79, 160, 174, 127, 92, 139, 177, 96, 239, 144, 146, 198, 126, 130, 237, 155, 25, 228, 199, 178, 41, 24, 45, 14, 2,
+		HALT,
+	}
+
+	context := newTestContextObj()
+	context.smartContract.data.code = code
+
+	vm := NewVM(0)
+	vm.Exec(context, true)
+}
+
 func TestProgramExecutionSha3(t *testing.T) {
 	code := []byte{
 		PUSH, 1, 3,
