@@ -32,7 +32,7 @@ func TestVMGasConsumption(t *testing.T) {
 	context.smartContract.data.code = code
 
 	vm.Exec(context, true)
-	ba := vm.evaluationStack.Pop()
+	ba, _ := vm.evaluationStack.Pop()
 	val := ByteArrayToInt(ba)
 
 	if val != 16 {
@@ -394,7 +394,8 @@ func TestProgramExectuionShiftl(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	result := ByteArrayToInt(vm.evaluationStack.Pop())
+	ba, _ := vm.evaluationStack.Pop()
+	result := ByteArrayToInt(ba)
 
 	if result != 8 {
 		t.Errorf("Expected result to be 8 but was %v", result)
@@ -414,7 +415,8 @@ func TestProgramExectuionShiftr(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	result := ByteArrayToInt(vm.evaluationStack.Pop())
+	ba, _ := vm.evaluationStack.Pop()
+	result := ByteArrayToInt(ba)
 
 	if result != 1 {
 		t.Errorf("Expected result to be 1 but was %v", result)
@@ -545,7 +547,7 @@ func TestProgramExecutionSha3(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	val := vm.evaluationStack.Pop()
+	val, _ := vm.evaluationStack.Pop()
 
 	if !reflect.DeepEqual(val, []byte{227, 237, 86, 189, 8, 109, 137, 88, 72, 58, 18, 115, 79, 160, 174, 127, 92, 139, 177, 96, 239, 144, 146, 198, 126, 130, 237, 155, 25, 228, 199, 178}) {
 		t.Errorf("Actual value is %v, should be {227, 237, 86, 189...} after jumping to halt", val)
@@ -564,7 +566,7 @@ func TestProgramExecutionPushs(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	first := vm.evaluationStack.Pop()
+	first, _ := vm.evaluationStack.Pop()
 
 	if ByteArrayToString(first) != "asdf" {
 		t.Errorf("Actual value is %s, should be 'Bierchen' after popping string", first)
@@ -588,7 +590,8 @@ func TestProgramExecutionRoll(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	tos := ByteArrayToInt(vm.evaluationStack.Pop())
+	ba, _ := vm.evaluationStack.Pop()
+	tos := ByteArrayToInt(ba)
 
 	if tos != 4 {
 		t.Errorf("Actual value is %v, should be 4 after rolling with two as arg", tos)
