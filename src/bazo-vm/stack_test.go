@@ -38,7 +38,7 @@ func TestStackPopIfRemoves(t *testing.T) {
 	s.Push(val2)
 	s.Push(val3)
 
-	tos := s.Pop()
+	tos, _ := s.Pop()
 
 	if tos.Int64() != int64(-841324768) {
 		t.Errorf("Expected 123 got something else")
@@ -73,7 +73,7 @@ func TestStack_PopIndexAt(t *testing.T) {
 	s.Push(*big.NewInt(int64(4)))
 	s.Push(*big.NewInt(int64(5)))
 	s.Push(*big.NewInt(int64(6)))
-	element := s.PopIndexAt(2)
+	element, _ := s.PopIndexAt(2)
 
 	fmt.Println(s)
 
@@ -99,7 +99,7 @@ func TestPushAndPopElement(t *testing.T) {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
 
-	val := s.Pop()
+	val, _ := s.Pop()
 	if val.Int64() != 2 {
 		t.Errorf("Expected val of element to be 2, but was %v", val)
 	}
