@@ -140,7 +140,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -151,7 +156,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -162,7 +172,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -173,7 +188,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -184,7 +204,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -195,7 +220,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -209,7 +239,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -223,7 +258,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -237,7 +277,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -251,7 +296,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -265,7 +315,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
 
-			if rerr != nil || lerr != nil {
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(rerr.Error()))
+				return false
+			}
+			if	lerr != nil {
+				vm.evaluationStack.Push(StrToByteArray(lerr.Error()))
 				return false
 			}
 
@@ -281,6 +336,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			ba, err := vm.evaluationStack.Pop()
 
 			if err != nil {
+				vm.evaluationStack.Push(StrToByteArray(err.Error()))
 				return false
 			}
 
@@ -294,6 +350,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			ba, err := vm.evaluationStack.Pop()
 
 			if err != nil {
+				vm.evaluationStack.Push(StrToByteArray(err.Error()))
 				return false
 			}
 
@@ -313,6 +370,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, err := vm.evaluationStack.Pop()
 
 			if err != nil {
+				vm.evaluationStack.Push(StrToByteArray(err.Error()))
 				return false
 			}
 
@@ -330,6 +388,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			for i := argsToLoad - 1; i >= 0; i-- {
 				frame.variables[i], err = vm.evaluationStack.Pop()
 				if err != nil {
+					vm.evaluationStack.Push(StrToByteArray(err.Error()))
 					return false
 				}
 			}
@@ -356,6 +415,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, err := vm.evaluationStack.Pop()
 
 			if err != nil {
+				vm.evaluationStack.Push(StrToByteArray(err.Error()))
 				return false
 			}
 
@@ -373,6 +433,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			right, err := vm.evaluationStack.Pop()
 
 			if err != nil {
+				vm.evaluationStack.Push(StrToByteArray(err.Error()))
 				return false
 			}
 
