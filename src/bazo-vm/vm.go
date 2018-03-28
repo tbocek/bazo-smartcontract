@@ -38,23 +38,6 @@ func (vm *VM) trace() {
 		args = vm.code[vm.pc+2 : vm.pc+nargs+2]
 		fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
 
-	case "pushs":
-		tempPc := vm.pc
-		arg := vm.code[tempPc]
-		tempPc++
-
-		firstRun := true
-		var args []byte
-		for firstRun == true || arg != 0x00 {
-			firstRun = false
-			arg = vm.code[tempPc]
-			if arg != 0x00 {
-				args = append(args, arg)
-			}
-			tempPc++
-		}
-		fmt.Printf("%04d: %-6s %-10v \t%v\n", addr, opCode.name, ByteArrayToInt(args), stack)
-
 	case "callext":
 		nargs := int(vm.code[vm.pc+37])
 		functionHash := vm.code[vm.pc+33 : vm.pc+37]

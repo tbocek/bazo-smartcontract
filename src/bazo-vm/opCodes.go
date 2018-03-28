@@ -2,7 +2,6 @@ package bazo_vm
 
 const (
 	PUSH = iota
-	PUSHS
 	DUP
 	ROLL
 	ADD
@@ -39,7 +38,6 @@ type OpCode struct {
 
 var OpCodes = map[int]OpCode{
 	PUSH:    OpCode{"push", 0},
-	PUSHS:   OpCode{"pushs", 0}, //Variable nargs, handled direclty in trace function
 	DUP:     OpCode{"dup", 0},
 	ROLL:    OpCode{"roll", 1},
 	ADD:     OpCode{"add", 0},
