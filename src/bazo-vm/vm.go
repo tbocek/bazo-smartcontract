@@ -79,11 +79,26 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 		opCode := vm.fetch()
 
 		if opCode != HALT {
-			if context.maxGasAmount <= 0 {
-				vm.evaluationStack.Push(StrToByteArray("out of gas"))
-				return false
+			if opCode == LOAD {
+				if context.maxGasAmount <= 9999 {
+					vm.evaluationStack.Push(StrToByteArray("out of gas"))
+					return false
+				}
+				context.maxGasAmount -= 10000
+			}else if opCode == STORE {
+				if context.maxGasAmount <= 99 {
+					vm.evaluationStack.Push(StrToByteArray("out of gas"))
+					return false
+				}
+				context.maxGasAmount -= 100
+			} else {
+				if context.maxGasAmount <= 0 {
+					vm.evaluationStack.Push(StrToByteArray("out of gas"))
+					return false
+				}
+				context.maxGasAmount--
 			}
-			context.maxGasAmount--
+
 		}
 
 		// Decode

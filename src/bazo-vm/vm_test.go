@@ -11,7 +11,7 @@ func newTestContextObj() Context {
 	return Context{
 		transactionSender:    []byte{},
 		transactioninputData: []byte{},
-		maxGasAmount:         100,
+		maxGasAmount:         100000,
 		smartContract:        NewSmartContract([]byte{}, 100, true, []byte{}, []byte{}, data),
 	}
 }
