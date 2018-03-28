@@ -1,7 +1,9 @@
 package bazo_vm
 
+import "math/big"
+
 type Frame struct {
-	variables     map[int][]byte
+	variables     map[int]big.Int
 	returnAddress int
 }
 

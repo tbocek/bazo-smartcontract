@@ -2,7 +2,6 @@ package bazo_vm
 
 import (
 	"errors"
-	"log"
 	"math/big"
 )
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestIntToByteArrayAndBack(t *testing.T) {
+/*func TestIntToByteArrayAndBack(t *testing.T) {
 	var start int = 4651321
 	ba := IntToByteArray(start)
 
@@ -12,13 +12,13 @@ func TestIntToByteArrayAndBack(t *testing.T) {
 	if start != end {
 		t.Errorf("Converstion from int to byteArray and back failed, start and end should be equal, are start: %v, end: %v", start, end)
 	}
-}
+}*/
 
 func TestStrToByteArrayAndBack(t *testing.T) {
 	startStr := "asdf"
-	ba := StrToByteArray(startStr)
+	ba := StrToBigInt(startStr)
 
-	endStr := ByteArrayToString(ba)
+	endStr := BigIntToString(ba)
 	if startStr != endStr {
 		t.Errorf("Converstion from str to byteArray and back failed, start and end should be equal, are start: %s, end: %s", startStr, endStr)
 	}
