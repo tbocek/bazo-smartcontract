@@ -79,11 +79,26 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 		opCode := vm.fetch()
 
 		if opCode != HALT {
-			if context.maxGasAmount <= 0 {
-				vm.evaluationStack.Push(StrToByteArray("out of gas"))
-				return false
+			if opCode == LOAD {
+				if context.maxGasAmount <= 9999 {
+					vm.evaluationStack.Push(StrToByteArray("out of gas"))
+					return false
+				}
+				context.maxGasAmount -= 10000
+			}else if opCode == STORE {
+				if context.maxGasAmount <= 99 {
+					vm.evaluationStack.Push(StrToByteArray("out of gas"))
+					return false
+				}
+				context.maxGasAmount -= 100
+			} else {
+				if context.maxGasAmount <= 0 {
+					vm.evaluationStack.Push(StrToByteArray("out of gas"))
+					return false
+				}
+				context.maxGasAmount--
 			}
-			context.maxGasAmount--
+
 		}
 
 		// Decode
@@ -113,36 +128,76 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 		case ROLL:
 			arg := vm.fetch() // arg shows how many have to be rolled
-			newTos := vm.evaluationStack.PopIndexAt(vm.evaluationStack.GetLength() - (int(arg) + 2))
+			newTos, err := vm.evaluationStack.PopIndexAt(vm.evaluationStack.GetLength() - (int(arg) + 2))
+
+			if err != nil {
+				return false
+			}
+
 			vm.evaluationStack.Push(newTos)
 
 		case ADD:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
+
 			result := ByteArrayToInt(left) + ByteArrayToInt(right)
 			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case SUB:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
+
 			result := ByteArrayToInt(left) - ByteArrayToInt(right)
 			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case MULT:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
+
 			result := ByteArrayToInt(left) * ByteArrayToInt(right)
 			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case DIV:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
+
 			result := ByteArrayToInt(left) / ByteArrayToInt(right)
 			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case MOD:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
+
 			result := ByteArrayToInt(left) % ByteArrayToInt(right)
 			vm.evaluationStack.Push(IntToByteArray(result))
 
 		case EQ:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
 
 			if reflect.DeepEqual(left, right) {
 				vm.evaluationStack.Push(IntToByteArray(1))
@@ -151,7 +206,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 		case NEQ:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
 
 			if reflect.DeepEqual(left, right) {
 				vm.evaluationStack.Push(IntToByteArray(0))
@@ -160,7 +220,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 		case LT:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
 
 			if ByteArrayToInt(left) < ByteArrayToInt(right) {
 				vm.evaluationStack.Push(IntToByteArray(1))
@@ -169,7 +234,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 		case GT:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
 
 			if ByteArrayToInt(left) > ByteArrayToInt(right) {
 				vm.evaluationStack.Push(IntToByteArray(1))
@@ -178,7 +248,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 		case LTE:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
 
 			if ByteArrayToInt(left) <= ByteArrayToInt(right) {
 				vm.evaluationStack.Push(IntToByteArray(1))
@@ -187,7 +262,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 		case GTE:
-			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
+			right, rerr := vm.evaluationStack.Pop()
+			left, lerr := vm.evaluationStack.Pop()
+
+			if rerr != nil || lerr != nil {
+				return false
+			}
 
 			if ByteArrayToInt(left) >= ByteArrayToInt(right) {
 				vm.evaluationStack.Push(IntToByteArray(1))
@@ -198,7 +278,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 		case SHIFTL:
 			nrOfShifts := uint64(vm.fetch())
 
-			ba := vm.evaluationStack.Pop()
+			ba, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				return false
+			}
+
 			value := ByteArrayToInt(ba)
 			value = value << nrOfShifts
 			vm.evaluationStack.Push(IntToByteArray(value))
@@ -206,7 +291,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 		case SHIFTR:
 			nrOfShifts := uint64(vm.fetch())
 
-			ba := vm.evaluationStack.Pop()
+			ba, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				return false
+			}
+
 			value := ByteArrayToInt(ba)
 			value = value >> nrOfShifts
 			vm.evaluationStack.Push(IntToByteArray(value))
@@ -220,7 +310,11 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 		case JMPIF:
 			val := int(vm.fetch())
-			right := vm.evaluationStack.Pop()
+			right, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				return false
+			}
 
 			if ByteArrayToInt(right) == 1 {
 				vm.pc = val
@@ -232,8 +326,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			frame := &Frame{returnAddress: vm.pc, variables: make(map[int][]byte)}
 
+			var err error = nil
 			for i := argsToLoad - 1; i >= 0; i-- {
-				frame.variables[i] = vm.evaluationStack.Pop()
+				frame.variables[i], err = vm.evaluationStack.Pop()
+				if err != nil {
+					return false
+				}
 			}
 
 			vm.callStack.Push(frame)
@@ -255,7 +353,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			vm.pc = returnAddress
 
 		case STORE:
-			right := vm.evaluationStack.Pop()
+			right, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				return false
+			}
+
 			vm.pc++
 			address := vm.pc
 			vm.callStack.Peek().variables[address] = right
@@ -267,7 +370,11 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			vm.evaluationStack.Push(val)
 
 		case SHA3:
-			right := vm.evaluationStack.Pop()
+			right, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				return false
+			}
 
 			hasher := sha3.New256()
 			hasher.Write(right)

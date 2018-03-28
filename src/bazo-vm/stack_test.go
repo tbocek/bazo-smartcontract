@@ -26,10 +26,11 @@ func TestStackPopIfRemoves(t *testing.T) {
 
 	int := IntToByteArray(123)
 	s.Push(int)
-	asdf := ByteArrayToInt(s.Pop())
+	ba, _ := s.Pop()
+	val := ByteArrayToInt(ba)
 
-	if asdf != 123 {
-		t.Errorf("Expected 123 got something else")
+	if val != 123 {
+		t.Errorf("Expected 123 got %v", val)
 
 	}
 
@@ -79,9 +80,10 @@ func TestPushAndPopElement(t *testing.T) {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
 
-	val := ByteArrayToInt(s.Pop())
-	if val != 2 {
-		t.Errorf("Expected val of element to be 2, but was %v", val)
+	ba, _ := s.Pop()
+	v := ByteArrayToInt(ba)
+	if v != 2 {
+		t.Errorf("Expected val of element to be 2, but was %v", v)
 	}
 
 	s.Push(IntToByteArray(5))
