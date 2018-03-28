@@ -33,9 +33,9 @@ func TestVMGasConsumption(t *testing.T) {
 
 	vm.Exec(context, true)
 	ba := vm.evaluationStack.Pop()
-	val := ByteArrayToInt(ba)
+	val := ba
 
-	if val != 16 {
+	if val.Int64() != 16 {
 		t.Errorf("Expected first value to be 16 but was %v", val)
 	}
 }
@@ -66,14 +66,14 @@ func TestProgramExecutionAddition(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	val, err := vm.evaluationStack.Peek()
+	tos, err := vm.evaluationStack.Peek()
 
 	if err != nil {
 		t.Errorf("%v", err)
 	}
 
-	if reflect.DeepEqual(val, []byte{123}) {
-		t.Errorf("Actual value is %v, should be 53 after adding up 50 and 3", val)
+	if tos.Int64() != int64(43155) {
+		t.Errorf("Actual value is %v, should be 53 after adding up 50 and 3", tos.Int64())
 	}
 }
 
@@ -588,9 +588,9 @@ func TestProgramExecutionRoll(t *testing.T) {
 	vm := NewVM(0)
 	vm.Exec(context, true)
 
-	tos := ByteArrayToInt(vm.evaluationStack.Pop())
+	tos := vm.evaluationStack.Pop()
 
-	if tos != 4 {
+	if tos.Int64() != 4 {
 		t.Errorf("Actual value is %v, should be 4 after rolling with two as arg", tos)
 	}
 }

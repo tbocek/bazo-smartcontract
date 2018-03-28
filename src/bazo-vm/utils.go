@@ -1,8 +1,6 @@
 package bazo_vm
 
-import (
-	"encoding/binary"
-)
+import "encoding/binary"
 
 func IntToByteArray(element int) []byte {
 	ba := make([]byte, 64)

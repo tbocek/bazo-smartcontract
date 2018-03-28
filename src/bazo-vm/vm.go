@@ -2,6 +2,8 @@ package bazo_vm
 
 import (
 	"fmt"
+
+	"math/big"
 	"reflect"
 
 	"golang.org/x/crypto/sha3"
@@ -85,14 +87,14 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 			context.maxGasAmount--
 		}
-
 		// Decode
 		switch opCode {
 		case PUSH:
 			byteCount := int(vm.fetch()) // Amount of bytes pushed
-			var ba byteArray = vm.code[vm.pc : vm.pc+byteCount]
+			var bytes big.Int
+			bytes.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
 			vm.pc += byteCount //Sets the pc to the next opCode
-			vm.evaluationStack.Push(ba)
+			vm.evaluationStack.Push(bytes)
 
 		case PUSHS:
 			val := vm.fetch()
@@ -118,8 +120,8 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 		case ADD:
 			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
-			result := ByteArrayToInt(left) + ByteArrayToInt(right)
-			vm.evaluationStack.Push(IntToByteArray(result))
+			left.Add(&left, &right)
+			vm.evaluationStack.Push(left)
 
 		case SUB:
 			right, left := vm.evaluationStack.Pop(), vm.evaluationStack.Pop()
