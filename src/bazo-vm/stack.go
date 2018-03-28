@@ -2,7 +2,6 @@ package bazo_vm
 
 import (
 	"errors"
-	"log"
 )
 
 type byteArray []byte
@@ -23,25 +22,23 @@ func (s *Stack) Push(element []byte) {
 	s.stack = append(s.stack, element)
 }
 
-func (s *Stack) PopIndexAt(index int) (element []byte) {
+func (s *Stack) PopIndexAt(index int) (element []byte, err error) {
 	if (*s).GetLength() >= index {
 		element = (*s).stack[index]
 		s.stack = append((*s).stack[:index], (*s).stack[index+1:]...)
-		return element
+		return element, nil
 	} else {
-		log.Fatal(errors.New("Index out of bounds"))
-		return []byte{}
+		return []byte{}, errors.New("index out of bounds")
 	}
 }
 
-func (s *Stack) Pop() (element []byte) {
+func (s *Stack) Pop() (element []byte, err error) {
 	if (*s).GetLength() > 0 {
 		element = (*s).stack[s.GetLength()-1]
 		s.stack = s.stack[:s.GetLength()-1]
-		return element
+		return element, nil
 	} else {
-		log.Fatal(errors.New("Pop() on empty stack"))
-		return []byte{}
+		return []byte{}, errors.New("pop() on empty stack")
 	}
 }
 
@@ -50,6 +47,6 @@ func (s *Stack) Peek() (element []byte, err error) {
 		element = (*s).stack[s.GetLength()-1]
 		return element, nil
 	} else {
-		return []byte{}, errors.New("Peek() on empty stack!")
+		return []byte{}, errors.New("peek() on empty stack")
 	}
 }
