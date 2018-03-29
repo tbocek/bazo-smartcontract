@@ -23,8 +23,8 @@ func TestVMGasConsumption(t *testing.T) {
 	context.maxGasAmount = 3
 
 	code := []byte{
-		PUSH, 1, 8,
-		PUSH, 1, 8,
+		PUSH, 0, 8,
+		PUSH, 0, 8,
 		ADD,
 		HALT,
 	}
@@ -54,8 +54,8 @@ func TestNewVM(t *testing.T) {
 
 func TestProgramExecutionAddition(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 125,
-		PUSH, 2, 168, 22,
+		PUSH, 0, 125,
+		PUSH, 1, 168, 22,
 		ADD,
 		HALT,
 	}
@@ -79,8 +79,8 @@ func TestProgramExecutionAddition(t *testing.T) {
 
 func TestProgramExecutionSubtraction(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 3,
+		PUSH, 0, 6,
+		PUSH, 0, 3,
 		SUB,
 		HALT,
 	}
@@ -104,8 +104,8 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 
 func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 3,
-		PUSH, 1, 6,
+		PUSH, 0, 3,
+		PUSH, 0, 6,
 		SUB,
 		HALT,
 	}
@@ -129,8 +129,8 @@ func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
 
 func TestProgramExecutionMultiplication(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 5,
-		PUSH, 1, 2,
+		PUSH, 0, 5,
+		PUSH, 0, 2,
 		MULT,
 		HALT,
 	}
@@ -154,8 +154,8 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 
 func TestProgramExecutionDivision(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 2,
+		PUSH, 0, 6,
+		PUSH, 0, 2,
 		DIV,
 		HALT,
 	}
@@ -185,8 +185,8 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 	}()
 
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 0,
+		PUSH, 0, 6,
+		PUSH, 0, 0,
 		DIV,
 		HALT,
 	}
@@ -200,8 +200,8 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 
 func TestProgramExecutionEq(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 6,
+		PUSH, 0, 6,
+		PUSH, 0, 6,
 		EQ,
 		HALT,
 	}
@@ -225,8 +225,8 @@ func TestProgramExecutionEq(t *testing.T) {
 
 func TestProgramExecutionNeq(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 5,
+		PUSH, 0, 6,
+		PUSH, 0, 5,
 		NEQ,
 		HALT,
 	}
@@ -250,8 +250,8 @@ func TestProgramExecutionNeq(t *testing.T) {
 
 func TestProgramExecutionLt(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 4,
-		PUSH, 1, 6,
+		PUSH, 0, 4,
+		PUSH, 0, 6,
 		LT,
 		HALT,
 	}
@@ -275,8 +275,8 @@ func TestProgramExecutionLt(t *testing.T) {
 
 func TestProgramExecutionGt(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 4,
+		PUSH, 0, 6,
+		PUSH, 0, 4,
 		GT,
 		HALT,
 	}
@@ -300,8 +300,8 @@ func TestProgramExecutionGt(t *testing.T) {
 
 func TestProgramExecutionLte(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 4,
-		PUSH, 1, 6,
+		PUSH, 0, 4,
+		PUSH, 0, 6,
 		LTE,
 		HALT,
 	}
@@ -323,8 +323,8 @@ func TestProgramExecutionLte(t *testing.T) {
 	}
 
 	code1 := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 6,
+		PUSH, 0, 6,
+		PUSH, 0, 6,
 		LTE,
 		HALT,
 	}
@@ -341,8 +341,8 @@ func TestProgramExecutionLte(t *testing.T) {
 
 func TestProgramExecutionGte(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 4,
+		PUSH, 0, 6,
+		PUSH, 0, 4,
 		GTE,
 		HALT,
 	}
@@ -364,8 +364,8 @@ func TestProgramExecutionGte(t *testing.T) {
 	}
 
 	code1 := []byte{
-		PUSH, 1, 6,
-		PUSH, 1, 6,
+		PUSH, 0, 6,
+		PUSH, 0, 6,
 		GTE,
 		HALT,
 	}
@@ -383,7 +383,7 @@ func TestProgramExecutionGte(t *testing.T) {
 
 func TestProgramExectuionShiftl(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 1,
+		PUSH, 0, 1,
 		SHIFTL, 3,
 		HALT,
 	}
@@ -403,7 +403,7 @@ func TestProgramExectuionShiftl(t *testing.T) {
 
 func TestProgramExectuionShiftr(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 8,
+		PUSH, 0, 8,
 		SHIFTR, 3,
 		HALT,
 	}
@@ -423,13 +423,13 @@ func TestProgramExectuionShiftr(t *testing.T) {
 
 func TestProgramExecutionJmpif(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 3,
-		PUSH, 1, 4,
+		PUSH, 0, 3,
+		PUSH, 0, 4,
 		ADD,
-		PUSH, 1, 20,
+		PUSH, 0, 20,
 		LT,
 		JMPIF, 17,
-		PUSH, 1, 3,
+		PUSH, 0, 3,
 		NOP,
 		NOP,
 		NOP,
@@ -449,11 +449,11 @@ func TestProgramExecutionJmpif(t *testing.T) {
 
 func TestProgramExecutionJmp(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 3,
+		PUSH, 0, 3,
 		JMP, 13,
-		PUSH, 1, 4,
+		PUSH, 0, 4,
 		ADD,
-		PUSH, 1, 15,
+		PUSH, 0, 15,
 		ADD,
 		HALT,
 	}
@@ -477,8 +477,8 @@ func TestProgramExecutionJmp(t *testing.T) {
 
 func TestProgramExecutionCall(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 10,
-		PUSH, 1, 8,
+		PUSH, 0, 10,
+		PUSH, 0, 8,
 		CALL, 13, 2,
 		HALT,
 		NOP,
@@ -515,8 +515,8 @@ func TestProgramExecutionCall(t *testing.T) {
 
 func TestProgramExecutionCallExt(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 10,
-		PUSH, 1, 8,
+		PUSH, 0, 10,
+		PUSH, 0, 8,
 		CALLEXT, 227, 237, 86, 189, 8, 109, 137, 88, 72, 58, 18, 115, 79, 160, 174, 127, 92, 139, 177, 96, 239, 144, 146, 198, 126, 130, 237, 155, 25, 228, 199, 178, 41, 24, 45, 14, 2,
 		HALT,
 	}
@@ -530,7 +530,7 @@ func TestProgramExecutionCallExt(t *testing.T) {
 
 func TestProgramExecutionSha3(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 3,
+		PUSH, 0, 3,
 		SHA3,
 		HALT,
 	}
@@ -550,11 +550,11 @@ func TestProgramExecutionSha3(t *testing.T) {
 
 func TestProgramExecutionRoll(t *testing.T) {
 	code := []byte{
-		PUSH, 1, 3,
-		PUSH, 1, 4,
-		PUSH, 1, 5,
-		PUSH, 1, 6,
-		PUSH, 1, 7,
+		PUSH, 0, 3,
+		PUSH, 0, 4,
+		PUSH, 0, 5,
+		PUSH, 0, 6,
+		PUSH, 0, 7,
 		ROLL, 2,
 		HALT,
 	}
