@@ -35,7 +35,7 @@ func (vm *VM) trace() {
 	switch opCode.name {
 	case "push":
 		nargs := int(vm.code[vm.pc+1])
-		args = vm.code[vm.pc+2 : vm.pc+nargs+2]
+		args = vm.code[vm.pc+2 : vm.pc+nargs+3]
 		fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
 
 	case "callext":
