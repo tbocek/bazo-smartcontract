@@ -2,6 +2,7 @@ package bazo_vm
 
 import (
 	"fmt"
+	"math/big"
 	"testing"
 )
 
@@ -24,15 +25,27 @@ func TestStackPopWhenEmpty(t *testing.T) {
 func TestStackPopIfRemoves(t *testing.T) {
 	s := NewStack()
 
-	int := IntToByteArray(123)
-	s.Push(int)
-	ba, _ := s.Pop()
-	val := ByteArrayToInt(ba)
+	var val1 big.Int
+	val1.SetInt64(454)
 
-	if val != 123 {
-		t.Errorf("Expected 123 got %v", val)
+	var val2 big.Int
+	val2.SetInt64(46542)
 
+	var val3 big.Int
+	val3.SetInt64(-841324768)
+
+	s.Push(val1)
+	s.Push(val2)
+	s.Push(val3)
+
+	tos, _ := s.Pop()
+
+	if tos.Int64() != int64(-841324768) {
+		t.Errorf("Expected 123 got something else")
 	}
+
+	s.Pop()
+	s.Pop()
 
 	if s.GetLength() != 0 {
 		t.Errorf("Expected empty stack to throw an error when using pop() but it didn't")
@@ -42,7 +55,10 @@ func TestStackPopIfRemoves(t *testing.T) {
 func TestStackPeek(t *testing.T) {
 	s := NewStack()
 
-	s.Push(IntToByteArray(3))
+	var val big.Int
+	val.SetInt64(-841324768)
+
+	s.Push(val)
 	s.Peek()
 
 	if s.GetLength() != 1 {
@@ -53,17 +69,20 @@ func TestStackPeek(t *testing.T) {
 func TestStack_PopIndexAt(t *testing.T) {
 	s := NewStack()
 
-	s.Push(IntToByteArray(3))
-	s.Push(IntToByteArray(4))
-	s.Push(IntToByteArray(5))
-	s.Push(IntToByteArray(6))
-	s.PopIndexAt(2)
-	s.Peek()
+	s.Push(*big.NewInt(int64(3)))
+	s.Push(*big.NewInt(int64(4)))
+	s.Push(*big.NewInt(int64(5)))
+	s.Push(*big.NewInt(int64(6)))
+	element, _ := s.PopIndexAt(2)
 
 	fmt.Println(s)
 
 	if s.GetLength() != 3 {
 		t.Errorf("Expected stack with size 3 but got %v", s.GetLength())
+	}
+
+	if element.Int64() != 5 {
+		t.Errorf("Expected element to be 5 but got %v", element)
 	}
 }
 
@@ -74,19 +93,18 @@ func TestPushAndPopElement(t *testing.T) {
 		t.Errorf("Expected size before push to be 0, but was %v", s.GetLength())
 	}
 
-	s.Push(IntToByteArray(2))
+	s.Push(*big.NewInt(int64(2)))
 
 	if s.GetLength() != 1 {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
 
-	ba, _ := s.Pop()
-	v := ByteArrayToInt(ba)
-	if v != 2 {
-		t.Errorf("Expected val of element to be 2, but was %v", v)
+	val, _ := s.Pop()
+	if val.Int64() != 2 {
+		t.Errorf("Expected val of element to be 2, but was %v", val)
 	}
 
-	s.Push(IntToByteArray(5))
+	s.Push(*big.NewInt(int64(5)))
 
 	if s.GetLength() != 1 {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())

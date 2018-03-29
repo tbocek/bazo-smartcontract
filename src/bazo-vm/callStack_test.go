@@ -1,6 +1,7 @@
 package bazo_vm
 
 import (
+	"math/big"
 	"reflect"
 	"testing"
 )
@@ -15,10 +16,10 @@ func TestCallStack_NewCallStack(t *testing.T) {
 func TestCallStack_Push(t *testing.T) {
 	cs := NewCallStack()
 
-	variables := map[int][]byte{
-		0: {12, 39, 43},
-		1: {89, 128, 12},
-		2: {12, 39, 43},
+	variables := map[int]big.Int{
+		0: *big.NewInt(int64(4)),
+		1: *big.NewInt(int64(5)),
+		2: *big.NewInt(int64(6)),
 	}
 
 	cs.Push(&Frame{variables: variables, returnAddress: 3})
@@ -36,19 +37,19 @@ func TestCallStack_Push(t *testing.T) {
 func TestCallStack_MultiplePushPop(t *testing.T) {
 	cs := NewCallStack()
 
-	variables1 := map[int][]byte{
-		0: {12, 39, 43},
+	variables1 := map[int]big.Int{
+		0: *big.NewInt(int64(4)),
 	}
 
-	variables2 := map[int][]byte{
-		0: {12, 39, 43},
-		1: {89, 128, 12},
+	variables2 := map[int]big.Int{
+		0: *big.NewInt(int64(4)),
+		1: *big.NewInt(int64(5)),
 	}
 
-	variables3 := map[int][]byte{
-		0: {12, 39, 43},
-		1: {89, 128, 12},
-		2: {12, 39, 43},
+	variables3 := map[int]big.Int{
+		0: *big.NewInt(int64(4)),
+		1: *big.NewInt(int64(5)),
+		2: *big.NewInt(int64(6)),
 	}
 
 	cs.Push(&Frame{variables: variables1, returnAddress: 0})
