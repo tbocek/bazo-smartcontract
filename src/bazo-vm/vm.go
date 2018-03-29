@@ -65,13 +65,13 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 		if opCode != HALT {
 			if opCode == LOAD {
-				if context.maxGasAmount <= 9999 {
+				if context.maxGasAmount < 10000 {
 					vm.evaluationStack.Push(StrToBigInt("out of gas"))
 					return false
 				}
 				context.maxGasAmount -= 10000
 			} else if opCode == STORE {
-				if context.maxGasAmount <= 99 {
+				if context.maxGasAmount < 100 {
 					vm.evaluationStack.Push(StrToBigInt("out of gas"))
 					return false
 				}
@@ -83,17 +83,16 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 				}
 				context.maxGasAmount--
 			}
-
 		}
 
 		// Decode
 		switch opCode {
 		case PUSH:
-			byteCount := int(vm.fetch()) // Amount of bytes pushed
-			var bytes big.Int
-			bytes.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
+			byteCount := int(vm.fetch()) + 1 // Amount of bytes pushed
+			var bigInt big.Int
+			bigInt.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
 			vm.pc += byteCount //Sets the pc to the next opCode
-			vm.evaluationStack.Push(bytes)
+			vm.evaluationStack.Push(bigInt)
 
 		case DUP:
 			val, _ := vm.evaluationStack.Peek()
@@ -104,6 +103,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			newTos, err := vm.evaluationStack.PopIndexAt(vm.evaluationStack.GetLength() - (int(arg) + 2))
 
 			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
 			}
 
@@ -416,9 +416,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			hasher.Write(right.Bytes())
 			sha3_hash := hasher.Sum(nil)
 
-			var bytes big.Int
-			bytes.SetBytes(sha3_hash)
-			vm.evaluationStack.Push(bytes)
+			var bigInt big.Int
+			bigInt.SetBytes(sha3_hash)
+			vm.evaluationStack.Push(bigInt)
 
 		case PRINT:
 			val, _ := vm.evaluationStack.Peek()
