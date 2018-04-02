@@ -52,7 +52,7 @@ func TestNewVM(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionAddition(t *testing.T) {
+func TestAddition(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 125,
 		PUSH, 1, 168, 22,
@@ -77,7 +77,7 @@ func TestProgramExecutionAddition(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionSubtraction(t *testing.T) {
+func TestSubtraction(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 3,
@@ -102,7 +102,7 @@ func TestProgramExecutionSubtraction(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
+func TestSubtractionWithNegativeResults(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		PUSH, 0, 6,
@@ -127,7 +127,7 @@ func TestProgramExecutionSubtractionWithNegativeResults(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionMultiplication(t *testing.T) {
+func TestMultiplication(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 5,
 		PUSH, 0, 2,
@@ -152,7 +152,7 @@ func TestProgramExecutionMultiplication(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionDivision(t *testing.T) {
+func TestDivision(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 2,
@@ -177,7 +177,7 @@ func TestProgramExecutionDivision(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionDivisionByZero(t *testing.T) {
+func TestDivisionByZero(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic but should because divsion by 0")
@@ -198,7 +198,7 @@ func TestProgramExecutionDivisionByZero(t *testing.T) {
 	vm.Exec(context, true)
 }
 
-func TestProgramExecutionEq(t *testing.T) {
+func TestEq(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 6,
@@ -223,7 +223,7 @@ func TestProgramExecutionEq(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionNeq(t *testing.T) {
+func TestNeq(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 5,
@@ -248,7 +248,7 @@ func TestProgramExecutionNeq(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionLt(t *testing.T) {
+func TestLt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 4,
 		PUSH, 0, 6,
@@ -273,7 +273,7 @@ func TestProgramExecutionLt(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionGt(t *testing.T) {
+func TestGt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 4,
@@ -298,7 +298,7 @@ func TestProgramExecutionGt(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionLte(t *testing.T) {
+func TestLte(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 4,
 		PUSH, 0, 6,
@@ -339,7 +339,7 @@ func TestProgramExecutionLte(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionGte(t *testing.T) {
+func TestGte(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 4,
@@ -381,7 +381,7 @@ func TestProgramExecutionGte(t *testing.T) {
 	}
 }
 
-func TestProgramExectuionShiftl(t *testing.T) {
+func TestShiftl(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 1,
 		SHIFTL, 3,
@@ -401,7 +401,7 @@ func TestProgramExectuionShiftl(t *testing.T) {
 	}
 }
 
-func TestProgramExectuionShiftr(t *testing.T) {
+func TestShiftr(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 8,
 		SHIFTR, 3,
@@ -421,7 +421,7 @@ func TestProgramExectuionShiftr(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionJmpif(t *testing.T) {
+func TestJmpif(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		PUSH, 0, 4,
@@ -447,7 +447,7 @@ func TestProgramExecutionJmpif(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionJmp(t *testing.T) {
+func TestJmp(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		JMP, 13,
@@ -475,7 +475,7 @@ func TestProgramExecutionJmp(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionCall(t *testing.T) {
+func TestCall(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 10,
 		PUSH, 0, 8,
@@ -513,7 +513,7 @@ func TestProgramExecutionCall(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionCallExt(t *testing.T) {
+func TestCallExt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 10,
 		PUSH, 0, 8,
@@ -528,7 +528,7 @@ func TestProgramExecutionCallExt(t *testing.T) {
 	vm.Exec(context, true)
 }
 
-func TestProgramExecutionSha3(t *testing.T) {
+func TestSha3(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		SHA3,
@@ -548,7 +548,7 @@ func TestProgramExecutionSha3(t *testing.T) {
 	}
 }
 
-func TestProgramExecutionRoll(t *testing.T) {
+func TestRoll(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		PUSH, 0, 4,

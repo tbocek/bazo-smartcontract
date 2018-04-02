@@ -2,10 +2,8 @@ package bazo_vm
 
 import (
 	"fmt"
-
 	"math/big"
 	"reflect"
-
 	"golang.org/x/crypto/sha3"
 )
 
@@ -95,7 +93,13 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			vm.evaluationStack.Push(bigInt)
 
 		case DUP:
-			val, _ := vm.evaluationStack.Peek()
+			val, err := vm.evaluationStack.Peek()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
 			vm.evaluationStack.Push(val)
 
 		case ROLL:
