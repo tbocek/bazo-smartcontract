@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
+
 	"golang.org/x/crypto/sha3"
 )
 
@@ -14,10 +15,10 @@ type VM struct {
 	callStack       *CallStack
 }
 
-func NewVM(startInstruction int) VM {
+func NewVM() VM {
 	return VM{
 		code:            []byte{},
-		pc:              startInstruction,
+		pc:              0,
 		evaluationStack: NewStack(),
 		callStack:       NewCallStack(),
 	}
@@ -193,6 +194,17 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			left.Mod(&left, &right)
 			vm.evaluationStack.Push(left)
 
+		case NEG:
+			tos, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			tos.Neg(&tos)
+			vm.evaluationStack.Push(tos)
+
 		case EQ:
 			right, rerr := vm.evaluationStack.Pop()
 			left, lerr := vm.evaluationStack.Pop()
@@ -207,9 +219,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			if reflect.DeepEqual(left, right) {
-				vm.evaluationStack.Push(*big.NewInt(int64(1)))
+				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
-				vm.evaluationStack.Push(*big.NewInt(int64(0)))
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case NEQ:
@@ -226,9 +238,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			if reflect.DeepEqual(left, right) {
-				vm.evaluationStack.Push(*big.NewInt(int64(0)))
+				vm.evaluationStack.Push(*big.NewInt(0))
 			} else {
-				vm.evaluationStack.Push(*big.NewInt(int64(1)))
+				vm.evaluationStack.Push(*big.NewInt(1))
 			}
 
 		case LT:
@@ -246,9 +258,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			value := left.Cmp(&right)
 			if value == -1 {
-				vm.evaluationStack.Push(*big.NewInt(int64(1)))
+				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
-				vm.evaluationStack.Push(*big.NewInt(int64(0)))
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case GT:
@@ -266,9 +278,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			value := left.Cmp(&right)
 			if value == 1 {
-				vm.evaluationStack.Push(*big.NewInt(int64(1)))
+				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
-				vm.evaluationStack.Push(*big.NewInt(int64(0)))
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case LTE:
@@ -286,9 +298,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			value := left.Cmp(&right)
 			if value == -1 || value == 0 {
-				vm.evaluationStack.Push(*big.NewInt(int64(1)))
+				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
-				vm.evaluationStack.Push(*big.NewInt(int64(0)))
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case GTE:
@@ -306,9 +318,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			value := left.Cmp(&right)
 			if value == 1 || value == 0 {
-				vm.evaluationStack.Push(*big.NewInt(int64(1)))
+				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
-				vm.evaluationStack.Push(*big.NewInt(int64(0)))
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case SHIFTL:

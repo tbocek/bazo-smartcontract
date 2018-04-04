@@ -9,6 +9,7 @@ const (
 	MULT
 	DIV
 	MOD
+	NEG
 	EQ
 	NEQ
 	LT
@@ -45,6 +46,7 @@ var OpCodes = map[int]OpCode{
 	MULT:    OpCode{"mult", 0},
 	DIV:     OpCode{"div", 0},
 	MOD:     OpCode{"mod", 0},
+	NEG:     OpCode{"neg", 0},
 	EQ:      OpCode{"eq", 0},
 	NEQ:     OpCode{"neq", 0},
 	LT:      OpCode{"lt", 0},
