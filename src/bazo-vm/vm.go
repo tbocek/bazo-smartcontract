@@ -175,6 +175,11 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 				return false
 			}
 
+			if  right.Cmp(big.NewInt(0)) == 0{
+				vm.evaluationStack.Push(StrToBigInt("Division by Zero"))
+				return false;
+			}
+
 			left.Div(&left, &right)
 			vm.evaluationStack.Push(left)
 

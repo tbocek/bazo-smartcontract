@@ -227,12 +227,6 @@ func TestDivision(t *testing.T) {
 }
 
 func TestDivisionByZero(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("The code did not panic but should because divsion by 0")
-		}
-	}()
-
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 0,
@@ -245,6 +239,17 @@ func TestDivisionByZero(t *testing.T) {
 
 	vm := NewVM()
 	vm.Exec(context, true)
+
+	result, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	e := BigIntToString(result)
+	if e != "Division by Zero" {
+		t.Errorf("Expected Error Message to be returned but got: %v", e)
+	}
 }
 
 func TestEq(t *testing.T) {
@@ -325,7 +330,7 @@ func TestLt(t *testing.T) {
 func TestGt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
-		PUSH, 0, 4,
+		PUSH, 1, 0, 4,
 		GT,
 		HALT,
 	}
