@@ -55,33 +55,19 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 	// Infinite Loop until return called
 	for {
-
 		if trace {
 			vm.trace()
 		}
+
 		// Fetch
 		opCode := vm.fetch()
 
-		if opCode != HALT {
-			if opCode == LOAD {
-				if context.maxGasAmount < 10000 {
-					vm.evaluationStack.Push(StrToBigInt("out of gas"))
-					return false
-				}
-				context.maxGasAmount -= 10000
-			} else if opCode == STORE {
-				if context.maxGasAmount < 100 {
-					vm.evaluationStack.Push(StrToBigInt("out of gas"))
-					return false
-				}
-				context.maxGasAmount -= 100
-			} else {
-				if context.maxGasAmount <= 0 {
-					vm.evaluationStack.Push(StrToBigInt("out of gas"))
-					return false
-				}
-				context.maxGasAmount--
-			}
+		// Substract gas used for operation
+		if context.maxGasAmount < OpCodes[int(opCode)].gasPrice {
+			vm.evaluationStack.Push(StrToBigInt("out of gas"))
+			return false
+		} else {
+			context.maxGasAmount -= OpCodes[int(opCode)].gasPrice
 		}
 
 		// Decode
@@ -91,7 +77,13 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			var bigInt big.Int
 			bigInt.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
 			vm.pc += byteCount //Sets the pc to the next opCode
-			vm.evaluationStack.Push(bigInt)
+
+			err := vm.evaluationStack.Push(bigInt)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case DUP:
 			val, err := vm.evaluationStack.Peek()
@@ -101,7 +93,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 				return false
 			}
 
-			vm.evaluationStack.Push(val)
+			err = vm.evaluationStack.Push(val)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case ROLL:
 			arg := vm.fetch() // arg shows how many have to be rolled
@@ -128,7 +125,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			left.Add(&left, &right)
-			vm.evaluationStack.Push(left)
+			err := vm.evaluationStack.Push(left)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case SUB:
 			right, rerr := vm.evaluationStack.Pop()
@@ -144,7 +146,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			left.Sub(&left, &right)
-			vm.evaluationStack.Push(left)
+			err := vm.evaluationStack.Push(left)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case MULT:
 			right, rerr := vm.evaluationStack.Pop()
@@ -160,7 +167,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			left.Mul(&left, &right)
-			vm.evaluationStack.Push(left)
+			err := vm.evaluationStack.Push(left)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case DIV:
 			right, rerr := vm.evaluationStack.Pop()
@@ -176,7 +188,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			left.Div(&left, &right)
-			vm.evaluationStack.Push(left)
+			err := vm.evaluationStack.Push(left)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case MOD:
 			right, rerr := vm.evaluationStack.Pop()
@@ -192,7 +209,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			left.Mod(&left, &right)
-			vm.evaluationStack.Push(left)
+			err := vm.evaluationStack.Push(left)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case NEG:
 			tos, err := vm.evaluationStack.Pop()
@@ -203,6 +225,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			tos.Neg(&tos)
+
 			vm.evaluationStack.Push(tos)
 
 		case EQ:
@@ -257,6 +280,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			value := left.Cmp(&right)
+
 			if value == -1 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
@@ -277,6 +301,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			value := left.Cmp(&right)
+
 			if value == 1 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
@@ -297,6 +322,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			value := left.Cmp(&right)
+
 			if value == -1 || value == 0 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
@@ -317,6 +343,7 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			value := left.Cmp(&right)
+
 			if value == 1 || value == 0 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
@@ -334,7 +361,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			tos.Lsh(&tos, nrOfShifts)
-			vm.evaluationStack.Push(tos)
+			err = vm.evaluationStack.Push(tos)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case SHIFTR:
 			nrOfShifts := uint(vm.fetch())
@@ -347,7 +379,12 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 
 			tos.Rsh(&tos, nrOfShifts)
-			vm.evaluationStack.Push(tos)
+			err = vm.evaluationStack.Push(tos)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case NOP:
 			vm.fetch()
@@ -434,7 +471,13 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 
 			var bigInt big.Int
 			bigInt.SetBytes(sha3_hash)
-			vm.evaluationStack.Push(bigInt)
+
+			err = vm.evaluationStack.Push(bigInt)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case PRINT:
 			val, _ := vm.evaluationStack.Peek()
@@ -444,7 +487,6 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			return false
 
 		case HALT:
-			fmt.Println(vm.pc)
 			return true
 		}
 	}

@@ -23,9 +23,14 @@ func (s Stack) GetLength() int {
 	return len(s.stack)
 }
 
-func (s *Stack) Push(element big.Int) {
-	s.memoryUsage += getElementMemoryUsage(element.BitLen())
-	s.stack = append(s.stack, element)
+func (s *Stack) Push(element big.Int) error {
+	if (*s).hasEnoughMemory(element.BitLen()) {
+		s.memoryUsage += getElementMemoryUsage(element.BitLen())
+		s.stack = append(s.stack, element)
+		return nil
+	} else {
+		return errors.New("stack out of memory")
+	}
 }
 
 func (s *Stack) PopIndexAt(index int) (element big.Int, err error) {
@@ -62,4 +67,9 @@ func (s *Stack) Peek() (element big.Int, err error) {
 // Function turns bit into bytes and rounds up
 func getElementMemoryUsage(element int) uint32 {
 	return uint32(((element + 7) / 8) + 1)
+}
+
+// Function checks, if enough memory is available to push the element
+func (s *Stack) hasEnoughMemory(elementSize int) bool {
+	return s.memoryMax >= getElementMemoryUsage(elementSize)+s.memoryUsage
 }
