@@ -36,8 +36,11 @@ func (vm *VM) trace() {
 	switch opCode.name {
 	case "push":
 		nargs := int(vm.code[vm.pc+1])
-		args = vm.code[vm.pc+2 : vm.pc+nargs+3]
-		fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
+
+		if vm.pc+nargs < (len(vm.code) - vm.pc) {
+			args = vm.code[vm.pc+2 : vm.pc+nargs+3]
+			fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
+		}
 
 	case "callext":
 		nargs := int(vm.code[vm.pc+37])
@@ -74,12 +77,19 @@ func (vm *VM) Exec(trace bool) bool {
 
 		// Decode
 		switch opCode {
+
 		case PUSH:
 			byteCount := int(vm.fetch()) + 1 // Amount of bytes pushed
 			var bigInt big.Int
-			bigInt.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
-			vm.pc += byteCount //Sets the pc to the next opCode
 
+			if byteCount >= (len(vm.code) - vm.pc) {
+				vm.evaluationStack.Push(StrToBigInt("arguments exceeding instruction set"))
+				return false
+			}
+
+			bigInt.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
+
+			vm.pc += byteCount //Sets the pc to the next opCode
 			err := vm.evaluationStack.Push(bigInt)
 
 			if err != nil {

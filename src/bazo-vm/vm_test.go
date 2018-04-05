@@ -38,6 +38,29 @@ func TestNewVM(t *testing.T) {
 	}
 }
 
+func TestPushOutOfBounds(t *testing.T) {
+	code := []byte{
+		PUSH, 0, 125,
+		PUSH, 126, 12,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
+
+	tos, err := vm.evaluationStack.Peek()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	e := BigIntToString(tos)
+	if e != "arguments exceeding instruction set" {
+		t.Errorf("Expected Error Message to be returned but got: %v", e)
+	}
+}
+
 func TestAddition(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 125,
@@ -443,7 +466,7 @@ func TestJmpif(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
-	vm.Exec(true)
+	vm.Exec(false)
 
 	if vm.evaluationStack.GetLength() != 0 {
 		t.Errorf("After calling and returning, callStack lenght should be 0, but is %v", vm.evaluationStack.GetLength())
