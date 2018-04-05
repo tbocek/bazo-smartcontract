@@ -187,9 +187,9 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 				return false
 			}
 
-			if  right.Cmp(big.NewInt(0)) == 0{
+			if right.Cmp(big.NewInt(0)) == 0 {
 				vm.evaluationStack.Push(StrToBigInt("Division by Zero"))
-				return false;
+				return false
 			}
 
 			left.Div(&left, &right)
@@ -210,6 +210,11 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 			}
 			if lerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(lerr.Error()))
+				return false
+			}
+
+			if right.Cmp(big.NewInt(0)) == 0 {
+				vm.evaluationStack.Push(StrToBigInt("Division by Zero"))
 				return false
 			}
 
