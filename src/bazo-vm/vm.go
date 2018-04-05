@@ -13,6 +13,7 @@ type VM struct {
 	pc              int // Program counter
 	evaluationStack *Stack
 	callStack       *CallStack
+	context         *Context
 }
 
 func NewVM() VM {
@@ -21,6 +22,7 @@ func NewVM() VM {
 		pc:              0,
 		evaluationStack: NewStack(),
 		callStack:       NewCallStack(),
+		context:         NewContext(),
 	}
 }
 
@@ -49,9 +51,9 @@ func (vm *VM) trace() {
 	}
 }
 
-func (vm *VM) Exec(context Context, trace bool) bool {
+func (vm *VM) Exec(trace bool) bool {
 
-	vm.code = context.smartContract.data.code
+	vm.code = vm.context.contractAccount.Code
 
 	// Infinite Loop until return called
 	for {
@@ -63,11 +65,11 @@ func (vm *VM) Exec(context Context, trace bool) bool {
 		opCode := vm.fetch()
 
 		// Substract gas used for operation
-		if context.maxGasAmount < OpCodes[int(opCode)].gasPrice {
+		if vm.context.maxGasAmount < OpCodes[int(opCode)].gasPrice {
 			vm.evaluationStack.Push(StrToBigInt("out of gas"))
 			return false
 		} else {
-			context.maxGasAmount -= OpCodes[int(opCode)].gasPrice
+			vm.context.maxGasAmount -= OpCodes[int(opCode)].gasPrice
 		}
 
 		// Decode

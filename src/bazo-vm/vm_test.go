@@ -5,23 +5,7 @@ import (
 	"testing"
 )
 
-func newTestContextObj() Context {
-	data := map[int][]byte{}
-
-	return Context{
-		transactionSender:    []byte{},
-		transactioninputData: []byte{},
-		maxGasAmount:         100000,
-		smartContract:        NewSmartContract([]byte{}, 100, true, []byte{}, []byte{}, data),
-	}
-}
-
 func TestVMGasConsumption(t *testing.T) {
-	vm := NewVM()
-
-	context := newTestContextObj()
-	context.maxGasAmount = 3
-
 	code := []byte{
 		PUSH, 0, 8,
 		PUSH, 0, 8,
@@ -29,9 +13,11 @@ func TestVMGasConsumption(t *testing.T) {
 		HALT,
 	}
 
-	context.smartContract.data.code = code
+	vm := NewVM()
+	vm.context.maxGasAmount = 3
+	vm.context.contractAccount.Code = code
 
-	vm.Exec(context, true)
+	vm.Exec(true)
 	ba, _ := vm.evaluationStack.Pop()
 	val := ba
 
@@ -60,11 +46,9 @@ func TestAddition(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -85,11 +69,9 @@ func TestSubtraction(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -110,11 +92,9 @@ func TestSubtractionWithNegativeResults(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -135,11 +115,9 @@ func TestMultiplication(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -160,11 +138,9 @@ func TestModulo(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -184,11 +160,9 @@ func TestNegate(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -209,11 +183,9 @@ func TestDivision(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -234,11 +206,9 @@ func TestDivisionByZero(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	result, err := vm.evaluationStack.Pop()
 
@@ -260,11 +230,9 @@ func TestEq(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -285,11 +253,9 @@ func TestNeq(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -310,11 +276,9 @@ func TestLt(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -335,11 +299,9 @@ func TestGt(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -360,11 +322,9 @@ func TestLte(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -384,9 +344,8 @@ func TestLte(t *testing.T) {
 	}
 
 	vm1 := NewVM()
-	context1 := newTestContextObj()
-	context1.smartContract.data.code = code1
-	vm1.Exec(context1, true)
+	vm1.context.contractAccount.Code = code1
+	vm1.Exec(true)
 
 	if tos.Int64() != 1 {
 		t.Errorf("Actual value is %v, should be 1 after evaluating 6 <= 6", tos)
@@ -401,11 +360,9 @@ func TestGte(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -424,11 +381,9 @@ func TestGte(t *testing.T) {
 		HALT,
 	}
 
-	context1 := newTestContextObj()
-	context1.smartContract.data.code = code1
-
 	vm1 := NewVM()
-	vm1.Exec(context1, true)
+	vm1.context.contractAccount.Code = code1
+	vm1.Exec(true)
 
 	if tos.Int64() != 1 {
 		t.Errorf("Actual value is %v, should be 1 after evaluating 6 >= 6", tos)
@@ -442,11 +397,9 @@ func TestShiftl(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
 
@@ -462,11 +415,9 @@ func TestShiftr(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
 
@@ -490,11 +441,9 @@ func TestJmpif(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	if vm.evaluationStack.GetLength() != 0 {
 		t.Errorf("After calling and returning, callStack lenght should be 0, but is %v", vm.evaluationStack.GetLength())
@@ -512,11 +461,9 @@ func TestJmp(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -544,11 +491,9 @@ func TestCall(t *testing.T) {
 		RET,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
 
@@ -575,11 +520,9 @@ func TestCallExt(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 }
 
 func TestSha3(t *testing.T) {
@@ -589,11 +532,9 @@ func TestSha3(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	val, _ := vm.evaluationStack.Pop()
 
@@ -613,11 +554,9 @@ func TestRoll(t *testing.T) {
 		HALT,
 	}
 
-	context := newTestContextObj()
-	context.smartContract.data.code = code
-
 	vm := NewVM()
-	vm.Exec(context, true)
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
 

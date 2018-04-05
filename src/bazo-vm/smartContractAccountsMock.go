@@ -1,31 +1,25 @@
 package bazo_vm
 
-//This is a struct because the contract can be of a
-//different size.
-type ContractCode struct {
-	code []byte
-}
-
-type SmartContract struct {
+type ContractAccount struct {
 	Address            []byte
 	Balance            uint64
 	TxCnt              uint64
 	IsStaking          bool
 	HashedSeed         []byte
 	StakingBlockHeight uint64
-	data               ContractCode
-	contractVariables  map[int][]byte
+	Code               []byte         // Additional to standard account
+	ContractVariables  map[int][]byte // Additional to standard account
 }
 
-func NewSmartContract(address []byte, balance uint64, isStaking bool, hashedSeed []byte, code []byte, data map[int][]byte) SmartContract {
-	newSC := SmartContract{
+func NewContractAccount(address []byte, balance uint64, isStaking bool, hashedSeed []byte, code []byte) ContractAccount {
+	newSC := ContractAccount{
 		address,
 		balance,
 		0,
 		isStaking,
 		hashedSeed,
 		0,
-		ContractCode{code: code},
+		code,
 		map[int][]byte{},
 	}
 	return newSC
