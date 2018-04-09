@@ -639,3 +639,71 @@ func TestRoll(t *testing.T) {
 		t.Errorf("Actual value is %v, should be 4 after rolling with two as arg", tos)
 	}
 }
+
+/*
+func TestNewMap(t *testing.T){
+	code := []byte{
+		NEWMAP,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.Exec(true)
+
+	v, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	var m map[string]big.Int
+
+	perr := json.Unmarshal(v.Bytes(), &m)
+
+	if perr != nil {
+		t.Errorf("%v", err)
+	}
+
+	if len(m) != 0 {
+		t.Errorf("Expected new Map length to be 0 but was %v", len(m))
+	}
+}
+
+
+func TestMapPush(t *testing.T){
+	code := []byte{
+		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
+		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
+		NEWMAP,
+		MAPPUSH,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	v, err := vm.evaluationStack.Pop()
+	fmt.Println("Bytes", v.Bytes())
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	var m map[string]big.Int
+	fmt.Println("MAP1: ", m)
+	perr := json.Unmarshal(v.Bytes(), &m)
+	fmt.Println("MAP2: ", m)
+	if perr != nil {
+		t.Errorf("%v", err)
+	}
+
+	if len(m) != 1 {
+		t.Errorf("Expected new Map length to be 1 but was %v", len(m))
+	}
+}*/

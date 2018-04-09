@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"math/big"
+	"bytes"
+	"encoding/gob"
 )
 
 /*func IntToByteArray(element int) []byte {
@@ -36,4 +38,25 @@ func StrToByteArray(element string) []byte {
 
 func ByteArrayToString(element []byte) string {
 	return string(element[:])
+}
+
+type bigIntMap struct {
+	Value map[string]string
+}
+
+func Marshal(m bigIntMap) big.Int{
+	b := new(bytes.Buffer)
+	e := gob.NewEncoder(b)
+	err := e.Encode(m)
+	if err != nil {
+		panic(err)
+	}
+
+	var result big.Int
+	result.SetBytes(b.Bytes())
+	return result
+}
+
+func (m *bigIntMap) Unmarshal(input big.Int) {
+
 }

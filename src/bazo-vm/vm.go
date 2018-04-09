@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
-
 	"golang.org/x/crypto/sha3"
 )
 
@@ -501,6 +500,56 @@ func (vm *VM) Exec(trace bool) bool {
 
 			val := vm.callStack.Peek().variables[address]
 			vm.evaluationStack.Push(val)
+/*
+		case NEWMAP:
+			m := make(map[string]big.Int)
+			buf, err := json.Marshal(m)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+			result := big.Int{}
+			result.SetBytes(buf)
+			vm.evaluationStack.Push(result)
+
+		case MAPPUSH:
+			key, kerr := vm.evaluationStack.Pop()
+			value, verr := vm.evaluationStack.Pop()
+			marshaledMap, merr := vm.evaluationStack.Pop()
+			if kerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
+				return false
+			}
+			if verr != nil {
+				vm.evaluationStack.Push(StrToBigInt(verr.Error()))
+				return false
+			}
+			if merr != nil {
+				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
+				return false
+			}
+			fmt.Println("MAAAAP222")
+			m := make(map[improvedBigInt]big.Int)
+			err := json.Unmarshal(marshaledMap.Bytes(), &m)
+			fmt.Println("MAAAAP333")
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+			fmt.Println(key.String())
+			m["Z"] = value
+
+			mb, marshalerr := json.Marshal(&m)
+			fmt.Println("MAPS: ", mb)
+			fmt.Println("MAAAAP444")
+			if marshalerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(marshalerr.Error()))
+				return false
+			}
+
+			result := big.Int{}
+			result.SetBytes(mb)
+			vm.evaluationStack.Push(result)*/
 
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()

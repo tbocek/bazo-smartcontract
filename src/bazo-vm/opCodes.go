@@ -28,6 +28,8 @@ const (
 	SSTORE
 	LOAD
 	SLOAD
+	NEWMAP
+	MAPPUSH
 	SHA3
 	PRINT
 	ERRHALT
@@ -39,6 +41,7 @@ type OpCode struct {
 	nargs    int
 	gasPrice int
 }
+
 
 var OpCodes = map[int]OpCode{
 	PUSH:    OpCode{"push", 0, 1},
@@ -68,6 +71,8 @@ var OpCodes = map[int]OpCode{
 	SSTORE:  OpCode{"sstore", 1, 1},
 	LOAD:    OpCode{"load", 1, 1},
 	SLOAD:    OpCode{"sload", 1, 1},
+	NEWMAP:    OpCode{"newmap", 0, 1},
+	MAPPUSH:    OpCode{"mappush", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},
 	PRINT:   OpCode{"print", 0, 1},
 	HALT:    OpCode{"halt", 0, 0},
