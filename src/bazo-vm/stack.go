@@ -6,38 +6,38 @@ import (
 )
 
 type Stack struct {
-	stack       []big.Int
+	Stack       []big.Int
 	memoryUsage uint32 // In bytes
 	memoryMax   uint32
 }
 
 func NewStack() *Stack {
 	return &Stack{
-		stack:       nil,
+		Stack:       nil,
 		memoryUsage: 0,
 		memoryMax:   1000000, // Max 1000000 Bytes = 1MB
 	}
 }
 
 func (s Stack) GetLength() int {
-	return len(s.stack)
+	return len(s.Stack)
 }
 
 func (s *Stack) Push(element big.Int) error {
 	if (*s).hasEnoughMemory(element.BitLen()) {
 		s.memoryUsage += getElementMemoryUsage(element.BitLen())
-		s.stack = append(s.stack, element)
+		s.Stack = append(s.Stack, element)
 		return nil
 	} else {
-		return errors.New("stack out of memory")
+		return errors.New("Stack out of memory")
 	}
 }
 
 func (s *Stack) PopIndexAt(index int) (element big.Int, err error) {
 	if (*s).GetLength() >= index {
-		element = (*s).stack[index]
+		element = (*s).Stack[index]
 		s.memoryUsage -= getElementMemoryUsage(element.BitLen())
-		s.stack = append((*s).stack[:index], (*s).stack[index+1:]...)
+		s.Stack = append((*s).Stack[:index], (*s).Stack[index+1:]...)
 		return element, nil
 	} else {
 		return *new(big.Int).SetInt64(0), errors.New("index out of bounds")
@@ -46,21 +46,21 @@ func (s *Stack) PopIndexAt(index int) (element big.Int, err error) {
 
 func (s *Stack) Pop() (element big.Int, err error) {
 	if (*s).GetLength() > 0 {
-		element = (*s).stack[s.GetLength()-1]
+		element = (*s).Stack[s.GetLength()-1]
 		s.memoryUsage -= getElementMemoryUsage(element.BitLen())
-		s.stack = s.stack[:s.GetLength()-1]
+		s.Stack = s.Stack[:s.GetLength()-1]
 		return element, nil
 	} else {
-		return *new(big.Int).SetInt64(0), errors.New("pop() on empty stack")
+		return *new(big.Int).SetInt64(0), errors.New("pop() on empty Stack")
 	}
 }
 
 func (s *Stack) Peek() (element big.Int, err error) {
 	if (*s).GetLength() > 0 {
-		element = (*s).stack[s.GetLength()-1]
+		element = (*s).Stack[s.GetLength()-1]
 		return element, nil
 	} else {
-		return *new(big.Int).SetInt64(0), errors.New("peek() on empty stack")
+		return *new(big.Int).SetInt64(0), errors.New("peek() on empty Stack")
 	}
 }
 

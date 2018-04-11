@@ -30,7 +30,7 @@ func TestCallStack_Push(t *testing.T) {
 	}
 
 	if cs.GetLength() != 0 {
-		t.Errorf("Expected empty stack to throw an error when using pop() but it didn't")
+		t.Errorf("Expected empty Stack to throw an error when using pop() but it didn't")
 	}
 }
 

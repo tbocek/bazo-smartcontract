@@ -523,7 +523,7 @@ func TestCall(t *testing.T) {
 	tos, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("Expected empty Stack to throw an error when using peek() but it didn't")
 	}
 
 	if tos.Int64() != 2 {
@@ -723,6 +723,49 @@ func TestMapPush(t *testing.T){
 
 	if size != 1 {
 		t.Errorf("invalid size, Expected 1 but was %v", size)
+	}
+
+
+}
+
+func TestMapGetVAL(t *testing.T){
+	code := []byte{
+		NEWMAP, 0x01,
+		0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		PUSH, 0x01, 0x48, 0x69,
+		PUSH, 0x00, 0x03,
+		MAPPUSH,
+		PUSH, 0x01, 0x69, 0x69,
+		PUSH, 0x00, 0x02,
+		MAPPUSH,
+		PUSH, 0x01, 0x48, 0x48,
+		PUSH, 0x00, 0x01,
+		MAPPUSH,
+		PUSH, 0x00, 0x01,
+		MAPGETVAL,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	v, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	e := []byte{72, 72}
+	if !reflect.DeepEqual(v.Bytes(), e) {
+		t.Errorf("invalid value, Expected %v but was '%v'", e, v)
 	}
 
 

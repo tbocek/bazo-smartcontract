@@ -9,7 +9,7 @@ import (
 func TestNewStack(t *testing.T) {
 	s := NewStack()
 	if s.GetLength() != 0 {
-		t.Errorf("Expected stack with size 0 but got %v", s.GetLength())
+		t.Errorf("Expected Stack with size 0 but got %v", s.GetLength())
 	}
 }
 
@@ -48,7 +48,7 @@ func TestStackPopIfRemoves(t *testing.T) {
 	s.Pop()
 
 	if s.GetLength() != 0 {
-		t.Errorf("Expected empty stack to throw an error when using pop() but it didn't")
+		t.Errorf("Expected empty Stack to throw an error when using pop() but it didn't")
 	}
 }
 
@@ -62,7 +62,7 @@ func TestStackPeek(t *testing.T) {
 	s.Peek()
 
 	if s.GetLength() != 1 {
-		t.Errorf("Expected stack with size 1 but got %v", s.GetLength())
+		t.Errorf("Expected Stack with size 1 but got %v", s.GetLength())
 	}
 }
 
@@ -78,7 +78,7 @@ func TestStack_PopIndexAt(t *testing.T) {
 	fmt.Println(s)
 
 	if s.GetLength() != 3 {
-		t.Errorf("Expected stack with size 3 but got %v", s.GetLength())
+		t.Errorf("Expected Stack with size 3 but got %v", s.GetLength())
 	}
 
 	if element.Int64() != 5 {

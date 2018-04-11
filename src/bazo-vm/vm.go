@@ -47,6 +47,18 @@ func (vm *VM) trace() {
 		address := vm.code[vm.pc+1 : vm.pc+33]
 		fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.name, address, functionHash, nargs, stack)
 
+	case "mappush":
+	case "mapgetval":
+		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
+		fmt.Printf("%04d: %-6s %v ", addr, opCode.name, args)
+
+		for _, e := range stack.Stack {
+
+			fmt.Printf("%# x", e.Bytes())
+		}
+
+		fmt.Printf("\n")
+
 	default:
 		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.name, args, stack)
@@ -450,7 +462,7 @@ func (vm *VM) Exec(trace bool) bool {
 			vm.pc += 32                                     // Increase pc by address to get next instruction
 			functionHash := vm.code[vm.pc : vm.pc+4]        // Function hash identifies function in external smart contract, first 4 byte of SHA3 hash
 			vm.pc += 4                                      // Increase pc by function hash to get next instruction
-			argsToLoad := int(vm.fetch())                   // Shows how many arguments to pop from stack and pass to external function
+			argsToLoad := int(vm.fetch())                   // Shows how many arguments to pop from Stack and pass to external function
 
 			fmt.Println(transactionAddress, functionHash, argsToLoad)
 			//TODO: Invoke new transaction with function hash and arguments, waiting for integration in bazo blockchain to finish
@@ -557,6 +569,41 @@ func (vm *VM) Exec(trace bool) bool {
 			m.SetBytes(mba)
 			vm.evaluationStack.Push(m)
 
+		case MAPGETVAL:
+			tmpKey, kerr := vm.evaluationStack.Pop()
+			m, merr := vm.evaluationStack.Pop()
+
+			if kerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
+				return false
+			}
+
+			if merr != nil {
+				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
+				return false
+			}
+
+			key := tmpKey.Bytes()
+			mba := m.Bytes()
+
+			kl, vl, size := getMapProperties(mba)
+			mel := kl + vl
+
+			data := mba[25:]
+			var i uint64 = 0
+			var offset uint64 = 0
+			for ; i < size; i++ {
+				bv := offset + kl
+				k := data[offset:bv]
+				if reflect.DeepEqual(k, key) {
+					v := data[bv:bv+vl]
+					r := big.Int{}
+					r.SetBytes(v)
+					vm.evaluationStack.Push(r)
+				}
+				offset += mel
+			}
+
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()
 
@@ -590,6 +637,12 @@ func (vm *VM) Exec(trace bool) bool {
 			return true
 		}
 	}
+}
+func getMapProperties(mba []byte) (uint64, uint64, uint64) {
+	kl := BaToi(mba[1:9])
+	vl := BaToi(mba[9:17])
+	size := BaToi(mba[17:25])
+	return kl, vl, size
 }
 
 func (vm *VM) fetch() byte {
