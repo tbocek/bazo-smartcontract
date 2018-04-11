@@ -1,35 +1,34 @@
 package bazo_vm
 
 const (
-	PUSH = iota
-	DUP
-	ROLL
-	ADD
-	SUB
-	MULT
-	DIV
-	MOD
-	NEG
-	EQ
-	NEQ
-	LT
-	GT
-	LTE
-	GTE
-	SHIFTL
-	SHIFTR
-	NOP
-	JMP
-	JMPIF
-	CALL
-	CALLEXT
-	RET
-	STORE
-	LOAD
-	SHA3
-	PRINT
-	ERRHALT
-	HALT
+	PUSH    = iota // 0
+	DUP            // 1
+	ROLL           // 2
+	ADD            // 3
+	SUB            // 4
+	MULT           // 5
+	DIV            // 6
+	MOD            // 7
+	NEG            // 8
+	EQ             // 9
+	NEQ            // a
+	LT             // b
+	GT             // c
+	LTE            // d
+	GTE            // e
+	SHIFTL         // f
+	SHIFTR         // 10
+	NOP            // 11
+	JMP            // 12
+	JMPIF          // 13
+	CALL           // 14
+	CALLEXT        // 15
+	RET            // 16
+	STORE          // 17
+	LOAD           // 18
+	SHA3           // 19
+	ERRHALT        // 1a
+	HALT           // 1b
 )
 
 type OpCode struct {
@@ -65,7 +64,6 @@ var OpCodes = map[int]OpCode{
 	STORE:   OpCode{"store", 0, 1},
 	LOAD:    OpCode{"load", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},
-	PRINT:   OpCode{"print", 0, 1},
 	HALT:    OpCode{"halt", 0, 0},
 	ERRHALT: OpCode{"errhalt", 0, 0},
 }

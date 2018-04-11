@@ -5,6 +5,8 @@ import (
 	"math/big"
 	"reflect"
 
+	"errors"
+
 	"golang.org/x/crypto/sha3"
 )
 
@@ -58,14 +60,31 @@ func (vm *VM) Exec(trace bool) bool {
 
 	vm.code = vm.context.contractAccount.Code
 
+	if len(vm.code) > 100000 {
+		vm.evaluationStack.Push(StrToBigInt("Instruction set to big"))
+		return false
+	}
+
 	// Infinite Loop until return called
 	for {
 		if trace {
 			vm.trace()
+			//fmt.Println(vm.pc)
 		}
 
 		// Fetch
-		opCode := vm.fetch()
+		opCode, err := vm.fetch()
+
+		if err != nil {
+			vm.evaluationStack.Push(StrToBigInt(err.Error()))
+			return false
+		}
+
+		// Return false if instruction is not an opCode
+		if len(OpCodes) < int(opCode) {
+			vm.evaluationStack.Push(StrToBigInt("Not a valid opCode"))
+			return false
+		}
 
 		// Substract gas used for operation
 		if vm.context.maxGasAmount < OpCodes[int(opCode)].gasPrice {
@@ -79,10 +98,18 @@ func (vm *VM) Exec(trace bool) bool {
 		switch opCode {
 
 		case PUSH:
-			byteCount := int(vm.fetch()) + 1 // Amount of bytes pushed
+			arg, err := vm.fetch()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			byteCount := int(arg) + 1 // Amount of bytes pushed
+
 			var bigInt big.Int
 
-			if byteCount >= (len(vm.code) - vm.pc) {
+			if int(byteCount)+1 >= (len(vm.code) - vm.pc) {
 				vm.evaluationStack.Push(StrToBigInt("arguments exceeding instruction set"))
 				return false
 			}
@@ -90,7 +117,7 @@ func (vm *VM) Exec(trace bool) bool {
 			bigInt.SetBytes(vm.code[vm.pc : vm.pc+byteCount])
 
 			vm.pc += byteCount //Sets the pc to the next opCode
-			err := vm.evaluationStack.Push(bigInt)
+			err = vm.evaluationStack.Push(bigInt)
 
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
@@ -113,15 +140,33 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case ROLL:
-			arg := vm.fetch() // arg shows how many have to be rolled
-			newTos, err := vm.evaluationStack.PopIndexAt(vm.evaluationStack.GetLength() - (int(arg) + 2))
+			arg, err := vm.fetch() // arg shows how many have to be rolled
 
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
 			}
 
-			vm.evaluationStack.Push(newTos)
+			if int(arg) > vm.evaluationStack.GetLength() {
+				vm.evaluationStack.Push(StrToBigInt("index out of bounds"))
+				return false
+			}
+
+			index := vm.evaluationStack.GetLength() - (int(arg) + 2)
+
+			newTos, err := vm.evaluationStack.PopIndexAt(index)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			err = vm.evaluationStack.Push(newTos)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case ADD:
 			right, rerr := vm.evaluationStack.Pop()
@@ -373,7 +418,12 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case SHIFTL:
-			nrOfShifts := uint(vm.fetch())
+			nrOfShifts, err := vm.fetch()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 			tos, err := vm.evaluationStack.Pop()
 
@@ -382,7 +432,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			tos.Lsh(&tos, nrOfShifts)
+			tos.Lsh(&tos, uint(nrOfShifts))
 			err = vm.evaluationStack.Push(tos)
 
 			if err != nil {
@@ -391,7 +441,12 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case SHIFTR:
-			nrOfShifts := uint(vm.fetch())
+			nrOfShifts, err := vm.fetch()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 			tos, err := vm.evaluationStack.Pop()
 
@@ -400,7 +455,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			tos.Rsh(&tos, nrOfShifts)
+			tos.Rsh(&tos, uint(nrOfShifts))
 			err = vm.evaluationStack.Push(tos)
 
 			if err != nil {
@@ -409,14 +464,32 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case NOP:
-			vm.fetch()
+			_, err := vm.fetch()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case JMP:
-			val := int(vm.fetch())
-			vm.pc = val
+			nextInstruction, err := vm.fetch()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			jumpTo := int(nextInstruction)
+			vm.pc = jumpTo
 
 		case JMPIF:
-			val := int(vm.fetch())
+			nextInstruction, err := vm.fetch()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
 			right, err := vm.evaluationStack.Pop()
 
 			if err != nil {
@@ -425,17 +498,32 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			if right.Int64() == 1 {
-				vm.pc = val
+				vm.pc = int(nextInstruction)
 			}
 
 		case CALL:
-			jumpAddress := int(vm.fetch()) // Shows where to jump after executing
-			argsToLoad := int(vm.fetch())  // Shows how many elements have to be popped from evaluationStack
+			jumpAddress, err := vm.fetch() // Shows where to jump after executing
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			if int(jumpAddress) == 0 || int(jumpAddress) > len(vm.code) {
+				vm.evaluationStack.Push(StrToBigInt("JumpAddress out of bounds"))
+				return false
+			}
+
+			argsToLoad, err := vm.fetch() // Shows how many elements have to be popped from evaluationStack
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 			frame := &Frame{returnAddress: vm.pc, variables: make(map[int]big.Int)}
 
-			var err error = nil
-			for i := argsToLoad - 1; i >= 0; i-- {
+			for i := int(argsToLoad) - 1; i >= 0; i-- {
 				frame.variables[i], err = vm.evaluationStack.Pop()
 				if err != nil {
 					vm.evaluationStack.Push(StrToBigInt(err.Error()))
@@ -444,22 +532,33 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			vm.callStack.Push(frame)
-			vm.pc = jumpAddress - 1
+			vm.pc = int(jumpAddress) - 1
 
 		case CALLEXT:
 			transactionAddress := vm.code[vm.pc : vm.pc+32] // Addresses are 32 bytes
 			vm.pc += 32                                     // Increase pc by address to get next instruction
 			functionHash := vm.code[vm.pc : vm.pc+4]        // Function hash identifies function in external smart contract, first 4 byte of SHA3 hash
 			vm.pc += 4                                      // Increase pc by function hash to get next instruction
-			argsToLoad := int(vm.fetch())                   // Shows how many arguments to pop from stack and pass to external function
+			argsToLoad, err := vm.fetch()                   // Shows how many arguments to pop from stack and pass to external function
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 			fmt.Println(transactionAddress, functionHash, argsToLoad)
 			//TODO: Invoke new transaction with function hash and arguments, waiting for integration in bazo blockchain to finish
 
 		case RET:
-			returnAddress := vm.callStack.Peek().returnAddress
+			callstackTos, err := vm.callStack.Peek()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
 			vm.callStack.Pop()
-			vm.pc = returnAddress
+			vm.pc = callstackTos.returnAddress
 
 		case STORE:
 			right, err := vm.evaluationStack.Pop()
@@ -471,12 +570,32 @@ func (vm *VM) Exec(trace bool) bool {
 
 			vm.pc++
 			address := vm.pc
-			vm.callStack.Peek().variables[address] = right
+
+			callstackTos, err := vm.callStack.Peek()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			callstackTos.variables[address] = right
 
 		case LOAD:
-			address := int(vm.fetch())
+			address, err := vm.fetch()
 
-			val := vm.callStack.Peek().variables[address]
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			callstackTos, err := vm.callStack.Peek()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			val := callstackTos.variables[int(address)]
 			vm.evaluationStack.Push(val)
 
 		case SHA3:
@@ -501,10 +620,6 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-		case PRINT:
-			val, _ := vm.evaluationStack.Peek()
-			fmt.Println(val)
-
 		case ERRHALT:
 			return false
 
@@ -514,8 +629,12 @@ func (vm *VM) Exec(trace bool) bool {
 	}
 }
 
-func (vm *VM) fetch() byte {
+func (vm *VM) fetch() (element byte, err error) {
 	tempPc := vm.pc
 	vm.pc++
-	return vm.code[tempPc]
+	if len(vm.code) > tempPc {
+		return vm.code[tempPc], nil
+	} else {
+		return 0, errors.New("peek() on empty stack")
+	}
 }

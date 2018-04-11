@@ -1,6 +1,7 @@
 package bazo_vm
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -47,6 +48,7 @@ func TestPushOutOfBounds(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -71,6 +73,7 @@ func TestAddition(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -94,6 +97,7 @@ func TestSubtraction(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -117,6 +121,7 @@ func TestSubtractionWithNegativeResults(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -140,6 +145,7 @@ func TestMultiplication(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -163,6 +169,7 @@ func TestModulo(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -185,6 +192,7 @@ func TestNegate(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -208,6 +216,7 @@ func TestDivision(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -231,6 +240,7 @@ func TestDivisionByZero(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	result, err := vm.evaluationStack.Pop()
@@ -255,6 +265,7 @@ func TestEq(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -278,6 +289,7 @@ func TestNeq(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -301,6 +313,7 @@ func TestLt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -324,6 +337,7 @@ func TestGt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -347,6 +361,7 @@ func TestLte(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -368,6 +383,7 @@ func TestLte(t *testing.T) {
 
 	vm1 := NewVM()
 	vm1.context.contractAccount.Code = code1
+	vm1.context.maxGasAmount = 50
 	vm1.Exec(true)
 
 	if tos.Int64() != 1 {
@@ -385,6 +401,7 @@ func TestGte(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -406,6 +423,7 @@ func TestGte(t *testing.T) {
 
 	vm1 := NewVM()
 	vm1.context.contractAccount.Code = code1
+	vm1.context.maxGasAmount = 50
 	vm1.Exec(true)
 
 	if tos.Int64() != 1 {
@@ -422,6 +440,7 @@ func TestShiftl(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
@@ -440,6 +459,7 @@ func TestShiftr(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
@@ -466,6 +486,7 @@ func TestJmpif(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(false)
 
 	if vm.evaluationStack.GetLength() != 0 {
@@ -486,6 +507,7 @@ func TestJmp(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -510,12 +532,12 @@ func TestCall(t *testing.T) {
 		LOAD, 0, // Begin of called function at address 13
 		LOAD, 1,
 		SUB,
-		PRINT,
 		RET,
 	}
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -545,6 +567,7 @@ func TestCallExt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 }
 
@@ -557,6 +580,7 @@ func TestSha3(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	val, _ := vm.evaluationStack.Pop()
@@ -579,11 +603,106 @@ func TestRoll(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
 
 	if tos.Int64() != 4 {
 		t.Errorf("Actual value is %v, should be 4 after rolling with two as arg", tos)
+	}
+}
+
+// TODO: Roll Function doesn't work as supposed -> Fix
+/*
+func TestFuzzReproduction2(t *testing.T) {
+
+	code := []byte{
+		0x00, 0x01, 0xa, 0x00, 0x02, 0x01, 0xb, 0x00, 0x00, 0xe2, 0xb, 0xa, 0xb, 0x00, 0x00, 0xe2, 0xb, 0xa, 0x12, 0x03,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	//tos, _ := vm.evaluationStack.Pop()
+}
+*/
+
+func TestNonValidOpCode(t *testing.T) {
+
+	code := []byte{
+		0x020,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
+
+	if BigIntToString(tos) != "Not a valid opCode" {
+		t.Errorf("Expected tos to be 'Not a valid opCode' error message but was %v", tos)
+	}
+}
+
+// Call index out of bounds
+/*
+func TestFuzzReproduction7(t *testing.T) {
+
+	code := []byte{
+		0x14, 0x02, 0x00,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
+
+	// Call index out of bounds
+}
+*/
+
+func TestArgumentsExceedInstructionSet(t *testing.T) {
+
+	code := []byte{
+		0x00, 0x00, 0x00, 0x00, 0xb, 0x01, 0x00, 0x03, 0x12, 0x05,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "arguments exceeding instruction set" {
+		t.Errorf("Expected tos to be 'arguments exceeding instruction set' error message but was %v", tos)
+	}
+}
+
+func TestPopOnEmptyStack(t *testing.T) {
+
+	code := []byte{
+		0x00, 0x00, 0x01, 0x19, 0x05, 0x02, 0x03,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "pop() on empty stack" {
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
 	}
 }

@@ -34,7 +34,7 @@ func (s *Stack) Push(element big.Int) error {
 }
 
 func (s *Stack) PopIndexAt(index int) (element big.Int, err error) {
-	if (*s).GetLength() >= index {
+	if (*s).GetLength() > index {
 		element = (*s).stack[index]
 		s.memoryUsage -= getElementMemoryUsage(element.BitLen())
 		s.stack = append((*s).stack[:index], (*s).stack[index+1:]...)
