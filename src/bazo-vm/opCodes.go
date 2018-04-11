@@ -31,6 +31,7 @@ const (
 	NEWMAP
 	MAPPUSH
 	MAPGETVAL
+	NEWARR
 	SHA3
 	PRINT
 	ERRHALT
@@ -75,6 +76,7 @@ var OpCodes = map[int]OpCode{
 	NEWMAP:    OpCode{"newmap", 0, 1},
 	MAPPUSH:    OpCode{"mappush", 1, 1},
 	MAPGETVAL:    OpCode{"mapgetval", 1, 1},
+	NEWARR:    OpCode{"newarr", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},
 	PRINT:   OpCode{"print", 0, 1},
 	HALT:    OpCode{"halt", 0, 0},

@@ -604,6 +604,17 @@ func (vm *VM) Exec(trace bool) bool {
 				offset += mel
 			}
 
+		case NEWARR:
+
+			ba := []byte{0x002,}
+			valuelength := vm.code[vm.pc : vm.pc+8]
+			ba = append(ba, valuelength...)
+			vm.pc += 8
+
+			arr := big.Int{}
+			arr.SetBytes(ba)
+			vm.evaluationStack.Push(arr)
+
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()
 

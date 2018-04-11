@@ -767,6 +767,35 @@ func TestMapGetVAL(t *testing.T){
 	if !reflect.DeepEqual(v.Bytes(), e) {
 		t.Errorf("invalid value, Expected %v but was '%v'", e, v)
 	}
+}
 
+func TestNewArr(t *testing.T){
+	code := []byte{
+		NEWARR, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	expectedSize := []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
+	arr, err := vm.evaluationStack.Pop()
+
+	ba := arr.Bytes()
+	actualSize := ba[1:9]
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !reflect.DeepEqual(actualSize, expectedSize) {
+		t.Errorf("invalid size, Expected %v but was '%v'", expectedSize, actualSize)
+	}
 
 }
