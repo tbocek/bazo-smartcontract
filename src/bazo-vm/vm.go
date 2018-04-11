@@ -500,22 +500,33 @@ func (vm *VM) Exec(trace bool) bool {
 
 			val := vm.callStack.Peek().variables[address]
 			vm.evaluationStack.Push(val)
-/*
+
 		case NEWMAP:
-			m := make(map[string]big.Int)
-			buf, err := json.Marshal(m)
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
-			result := big.Int{}
-			result.SetBytes(buf)
-			vm.evaluationStack.Push(result)
+			datastructure := vm.fetch()
+			ba := []byte{datastructure}
+
+			keylength := vm.code[vm.pc : vm.pc+8]
+			ba = append(ba, keylength...)
+			vm.pc += 8
+
+			valuelength := vm.code[vm.pc : vm.pc+8]
+			ba = append(ba, valuelength...)
+			vm.pc += 8
+
+			size := vm.code[vm.pc : vm.pc+8]
+			ba = append(ba, size...)
+			vm.pc += 8
+
+			m := big.Int{}
+			m.SetBytes(ba)
+			vm.evaluationStack.Push(m)
 
 		case MAPPUSH:
-			key, kerr := vm.evaluationStack.Pop()
-			value, verr := vm.evaluationStack.Pop()
-			marshaledMap, merr := vm.evaluationStack.Pop()
+			k, kerr := vm.evaluationStack.Pop()
+			v, verr := vm.evaluationStack.Pop()
+			m, merr := vm.evaluationStack.Pop()
+
+
 			if kerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
 				return false
@@ -528,28 +539,23 @@ func (vm *VM) Exec(trace bool) bool {
 				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
 				return false
 			}
-			fmt.Println("MAAAAP222")
-			m := make(map[improvedBigInt]big.Int)
-			err := json.Unmarshal(marshaledMap.Bytes(), &m)
-			fmt.Println("MAAAAP333")
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
-			fmt.Println(key.String())
-			m["Z"] = value
 
-			mb, marshalerr := json.Marshal(&m)
-			fmt.Println("MAPS: ", mb)
-			fmt.Println("MAAAAP444")
-			if marshalerr != nil {
-				vm.evaluationStack.Push(StrToBigInt(marshalerr.Error()))
-				return false
+			mba := m.Bytes()
+
+
+			mba = append(mba, k.Bytes()...)
+			mba = append(mba, v.Bytes()...)
+
+			s := BaToi(mba[17:25])
+			s++
+			sba := IToBA(s)
+
+			for i, b := range sba {
+				mba[17+i] = b
 			}
 
-			result := big.Int{}
-			result.SetBytes(mb)
-			vm.evaluationStack.Push(result)*/
+			m.SetBytes(mba)
+			vm.evaluationStack.Push(m)
 
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()

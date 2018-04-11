@@ -8,17 +8,23 @@ import (
 	"encoding/gob"
 )
 
-/*func IntToByteArray(element int) []byte {
-	ba := make([]byte, 64)
+func IToBA(element uint64) []byte {
+	ba := make([]byte, 8)
 	binary.LittleEndian.PutUint64(ba, uint64(element))
 	return ba
-}*/
+}
 
 func StrToBigInt(element string) big.Int {
 	var result big.Int
 	hexEncoded := hex.EncodeToString([]byte(element))
 	result.SetString(hexEncoded, 16)
 	return result
+}
+
+func BaToi(element []byte) uint64{
+	ba := []byte{}
+	r := append(ba, element...)
+	return binary.LittleEndian.Uint64(r)
 }
 
 func ByteArrayToInt(element []byte) int {

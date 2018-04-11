@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 	"math/big"
+	"fmt"
 )
 
 func TestVMGasConsumption(t *testing.T) {
@@ -640,10 +641,13 @@ func TestRoll(t *testing.T) {
 	}
 }
 
-/*
+
 func TestNewMap(t *testing.T){
 	code := []byte{
-		NEWMAP,
+		NEWMAP, 0x01,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		HALT,
 	}
 
@@ -651,31 +655,32 @@ func TestNewMap(t *testing.T){
 	vm.context.contractAccount.Code = code
 	vm.Exec(true)
 
-	v, err := vm.evaluationStack.Pop()
+	r, err := vm.evaluationStack.Pop()
 
 	if err != nil {
 		t.Errorf("%v", err)
 	}
-
-	var m map[string]big.Int
-
-	perr := json.Unmarshal(v.Bytes(), &m)
-
-	if perr != nil {
-		t.Errorf("%v", err)
+	result := r.Bytes()
+	expected := []byte{
+		0x01,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	}
 
-	if len(m) != 0 {
-		t.Errorf("Expected new Map length to be 0 but was %v", len(m))
+	if !reflect.DeepEqual(expected, result) {
+		t.Errorf("expected the Value of the new Map to be %v but was %v", expected, result)
 	}
 }
 
-
 func TestMapPush(t *testing.T){
 	code := []byte{
-		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
-		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
-		NEWMAP,
+		NEWMAP, 0x01,
+				0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		PUSH, 1, 72, 105,
+		PUSH, 0, 0x03,
 		MAPPUSH,
 		HALT,
 	}
@@ -689,21 +694,36 @@ func TestMapPush(t *testing.T){
 		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
 	}
 
-	v, err := vm.evaluationStack.Pop()
-	fmt.Println("Bytes", v.Bytes())
+	m, err := vm.evaluationStack.Pop()
+
 	if err != nil {
 		t.Errorf("%v", err)
 	}
 
-	var m map[string]big.Int
-	fmt.Println("MAP1: ", m)
-	perr := json.Unmarshal(v.Bytes(), &m)
-	fmt.Println("MAP2: ", m)
-	if perr != nil {
-		t.Errorf("%v", err)
+	fmt.Println("Map: ", m.Bytes())
+
+	mba := m.Bytes()
+
+	datastructure := mba[:1][0]
+	kl := BaToi(mba[1:9])
+	vl := BaToi(mba[9:17])
+	size := BaToi(mba[17:25])
+
+	if datastructure != 0x01 {
+		t.Errorf("Invalid Datastructure ID, Expected 0x01 but was %v", datastructure)
 	}
 
-	if len(m) != 1 {
-		t.Errorf("Expected new Map length to be 1 but was %v", len(m))
+	if kl != 1 {
+		t.Errorf("invalid key length, Expected 1 but was %v", kl)
 	}
-}*/
+
+	if vl != 2 {
+		t.Errorf("invalid value length, Expected 2 but was %v", vl)
+	}
+
+	if size != 1 {
+		t.Errorf("invalid size, Expected 1 but was %v", size)
+	}
+
+
+}

@@ -6,15 +6,15 @@ import (
 	"fmt"
 )
 
-/*func TestIntToByteArrayAndBack(t *testing.T) {
-	var start int = 4651321
-	ba := IntToByteArray(start)
+func TestIntToByteArrayAndBack(t *testing.T) {
+	var start uint64 = 4651321
+	ba := IToBA(start)
 
 	end := ByteArrayToInt(ba)
-	if start != end {
+	if start != uint64(end) {
 		t.Errorf("Converstion from int to byteArray and back failed, start and end should be equal, are start: %v, end: %v", start, end)
 	}
-}*/
+}
 
 func TestStrToByteArrayAndBack(t *testing.T) {
 	startStr := "asdf"
