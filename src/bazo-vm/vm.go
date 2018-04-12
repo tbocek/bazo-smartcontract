@@ -49,12 +49,14 @@ func (vm *VM) trace() {
 
 	case "mappush":
 	case "mapgetval":
+	case "arrappend":
+	case "arrremove":
 		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 		fmt.Printf("%04d: %-6s %v ", addr, opCode.name, args)
 
 		for _, e := range stack.Stack {
-
 			fmt.Printf("%# x", e.Bytes())
+			fmt.Printf("\n")
 		}
 
 		fmt.Printf("\n")
@@ -605,15 +607,88 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case NEWARR:
-
 			ba := []byte{0x002,}
 			valuelength := vm.code[vm.pc : vm.pc+8]
 			ba = append(ba, valuelength...)
 			vm.pc += 8
 
+			size := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
+			ba = append(ba, size...)
+
 			arr := big.Int{}
 			arr.SetBytes(ba)
 			vm.evaluationStack.Push(arr)
+
+		case ARRAPPEND:
+			v, verr := vm.evaluationStack.Pop()
+			a, aerr := vm.evaluationStack.Pop()
+
+			if aerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
+
+			if verr != nil {
+				vm.evaluationStack.Push(StrToBigInt(verr.Error()))
+				return false
+			}
+
+			ba := a.Bytes()
+			vb := v.Bytes()
+			size := BaToi(ba[9:17])
+			size++
+			newSize := IToBA(size)
+
+			for i, e := range newSize {
+				ba[9+i] = e
+			}
+
+			//TODO unwanted cast
+			if uint64(len(vb)) != BaToi(ba[1:9]) {
+				vm.evaluationStack.Push(StrToBigInt("Invalid argument size of ARRAPPEND"))
+				return false
+			}
+
+
+			ba = append(ba, vb...)
+
+			arr := big.Int{}
+			arr.SetBytes(ba)
+			vm.evaluationStack.Push(arr)
+
+		case ARRREMOVE:
+			a, aerr := vm.evaluationStack.Pop()
+			index := BaToi(vm.code[vm.pc : vm.pc+8])
+			//TODO Size check
+			//TODO Datastructure check
+			vm.pc += 8
+
+			if aerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
+
+			arr := a.Bytes()
+			elementByteSize := BaToi(arr[1:9])
+			offset := uint64(1 + 8 + 8)
+			elementToRemove := offset + (elementByteSize * index)
+
+			size := BaToi(arr[9:17])
+			size--
+			newSize := IToBA(size)
+
+			for i, e := range newSize {
+				arr[9+i] = e
+			}
+
+			left := arr[:elementToRemove]
+			right := arr[elementToRemove + elementByteSize : ]
+
+			arr = left
+			arr = append(arr, right...)
+			result := big.Int{}
+			result.SetBytes(arr)
+			vm.evaluationStack.Push(result)
 
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()

@@ -641,7 +641,6 @@ func TestRoll(t *testing.T) {
 	}
 }
 
-
 func TestNewMap(t *testing.T){
 	code := []byte{
 		NEWMAP, 0x01,
@@ -784,18 +783,103 @@ func TestNewArr(t *testing.T){
 		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
 	}
 
-	expectedSize := []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
+	expectedValueSize := []byte{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
 	arr, err := vm.evaluationStack.Pop()
 
 	ba := arr.Bytes()
-	actualSize := ba[1:9]
+	actualValueSize := ba[1:9]
 
 	if err != nil {
 		t.Errorf("%v", err)
 	}
 
-	if !reflect.DeepEqual(actualSize, expectedSize) {
-		t.Errorf("invalid size, Expected %v but was '%v'", expectedSize, actualSize)
+	if !reflect.DeepEqual(expectedValueSize, actualValueSize) {
+		t.Errorf("invalid size, Expected %v but was '%v'", expectedValueSize, actualValueSize)
+	}
+
+	expectedSize := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
+	actualSize := ba[9:17]
+	if !reflect.DeepEqual(expectedSize, actualSize) {
+		t.Errorf("invalid size, Expected %v but was '%v'", expectedValueSize, actualSize)
+	}
+}
+
+func TestArrAppend(t *testing.T) {
+	code := []byte{
+		NEWARR, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	arr, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	actual := arr.Bytes()[17:19]
+	expected := []byte{0xFF, 0x00,}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("invalid element appended, Expected %v but was '%v'", expected, actual)
+	}
+
+}
+
+func TestArrRemove(t *testing.T) {
+	code := []byte{
+		NEWARR, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xAA, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xBB, 0x00,
+		ARRAPPEND,
+		ARRREMOVE, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	a, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	arr := a.Bytes()
+
+	size := BaToi(arr[9:17])
+	if size != uint64(2) {
+		t.Errorf("invalid array size, Expected 2 but was '%v'", size)
+	}
+
+	expectedSecondElement := []byte{0xBB, 0x00,}
+	offset := 1 + 8 + 8
+	index := 1
+	elementSize := int(BaToi(arr[1:9]))
+	start := offset + (index * elementSize)
+	actualSecondElement := arr[start: start + elementSize ]
+
+	if !reflect.DeepEqual(expectedSecondElement, actualSecondElement){
+		t.Errorf("invalid element on second index, Expected %# x but was %# x", expectedSecondElement, actualSecondElement)
 	}
 
 }
