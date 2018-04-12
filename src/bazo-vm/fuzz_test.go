@@ -21,7 +21,7 @@ func Fuzz() {
 }
 
 func TestFuzz(t *testing.T) {
-	for i := 0; i <= 100000; i++ {
-		//Fuzz()
+	for i := 0; i <= 1000000; i++ {
+		Fuzz()
 	}
 }

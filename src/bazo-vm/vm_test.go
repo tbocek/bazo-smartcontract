@@ -58,7 +58,7 @@ func TestPushOutOfBounds(t *testing.T) {
 	}
 
 	e := BigIntToString(tos)
-	if e != "arguments exceeding instruction set" {
+	if e != "instructionSet out of bounds" {
 		t.Errorf("Expected Error Message to be returned but got: %v", e)
 	}
 }
@@ -440,10 +440,11 @@ func TestShiftl(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
-	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
 
 	if tos.Int64() != 8 {
 		t.Errorf("Expected result to be 8 but was %v", tos)
@@ -613,23 +614,6 @@ func TestRoll(t *testing.T) {
 	}
 }
 
-// TODO: Roll Function doesn't work as supposed -> Fix
-/*
-func TestFuzzReproduction2(t *testing.T) {
-
-	code := []byte{
-		0x00, 0x01, 0xa, 0x00, 0x02, 0x01, 0xb, 0x00, 0x00, 0xe2, 0xb, 0xa, 0xb, 0x00, 0x00, 0xe2, 0xb, 0xa, 0x12, 0x03,
-	}
-
-	vm := NewVM()
-	vm.context.contractAccount.Code = code
-	vm.context.maxGasAmount = 300
-	vm.Exec(true)
-
-	//tos, _ := vm.evaluationStack.Pop()
-}
-*/
-
 func TestNonValidOpCode(t *testing.T) {
 
 	code := []byte{
@@ -650,31 +634,10 @@ func TestNonValidOpCode(t *testing.T) {
 	}
 }
 
-// Call index out of bounds
-/*
-func TestFuzzReproduction7(t *testing.T) {
-
-	code := []byte{
-		0x14, 0x02, 0x00,
-	}
-
-	vm := NewVM()
-	vm.context.contractAccount.Code = code
-	vm.context.maxGasAmount = 300
-	vm.Exec(true)
-
-	tos, _ := vm.evaluationStack.Pop()
-
-	fmt.Println(BigIntToString(tos))
-
-	// Call index out of bounds
-}
-*/
-
 func TestArgumentsExceedInstructionSet(t *testing.T) {
 
 	code := []byte{
-		0x00, 0x00, 0x00, 0x00, 0xb, 0x01, 0x00, 0x03, 0x12, 0x05,
+		PUSH, 0x00, 0x00, PUSH, 0x0b, 0x01, 0x00, 0x03, 0x12, 0x05,
 	}
 
 	vm := NewVM()
@@ -684,15 +647,15 @@ func TestArgumentsExceedInstructionSet(t *testing.T) {
 
 	tos, _ := vm.evaluationStack.Pop()
 
-	if BigIntToString(tos) != "arguments exceeding instruction set" {
-		t.Errorf("Expected tos to be 'arguments exceeding instruction set' error message but was %v", tos)
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("Expected tos to be 'instructionSet out of bounds' error message but was %v", tos)
 	}
 }
 
 func TestPopOnEmptyStack(t *testing.T) {
 
 	code := []byte{
-		0x00, 0x00, 0x01, 0x19, 0x05, 0x02, 0x03,
+		PUSH, 0x00, 0x01, SHA3, 0x05, 0x02, 0x03,
 	}
 
 	vm := NewVM()
@@ -705,4 +668,36 @@ func TestPopOnEmptyStack(t *testing.T) {
 	if BigIntToString(tos) != "pop() on empty stack" {
 		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
 	}
+}
+
+func TestFuzzReproduction1(t *testing.T) {
+
+	code := []byte{
+		ROLL, 0,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
+}
+
+func TestFuzzReproduction2(t *testing.T) {
+
+	code := []byte{
+		CALLEXT, 231,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
 }
