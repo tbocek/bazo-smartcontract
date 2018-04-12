@@ -34,6 +34,7 @@ const (
 	NEWARR
 	ARRAPPEND
 	ARRREMOVE
+	ARRAT
 	SHA3
 	PRINT
 	ERRHALT
@@ -81,6 +82,7 @@ var OpCodes = map[int]OpCode{
 	NEWARR:    OpCode{"newarr", 1, 1},
 	ARRAPPEND:    OpCode{"arrappend", 0, 1},
 	ARRREMOVE:    OpCode{"arrremove", 1, 1},
+	ARRAT:    OpCode{"arrat", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},
 	PRINT:   OpCode{"print", 0, 1},
 	HALT:    OpCode{"halt", 0, 0},

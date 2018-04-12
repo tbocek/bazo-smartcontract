@@ -51,6 +51,7 @@ func (vm *VM) trace() {
 	case "mapgetval":
 	case "arrappend":
 	case "arrremove":
+	case "arrat":
 		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
 		fmt.Printf("%04d: %-6s %v ", addr, opCode.name, args)
 
@@ -688,6 +689,28 @@ func (vm *VM) Exec(trace bool) bool {
 			arr = append(arr, right...)
 			result := big.Int{}
 			result.SetBytes(arr)
+			vm.evaluationStack.Push(result)
+
+		case ARRAT:
+			a, aerr := vm.evaluationStack.Pop()
+			index := BaToi(vm.code[vm.pc : vm.pc+8])
+			//TODO Size check
+			//TODO Datastructure check
+			vm.pc += 8
+
+			if aerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
+
+			arr := a.Bytes()
+			elementByteSize := BaToi(arr[1:9])
+			offset := uint64(1 + 8 + 8)
+			elementStart := offset + (elementByteSize * index)
+
+			element := arr[elementStart : elementStart + elementByteSize]
+			result := big.Int{}
+			result.SetBytes(element)
 			vm.evaluationStack.Push(result)
 
 		case SHA3:

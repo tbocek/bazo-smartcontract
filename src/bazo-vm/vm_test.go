@@ -881,5 +881,40 @@ func TestArrRemove(t *testing.T) {
 	if !reflect.DeepEqual(expectedSecondElement, actualSecondElement){
 		t.Errorf("invalid element on second index, Expected %# x but was %# x", expectedSecondElement, actualSecondElement)
 	}
+}
+
+func TestArrAt(t *testing.T) {
+	code := []byte{
+		NEWARR, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xAA, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xBB, 0x00,
+		ARRAPPEND,
+		ARRAT, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	v1, err1 := vm.evaluationStack.Pop()
+
+	if err1 != nil {
+		t.Errorf("%v", err1)
+	}
+
+	expected1 := []byte{0xBB, 0x00}
+	actual1 := v1.Bytes()
+	if !reflect.DeepEqual(expected1, actual1){
+		t.Errorf("invalid element on first index, Expected %# x but was %# x", expected1, actual1)
+	}
 
 }
