@@ -141,23 +141,25 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			if int(arg) >= vm.evaluationStack.GetLength() {
-				vm.evaluationStack.Push(StrToBigInt("index out of bounds"))
-				return false
-			}
+			if index != -1 {
+				if int(arg) >= vm.evaluationStack.GetLength() {
+					vm.evaluationStack.Push(StrToBigInt("index out of bounds"))
+					return false
+				}
 
-			newTos, err := vm.evaluationStack.PopIndexAt(index)
+				newTos, err := vm.evaluationStack.PopIndexAt(index)
 
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
+				if err != nil {
+					vm.evaluationStack.Push(StrToBigInt(err.Error()))
+					return false
+				}
 
-			err = vm.evaluationStack.Push(newTos)
+				err = vm.evaluationStack.Push(newTos)
 
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
+				if err != nil {
+					vm.evaluationStack.Push(StrToBigInt(err.Error()))
+					return false
+				}
 			}
 
 		case ADD:
@@ -465,6 +467,21 @@ func (vm *VM) Exec(trace bool) bool {
 
 			vm.callStack.Pop()
 			vm.pc = callstackTos.returnAddress
+
+		case SIZE:
+			right, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			err = vm.evaluationStack.Push(*big.NewInt(int64(getElementMemoryUsage(right.BitLen()))))
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case STORE:
 			right, err := vm.evaluationStack.Pop()

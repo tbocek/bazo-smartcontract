@@ -24,11 +24,12 @@ const (
 	CALL           // 14
 	CALLEXT        // 15
 	RET            // 16
-	STORE          // 17
-	LOAD           // 18
-	SHA3           // 19
-	ERRHALT        // 1a
-	HALT           // 1b
+	SIZE           // 17
+	STORE          // 18
+	LOAD           // 19
+	SHA3           // 1a
+	ERRHALT        // 1b
+	HALT           // 1c
 )
 
 type OpCode struct {
@@ -61,6 +62,7 @@ var OpCodes = map[int]OpCode{
 	CALL:    OpCode{"call", 2, 1},
 	CALLEXT: OpCode{"callext", 3, 1},
 	RET:     OpCode{"ret", 0, 1},
+	SIZE:    OpCode{"size", 0, 1},
 	STORE:   OpCode{"store", 0, 1},
 	LOAD:    OpCode{"load", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},

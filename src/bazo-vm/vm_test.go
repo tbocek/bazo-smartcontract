@@ -673,13 +673,14 @@ func TestPopOnEmptyStack(t *testing.T) {
 func TestFuzzReproduction1(t *testing.T) {
 
 	code := []byte{
+		PUSH, 0, 20,
 		ROLL, 0,
 	}
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
 	vm.context.maxGasAmount = 300
-	vm.Exec(true)
+	vm.Exec(false)
 
 	tos, _ := vm.evaluationStack.Pop()
 
