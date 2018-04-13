@@ -484,8 +484,11 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case SSTORE:
-			key := vm.code[vm.pc : vm.pc+1]
-			vm.pc += 1
+			index, err := vm.fetch()
+
+			if !vm.checkErrors([]error{err}) {
+				return false
+			}
 
 			value, err := vm.evaluationStack.Pop()
 
@@ -494,8 +497,12 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			vm.context.contractAccount.ContractVariables[ByteArrayToInt(key)] = value
+			if len(vm.context.contractAccount.ContractVariables) <= int(index) {
+				vm.evaluationStack.Push(StrToBigInt("Index out of bounds"))
+				return false
+			}
 
+			vm.context.contractAccount.ContractVariables[int(index)] = value
 
 		case STORE:
 			right, err := vm.evaluationStack.Pop()
@@ -519,12 +526,25 @@ func (vm *VM) Exec(trace bool) bool {
 
 		case SLOAD:
 			const HASHLENGTH = 1
-			key := vm.code[vm.pc : vm.pc+HASHLENGTH]
-			vm.pc += HASHLENGTH
+			index, err := vm.fetchMany(HASHLENGTH)
 
-			value := vm.context.contractAccount.ContractVariables[ByteArrayToInt(key)]
-			vm.evaluationStack.Push(value);
+			if !vm.checkErrors([]error{err}) {
+				return false
+			}
 
+			if len(vm.context.contractAccount.ContractVariables) <= ByteArrayToInt(index) {
+				vm.evaluationStack.Push(StrToBigInt("Index out of bounds"))
+				return false
+			}
+
+			value := vm.context.contractAccount.ContractVariables[ByteArrayToInt(index)]
+
+			err = vm.evaluationStack.Push(value)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case LOAD:
 			address, errArg := vm.fetch()

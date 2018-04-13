@@ -24,7 +24,7 @@ const (
 	CALL
 	CALLEXT
 	RET
-  SIZE
+	SIZE
 	STORE
 	SSTORE
 	LOAD
@@ -69,7 +69,7 @@ var OpCodes = map[int]OpCode{
 	STORE:   OpCode{"store", 0, 1},
 	SSTORE:  OpCode{"sstore", 1, 1},
 	LOAD:    OpCode{"load", 1, 1},
-	SLOAD:    OpCode{"sload", 1, 1},
+	SLOAD:   OpCode{"sload", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},
 	HALT:    OpCode{"halt", 0, 0},
 	ERRHALT: OpCode{"errhalt", 0, 0},

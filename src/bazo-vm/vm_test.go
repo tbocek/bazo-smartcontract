@@ -2,9 +2,9 @@ package bazo_vm
 
 import (
 	"fmt"
+	"math/big"
 	"reflect"
 	"testing"
-	"math/big"
 )
 
 func TestVMGasConsumption(t *testing.T) {
@@ -595,14 +595,12 @@ func TestCallExt(t *testing.T) {
 	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
-
 }
 
-func TestSload(t *testing.T){
+func TestSload(t *testing.T) {
 	code := []byte{
 		SLOAD, 0,
 		HALT,
-
 	}
 
 	vm := NewVM()
@@ -625,12 +623,11 @@ func TestSload(t *testing.T){
 	}
 }
 
-func TestSstore(t *testing.T){
+func TestSstore(t *testing.T) {
 	code := []byte{
 		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
 		SSTORE, 0,
 		HALT,
-
 	}
 
 	vm := NewVM()
@@ -779,5 +776,41 @@ func TestFuzzReproductionInstructionSetOutOfBounds2(t *testing.T) {
 
 	if BigIntToString(tos) != "instructionSet out of bounds" {
 		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+	}
+}
+
+func TestFuzzReproduction(t *testing.T) {
+
+	code := []byte{
+		SLOAD, 0, 0, 33,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "Index out of bounds" {
+		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
+	}
+}
+
+func TestFuzzReproduction2(t *testing.T) {
+
+	code := []byte{
+		PUSH, 4, 46, 110, 66, 50, 255, SSTORE, 123, 119,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "Index out of bounds" {
+		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
 	}
 }
