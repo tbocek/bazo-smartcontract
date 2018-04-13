@@ -558,6 +558,29 @@ func TestCall(t *testing.T) {
 	}
 }
 
+func TestTosSize(t *testing.T) {
+	code := []byte{
+		PUSH, 2, 10, 4, 5,
+		SIZE,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
+	vm.Exec(true)
+
+	tos, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if tos.Int64() != 4 {
+		t.Errorf("Expected TOS size to be 4, but got %v", tos)
+	}
+}
+
 func TestCallExt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 10,
@@ -670,7 +693,7 @@ func TestPopOnEmptyStack(t *testing.T) {
 	}
 }
 
-func TestFuzzReproduction1(t *testing.T) {
+func TestFuzzReproductionInstructionSetOutOfBounds(t *testing.T) {
 
 	code := []byte{
 		PUSH, 0, 20,
@@ -684,10 +707,12 @@ func TestFuzzReproduction1(t *testing.T) {
 
 	tos, _ := vm.evaluationStack.Pop()
 
-	fmt.Println(BigIntToString(tos))
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+	}
 }
 
-func TestFuzzReproduction2(t *testing.T) {
+func TestFuzzReproductionInstructionSetOutOfBounds2(t *testing.T) {
 
 	code := []byte{
 		CALLEXT, 231,
@@ -700,5 +725,7 @@ func TestFuzzReproduction2(t *testing.T) {
 
 	tos, _ := vm.evaluationStack.Pop()
 
-	fmt.Println(BigIntToString(tos))
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+	}
 }
