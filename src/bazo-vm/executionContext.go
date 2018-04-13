@@ -5,10 +5,11 @@ type StateData struct {
 }
 
 type Context struct {
-	transactionSender    []byte
-	transactioninputData []byte
-	maxGasAmount         int
-	contractAccount      ContractAccount
+	TransactionSender [32]byte
+	TransactionData   []byte
+	MaxGasAmount      uint64
+	ContractAccount   ContractAccount
+	ContractTx        ContractTx
 	/*
 		stateData StateData
 
@@ -20,9 +21,10 @@ func NewContext() *Context {
 	//data := map[int][]byte{}
 
 	return &Context{
-		transactionSender:    []byte{},
-		transactioninputData: []byte{},
-		maxGasAmount:         100000,
-		contractAccount:      ContractAccount{},
+		TransactionSender: [32]byte{},
+		TransactionData:   []byte{},
+		MaxGasAmount:      100000,
+		ContractAccount:   ContractAccount{},
+		ContractTx:        ContractTx{},
 	}
 }

@@ -8,8 +8,8 @@ import (
 func Fuzz() {
 	vm := NewVM()
 	code := RandomBytes()
-	vm.context.maxGasAmount = 10000
-	vm.context.contractAccount.Code = code
+	vm.context.MaxGasAmount = 10000
+	vm.context.ContractAccount.Contract = code
 
 	defer func() {
 		if err := recover(); err != nil {

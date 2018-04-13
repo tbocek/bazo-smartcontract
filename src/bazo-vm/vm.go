@@ -7,6 +7,10 @@ import (
 
 	"errors"
 
+	"crypto/ecdsa"
+
+	"crypto/elliptic"
+
 	"golang.org/x/crypto/sha3"
 )
 
@@ -61,7 +65,7 @@ func (vm *VM) trace() {
 
 func (vm *VM) Exec(trace bool) bool {
 
-	vm.code = vm.context.contractAccount.Code
+	vm.code = vm.context.ContractAccount.Contract
 
 	if len(vm.code) > 100000 {
 		vm.evaluationStack.Push(StrToBigInt("Instruction set to big"))
@@ -90,11 +94,11 @@ func (vm *VM) Exec(trace bool) bool {
 		}
 
 		// Substract gas used for operation
-		if vm.context.maxGasAmount < OpCodes[int(opCode)].gasPrice {
+		if vm.context.MaxGasAmount < OpCodes[int(opCode)].gasPrice {
 			vm.evaluationStack.Push(StrToBigInt("out of gas"))
 			return false
 		} else {
-			vm.context.maxGasAmount -= OpCodes[int(opCode)].gasPrice
+			vm.context.MaxGasAmount -= OpCodes[int(opCode)].gasPrice
 		}
 
 		// Decode
@@ -497,12 +501,12 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			if len(vm.context.contractAccount.ContractVariables) <= int(index) {
+			if len(vm.context.ContractAccount.ContractVariables) <= int(index) {
 				vm.evaluationStack.Push(StrToBigInt("Index out of bounds"))
 				return false
 			}
 
-			vm.context.contractAccount.ContractVariables[int(index)] = value
+			vm.context.ContractAccount.ContractVariables[int(index)] = value
 
 		case STORE:
 			right, err := vm.evaluationStack.Pop()
@@ -532,12 +536,12 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			if len(vm.context.contractAccount.ContractVariables) <= ByteArrayToInt(index) {
+			if len(vm.context.ContractAccount.ContractVariables) <= ByteArrayToInt(index) {
 				vm.evaluationStack.Push(StrToBigInt("Index out of bounds"))
 				return false
 			}
 
-			value := vm.context.contractAccount.ContractVariables[ByteArrayToInt(index)]
+			value := vm.context.ContractAccount.ContractVariables[ByteArrayToInt(index)]
 
 			err = vm.evaluationStack.Push(value)
 
@@ -577,6 +581,42 @@ func (vm *VM) Exec(trace bool) bool {
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
+			}
+
+		case CHECKSIG:
+			publicKeySig, errArg1 := vm.evaluationStack.Pop() // PubKeySig
+			hash, errArg2 := vm.evaluationStack.Pop()         // Hash
+
+			if !vm.checkErrors([]error{errArg1, errArg2}) {
+				return false
+			}
+
+			if len(publicKeySig.Bytes()) != 64 {
+				vm.evaluationStack.Push(StrToBigInt("Not a valid address"))
+				return false
+			}
+
+			if len(hash.Bytes()) != 32 {
+				vm.evaluationStack.Push(StrToBigInt("Not a valid hash"))
+				return false
+			}
+
+			pubKey1Sig1, pubKey2Sig1 := new(big.Int), new(big.Int)
+			r, s := new(big.Int), new(big.Int)
+
+			pubKey1Sig1.SetBytes(publicKeySig.Bytes()[:32])
+			pubKey2Sig1.SetBytes(publicKeySig.Bytes()[32:])
+
+			r.SetBytes(vm.context.ContractTx.Sig1[:32])
+			s.SetBytes(vm.context.ContractTx.Sig1[32:])
+
+			pubKey := ecdsa.PublicKey{elliptic.P256(), pubKey1Sig1, pubKey2Sig1}
+
+			if ecdsa.Verify(&pubKey, hash.Bytes(), r, s) {
+				fmt.Println("Valid Sig", pubKey, hash.Bytes())
+				vm.evaluationStack.Push(*big.NewInt(1))
+			} else {
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case ERRHALT:
