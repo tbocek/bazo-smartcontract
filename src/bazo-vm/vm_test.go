@@ -1,6 +1,7 @@
 package bazo_vm
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"math/big"
@@ -48,6 +49,7 @@ func TestPushOutOfBounds(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -57,7 +59,7 @@ func TestPushOutOfBounds(t *testing.T) {
 	}
 
 	e := BigIntToString(tos)
-	if e != "arguments exceeding instruction set" {
+	if e != "instructionSet out of bounds" {
 		t.Errorf("Expected Error Message to be returned but got: %v", e)
 	}
 }
@@ -72,6 +74,7 @@ func TestAddition(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -95,6 +98,7 @@ func TestSubtraction(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -118,6 +122,7 @@ func TestSubtractionWithNegativeResults(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -141,6 +146,7 @@ func TestMultiplication(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -164,6 +170,7 @@ func TestModulo(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -186,6 +193,7 @@ func TestNegate(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -209,6 +217,7 @@ func TestDivision(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -232,6 +241,7 @@ func TestDivisionByZero(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	result, err := vm.evaluationStack.Pop()
@@ -256,6 +266,7 @@ func TestEq(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -279,6 +290,7 @@ func TestNeq(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -302,6 +314,7 @@ func TestLt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -325,6 +338,7 @@ func TestGt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -348,6 +362,7 @@ func TestLte(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -369,6 +384,7 @@ func TestLte(t *testing.T) {
 
 	vm1 := NewVM()
 	vm1.context.contractAccount.Code = code1
+	vm1.context.maxGasAmount = 50
 	vm1.Exec(true)
 
 	if tos.Int64() != 1 {
@@ -386,6 +402,7 @@ func TestGte(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -407,6 +424,7 @@ func TestGte(t *testing.T) {
 
 	vm1 := NewVM()
 	vm1.context.contractAccount.Code = code1
+	vm1.context.maxGasAmount = 50
 	vm1.Exec(true)
 
 	if tos.Int64() != 1 {
@@ -427,6 +445,8 @@ func TestShiftl(t *testing.T) {
 
 	tos, _ := vm.evaluationStack.Pop()
 
+	fmt.Println(BigIntToString(tos))
+
 	if tos.Int64() != 8 {
 		t.Errorf("Expected result to be 8 but was %v", tos)
 	}
@@ -441,6 +461,7 @@ func TestShiftr(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
@@ -467,6 +488,7 @@ func TestJmpif(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(false)
 
 	if vm.evaluationStack.GetLength() != 0 {
@@ -487,6 +509,7 @@ func TestJmp(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -511,12 +534,12 @@ func TestCall(t *testing.T) {
 		LOAD, 0, // Begin of called function at address 13
 		LOAD, 1,
 		SUB,
-		PRINT,
 		RET,
 	}
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, err := vm.evaluationStack.Peek()
@@ -536,6 +559,29 @@ func TestCall(t *testing.T) {
 	}
 }
 
+func TestTosSize(t *testing.T) {
+	code := []byte{
+		PUSH, 2, 10, 4, 5,
+		SIZE,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
+	vm.Exec(true)
+
+	tos, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+	}
+
+	if tos.Int64() != 4 {
+		t.Errorf("Expected TOS size to be 4, but got %v", tos)
+	}
+}
+
 func TestCallExt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 10,
@@ -546,6 +592,7 @@ func TestCallExt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 
@@ -609,6 +656,7 @@ func TestSha3(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	val, _ := vm.evaluationStack.Pop()
@@ -631,11 +679,105 @@ func TestRoll(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 50
 	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
 
 	if tos.Int64() != 4 {
 		t.Errorf("Actual value is %v, should be 4 after rolling with two as arg", tos)
+	}
+}
+
+func TestNonValidOpCode(t *testing.T) {
+
+	code := []byte{
+		0x020,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
+
+	if BigIntToString(tos) != "Not a valid opCode" {
+		t.Errorf("Expected tos to be 'Not a valid opCode' error message but was %v", tos)
+	}
+}
+
+func TestArgumentsExceedInstructionSet(t *testing.T) {
+
+	code := []byte{
+		PUSH, 0x00, 0x00, PUSH, 0x0b, 0x01, 0x00, 0x03, 0x12, 0x05,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("Expected tos to be 'instructionSet out of bounds' error message but was %v", tos)
+	}
+}
+
+func TestPopOnEmptyStack(t *testing.T) {
+
+	code := []byte{
+		PUSH, 0x00, 0x01, SHA3, 0x05, 0x02, 0x03,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "pop() on empty stack" {
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+	}
+}
+
+func TestFuzzReproductionInstructionSetOutOfBounds(t *testing.T) {
+
+	code := []byte{
+		PUSH, 0, 20,
+		ROLL, 0,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+	}
+}
+
+func TestFuzzReproductionInstructionSetOutOfBounds2(t *testing.T) {
+
+	code := []byte{
+		CALLEXT, 231,
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+	vm.context.maxGasAmount = 300
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
 	}
 }

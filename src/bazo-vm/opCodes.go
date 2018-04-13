@@ -24,6 +24,7 @@ const (
 	CALL
 	CALLEXT
 	RET
+  SIZE
 	STORE
 	SSTORE
 	LOAD
@@ -64,12 +65,12 @@ var OpCodes = map[int]OpCode{
 	CALL:    OpCode{"call", 2, 1},
 	CALLEXT: OpCode{"callext", 3, 1},
 	RET:     OpCode{"ret", 0, 1},
+	SIZE:    OpCode{"size", 0, 1},
 	STORE:   OpCode{"store", 0, 1},
 	SSTORE:  OpCode{"sstore", 1, 1},
 	LOAD:    OpCode{"load", 1, 1},
 	SLOAD:    OpCode{"sload", 1, 1},
 	SHA3:    OpCode{"sha3", 0, 1},
-	PRINT:   OpCode{"print", 0, 1},
 	HALT:    OpCode{"halt", 0, 0},
 	ERRHALT: OpCode{"errhalt", 0, 0},
 }
