@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"math/big"
 )
 
 func TestVMGasConsumption(t *testing.T) {
@@ -593,6 +594,57 @@ func TestCallExt(t *testing.T) {
 	vm.context.contractAccount.Code = code
 	vm.context.maxGasAmount = 50
 	vm.Exec(true)
+
+
+}
+
+func TestSload(t *testing.T){
+	code := []byte{
+		SLOAD, 0,
+		HALT,
+
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+
+	//TODO Contract Variables should not be modifyable in the VM only after execution
+	variable := []big.Int{}
+	vm.context.contractAccount.ContractVariables = append(variable, StrToBigInt("Hi There!!"))
+	vm.Exec(true)
+
+	result, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	resultString := BigIntToString(result)
+	if resultString != "Hi There!!" {
+		t.Errorf("The String on the Stack should be 'Hi There!!' but was %v", resultString)
+	}
+}
+
+func TestSstore(t *testing.T){
+	code := []byte{
+		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
+		SSTORE, 0,
+		HALT,
+
+	}
+
+	vm := NewVM()
+	vm.context.contractAccount.Code = code
+
+	//TODO Contract Variables should not be modifyable in the VM only after execution
+	variable := []big.Int{StrToBigInt("Something")}
+	vm.context.contractAccount.ContractVariables = variable
+	vm.Exec(true)
+
+	result := BigIntToString(vm.context.contractAccount.ContractVariables[0])
+	if result != "Hi There!!" {
+		t.Errorf("The String on the Stack should be 'Hi There!!' but was '%v'", result)
+	}
 }
 
 func TestSha3(t *testing.T) {

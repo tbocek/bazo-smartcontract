@@ -1,5 +1,7 @@
 package bazo_vm
 
+import "math/big"
+
 type ContractAccount struct {
 	Address            []byte
 	Balance            uint64
@@ -8,7 +10,7 @@ type ContractAccount struct {
 	HashedSeed         []byte
 	StakingBlockHeight uint64
 	Code               []byte         // Additional to standard account
-	ContractVariables  map[int][]byte // Additional to standard account
+	ContractVariables  []big.Int // Additional to standard account
 }
 
 func NewContractAccount(address []byte, balance uint64, isStaking bool, hashedSeed []byte, code []byte) ContractAccount {
@@ -20,7 +22,7 @@ func NewContractAccount(address []byte, balance uint64, isStaking bool, hashedSe
 		hashedSeed,
 		0,
 		code,
-		map[int][]byte{},
+		[]big.Int{},
 	}
 	return newSC
 }

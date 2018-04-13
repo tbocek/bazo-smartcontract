@@ -483,6 +483,20 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
+		case SSTORE:
+			key := vm.code[vm.pc : vm.pc+1]
+			vm.pc += 1
+
+			value, err := vm.evaluationStack.Pop()
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			vm.context.contractAccount.ContractVariables[ByteArrayToInt(key)] = value
+
+
 		case STORE:
 			right, err := vm.evaluationStack.Pop()
 
@@ -502,6 +516,15 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			callstackTos.variables[address] = right
+
+		case SLOAD:
+			const HASHLENGTH = 1
+			key := vm.code[vm.pc : vm.pc+HASHLENGTH]
+			vm.pc += HASHLENGTH
+
+			value := vm.context.contractAccount.ContractVariables[ByteArrayToInt(key)]
+			vm.evaluationStack.Push(value);
+
 
 		case LOAD:
 			address, errArg := vm.fetch()
