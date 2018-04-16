@@ -14,6 +14,16 @@ func IToBA(element uint64) []byte {
 	return ba
 }
 
+func UI16ToBa(element uint16) []byte {
+	ba := make([]byte, 2)
+	binary.LittleEndian.PutUint16(ba, uint16(element))
+	return ba
+}
+
+func BaToUI16(element []byte) uint16{
+	return binary.LittleEndian.Uint16(element)
+}
+
 func StrToBigInt(element string) big.Int {
 	var result big.Int
 	hexEncoded := hex.EncodeToString([]byte(element))
