@@ -664,26 +664,31 @@ func (vm *VM) Exec(trace bool) bool {
 			vm.evaluationStack.Push(arr.ToBigInt())
 
 		case ARRAT:
-			a, aerr := vm.evaluationStack.Pop()
-			index := BaToi(vm.code[vm.pc : vm.pc+8])
-			//TODO Size check
-			//TODO Datastructure check
-			vm.pc += 8
+			a, aerr := vm.evaluationStack.Peek()
+			index := BaToUI16(vm.code[vm.pc : vm.pc+2])
+			vm.pc += 2
 
 			if aerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
 				return false
 			}
 
-			arr := a.Bytes()
-			elementByteSize := BaToi(arr[1:9])
-			offset := uint64(1 + 8 + 8)
-			elementStart := offset + (elementByteSize * index)
+			arr, err := ArrayFromBigInt(a)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
 
-			element := arr[elementStart : elementStart + elementByteSize]
+			e, err := arr.At(index)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
 			result := big.Int{}
-			result.SetBytes(element)
+			result.SetBytes(e)
 			vm.evaluationStack.Push(result)
+
+
 
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()
