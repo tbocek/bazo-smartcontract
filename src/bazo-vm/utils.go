@@ -8,6 +8,8 @@ import (
 	"encoding/gob"
 )
 
+const UINT16_MAX uint16 = 65535
+
 func IToBA(element uint64) []byte {
 	ba := make([]byte, 8)
 	binary.LittleEndian.PutUint64(ba, uint64(element))

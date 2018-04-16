@@ -96,17 +96,3 @@ func TestArray_Append(t *testing.T) {
 		t.Errorf("Invalid Array Size, Expected 1 after append but got %v", a.getSize())
 	}
 }
-
-func TestFixedElementSizeArray(t *testing.T) {
-	a :=  NewFixedElementSizeArray(65535)
-
-	if len(a) != 5 {
-		t.Errorf("Expected Byte Array with size 3 but got %v", len(a))
-	}
-
-	es := BaToUI16(a[3:5])
-
-	if es != 65535 {
-		t.Errorf("Expected Element Size to be 65535 but got %v", es)
-	}
-}

@@ -5,8 +5,6 @@ import (
 	"errors"
 )
 
-const UINT16_MAX uint16 = 65535
-
 type Array []byte
 func NewArray() Array{
 	ba := []byte{0x02,}
@@ -110,23 +108,4 @@ func (a *Array) Remove(index uint16) error {
 	}
 
 	return errors.New("array internals error")
-}
-
-
-
-
-
-
-
-
-
-
-type FixedElementSizeArray []byte
-func NewFixedElementSizeArray(elementSize uint16) FixedElementSizeArray{
-	ba := []byte{0x002,}
-	size := []byte{0x00, 0x00,}
-	ba = append(ba, size...)
-
-	es := UI16ToBa(elementSize)
-	return append(ba, es...)
 }
