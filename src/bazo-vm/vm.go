@@ -72,11 +72,13 @@ func (vm *VM) Exec(trace bool) bool {
 		return false
 	}
 
+	// Prepend passed transaction data so parameter and function hash get pushed on stack as soon as transaction is executed
+	vm.code = append(vm.context.TransactionData, vm.code...)
+
 	// Infinite Loop until return called
 	for {
 		if trace {
 			vm.trace()
-			//fmt.Println(vm.pc)
 		}
 
 		// Fetch
@@ -164,6 +166,13 @@ func (vm *VM) Exec(trace bool) bool {
 					vm.evaluationStack.Push(StrToBigInt(err.Error()))
 					return false
 				}
+			}
+
+		case POP:
+			_, rerr := vm.evaluationStack.Pop()
+
+			if !vm.checkErrors([]error{rerr}) {
+				return false
 			}
 
 		case ADD:
@@ -571,10 +580,10 @@ func (vm *VM) Exec(trace bool) bool {
 
 			hasher := sha3.New256()
 			hasher.Write(right.Bytes())
-			sha3_hash := hasher.Sum(nil)
+			hash := hasher.Sum(nil)
 
 			var bigInt big.Int
-			bigInt.SetBytes(sha3_hash)
+			bigInt.SetBytes(hash)
 
 			err = vm.evaluationStack.Push(bigInt)
 

@@ -809,3 +809,37 @@ func TestFuzzReproduction2(t *testing.T) {
 		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
 	}
 }
+
+func TestFunctionCall(t *testing.T) {
+	code := []byte{
+		// start ABI
+		DUP,
+		PUSH, 0, 24,
+		EQ,
+		JMPIF, 24,
+		DUP,
+		PUSH, 0, 27,
+		EQ,
+		JMPIF, 27,
+		HALT,
+		// end ABI
+		POP,
+		SUB,
+		HALT,
+		POP,
+		ADD,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 50
+
+	vm.context.TransactionData = []byte{
+		PUSH, 0, 2,
+		PUSH, 0, 5,
+		PUSH, 0, 24, // Function hash
+	}
+
+	vm.Exec(true)
+}
