@@ -3,17 +3,17 @@ package bazo_vm
 import "math/big"
 
 type ContractAccount struct {
-	Address            []byte
+	Address            [64]byte
 	Balance            uint64
 	TxCnt              uint64
 	IsStaking          bool
-	HashedSeed         []byte
+	HashedSeed         [32]byte
 	StakingBlockHeight uint64
-	Code               []byte         // Additional to standard account
+	Contract           []byte    // Additional to standard account
 	ContractVariables  []big.Int // Additional to standard account
 }
 
-func NewContractAccount(address []byte, balance uint64, isStaking bool, hashedSeed []byte, code []byte) ContractAccount {
+func NewContractAccount(address [64]byte, balance uint64, isStaking bool, hashedSeed [32]byte, code []byte) ContractAccount {
 	newSC := ContractAccount{
 		address,
 		balance,
@@ -27,8 +27,14 @@ func NewContractAccount(address []byte, balance uint64, isStaking bool, hashedSe
 	return newSC
 }
 
-type ContractCallersTransaction struct {
-	transactionSender    []byte
-	transactioninputData []byte
-	maxGasAmount         int
+type ContractTx struct {
+	Header          byte
+	Amount          uint64
+	Fee             int
+	TxCnt           uint32
+	From            [32]byte
+	To              [32]byte
+	TransactionData []byte
+	Sig1            [64]byte
+	Sig2            [64]byte
 }

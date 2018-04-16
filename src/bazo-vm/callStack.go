@@ -1,6 +1,9 @@
 package bazo_vm
 
-import "math/big"
+import (
+	"errors"
+	"math/big"
+)
 
 type Frame struct {
 	variables     map[int]big.Int
@@ -23,12 +26,20 @@ func (cs *CallStack) Push(element *Frame) {
 	cs.values = append(cs.values[:cs.GetLength()], element)
 }
 
-func (cs *CallStack) Pop() *Frame {
-	element := (*cs).values[cs.GetLength()-1]
-	cs.values = cs.values[:cs.GetLength()-1]
-	return element
+func (cs *CallStack) Pop() (frame *Frame, err error) {
+	if (*cs).GetLength() > 0 {
+		element := (*cs).values[cs.GetLength()-1]
+		cs.values = cs.values[:cs.GetLength()-1]
+		return element, nil
+	} else {
+		return nil, errors.New("pop() on empty callStack")
+	}
 }
 
-func (cs *CallStack) Peek() *Frame {
-	return (*cs).values[cs.GetLength()-1]
+func (cs *CallStack) Peek() (frame *Frame, err error) {
+	if (*cs).GetLength() > 0 {
+		return (*cs).values[cs.GetLength()-1], nil
+	} else {
+		return nil, errors.New("peek() on empty callStack")
+	}
 }

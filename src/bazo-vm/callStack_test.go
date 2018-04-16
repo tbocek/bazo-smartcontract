@@ -23,7 +23,7 @@ func TestCallStack_Push(t *testing.T) {
 	}
 
 	cs.Push(&Frame{variables: variables, returnAddress: 3})
-	topOfStack := cs.Pop()
+	topOfStack, _ := cs.Pop()
 
 	if reflect.DeepEqual(topOfStack, variables) {
 		t.Errorf("Expected same as variable defined above, but got %v", topOfStack)
@@ -67,8 +67,9 @@ func TestCallStack_MultiplePushPop(t *testing.T) {
 		t.Errorf("Expected Lenght to be 1 after Pushing 3 Frames and Popping twice, but got %v", cs.GetLength())
 	}
 
-	topOfStack := cs.Pop().variables
-	if !reflect.DeepEqual(topOfStack, variables1) {
+	topOfStack, _ := cs.Pop()
+
+	if !reflect.DeepEqual(topOfStack.variables, variables1) {
 		t.Errorf("Expected variables popped to be %v but got %v", variables1, topOfStack)
 	}
 }
