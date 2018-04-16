@@ -3,7 +3,6 @@ package bazo_vm
 import (
 	"math/big"
 	"errors"
-	"fmt"
 )
 
 const UINT16_MAX uint16 = 65535
@@ -13,6 +12,14 @@ func NewArray() Array{
 	ba := []byte{0x02,}
 	size := []byte{0x00, 0x00,}
 	return append(ba, size...)
+}
+
+func ArrayFromBigInt(arr big.Int) (Array, error) {
+	ba := arr.Bytes()
+	if ba[0] != 0x02 {
+		return Array{}, errors.New("Invalid datatype supplied")
+	}
+	return Array(ba), nil
 }
 
 func (a * Array) ToBigInt() big.Int{
@@ -36,10 +43,15 @@ func (a * Array) IncrementSize(){
 	a.setSize(UI16ToBa(s))
 }
 
-func (a * Array) DecrementSize(){
+func (a * Array) DecrementSize() error{
 	s := a.getSize()
+
+	if s <= 0{
+		return errors.New("Array size already 0")
+	}
 	s--
 	a.setSize(UI16ToBa(s))
+	return nil
 }
 
 func (a * Array) At(index uint16) ([]byte, error) {
@@ -53,8 +65,6 @@ func (a * Array) At(index uint16) ([]byte, error) {
 	var k uint16 = offset
 	for ; k < uint16(len(*a)) && i <= index; i++{
 		s := BaToUI16((*a)[k:k+2])
-		fmt.Println("Size", s)
-		fmt.Println("K: ", k)
 		if i == index {
 			return (*a)[k+2:k+2+s], nil
 		}
@@ -69,7 +79,7 @@ func (a * Array) Append(e big.Int) error {
 	ba := e.Bytes()
 	s := len(ba)
 
-	if s > 65535 {
+	if s > int(UINT16_MAX) {
 		return errors.New("Element Size overflow")
 	}
 
@@ -79,6 +89,28 @@ func (a * Array) Append(e big.Int) error {
 	return nil
 }
 
+func (a *Array) Remove(index uint16) error {
+	var offset uint16 = 3
+
+	if a.getSize() < index {
+		return errors.New("array index out of bounds")
+	}
+
+	var i uint16 = 0
+	var k uint16 = offset
+	for ; k < uint16(len(*a)) && i <= index; i++{
+		s := BaToUI16((*a)[k:k+2])
+		if i == index {
+			tmp := Array{}
+			tmp = append(tmp, (*a)[:k]...)
+			*a = append(tmp, (*a)[k+2+s:]...)
+			return nil
+		}
+		k += 2 + s
+	}
+
+	return errors.New("array internals error")
+}
 
 
 
