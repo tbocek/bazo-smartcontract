@@ -4,6 +4,7 @@ const (
 	PUSH = iota
 	DUP
 	ROLL
+	POP
 	ADD
 	SUB
 	MULT
@@ -31,7 +32,6 @@ const (
 	SLOAD
 	SHA3
 	CHECKSIG
-	PRINT
 	ERRHALT
 	HALT
 )
@@ -46,6 +46,7 @@ var OpCodes = map[int]OpCode{
 	PUSH:     OpCode{"push", 0, 1},
 	DUP:      OpCode{"dup", 0, 1},
 	ROLL:     OpCode{"roll", 1, 1},
+	POP:      OpCode{"pop", 0, 1},
 	ADD:      OpCode{"add", 0, 1},
 	SUB:      OpCode{"sub", 0, 1},
 	MULT:     OpCode{"mult", 0, 1},
