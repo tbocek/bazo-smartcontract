@@ -1,4 +1,4 @@
-package bazo_vm
+package bazovm
 
 type StateData struct {
 	data []byte

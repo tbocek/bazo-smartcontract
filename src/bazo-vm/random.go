@@ -1,4 +1,4 @@
-package bazo_vm
+package bazovm
 
 import (
 	rand1 "crypto/rand"

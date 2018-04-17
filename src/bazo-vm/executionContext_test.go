@@ -1,3 +1,1 @@
-package bazo_vm
-
-
+package bazovm

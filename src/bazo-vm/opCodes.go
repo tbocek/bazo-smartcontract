@@ -1,4 +1,4 @@
-package bazo_vm
+package bazovm
 
 const (
 	PUSH = iota
