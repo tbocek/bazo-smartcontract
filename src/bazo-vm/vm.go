@@ -95,7 +95,7 @@ func (vm *VM) Exec(trace bool) bool {
 			return false
 		}
 
-		// Substract gas used for operation
+		// Subtract gas used for operation
 		if vm.context.MaxGasAmount < OpCodes[int(opCode)].gasPrice {
 			vm.evaluationStack.Push(StrToBigInt("out of gas"))
 			return false
@@ -108,7 +108,7 @@ func (vm *VM) Exec(trace bool) bool {
 
 		case PUSH:
 			arg, errArg1 := vm.fetch()
-			byteCount := int(arg) + 1 // Amount of bytes pushed
+			byteCount := int(arg) + 1 // Amount of bytes pushed, maximum amount of bytes that can be pushed is 256
 			bytes, errArg2 := vm.fetchMany(byteCount)
 
 			if !vm.checkErrors([]error{errArg1, errArg2}) {
@@ -433,15 +433,15 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case CALL:
-			jumpAddress, errArg1 := vm.fetch() // Shows where to jump after executing
-			argsToLoad, errArg2 := vm.fetch()  // Shows how many elements have to be popped from evaluationStack
+			returnAddress, errArg1 := vm.fetch() // Shows where to jump after executing
+			argsToLoad, errArg2 := vm.fetch()    // Shows how many elements have to be popped from evaluationStack
 
 			if !vm.checkErrors([]error{errArg1, errArg2}) {
 				return false
 			}
 
-			if int(jumpAddress) == 0 || int(jumpAddress) > len(vm.code) {
-				vm.evaluationStack.Push(StrToBigInt("JumpAddress out of bounds"))
+			if int(returnAddress) == 0 || int(returnAddress) > len(vm.code) {
+				vm.evaluationStack.Push(StrToBigInt("ReturnAddress out of bounds"))
 				return false
 			}
 
@@ -456,7 +456,7 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			vm.callStack.Push(frame)
-			vm.pc = int(jumpAddress) - 1
+			vm.pc = int(returnAddress) - 1
 
 		case CALLEXT:
 			transactionAddress, errArg1 := vm.fetchMany(32) // Addresses are 32 bytes (var name: transactionAddress)

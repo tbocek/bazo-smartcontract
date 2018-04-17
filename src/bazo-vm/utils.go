@@ -6,11 +6,11 @@ import (
 	"math/big"
 )
 
-/*func IntToByteArray(element int) []byte {
+func IntToByteArray(element int) []byte {
 	ba := make([]byte, 64)
 	binary.LittleEndian.PutUint64(ba, uint64(element))
 	return ba
-}*/
+}
 
 func StrToBigInt(element string) big.Int {
 	var result big.Int
