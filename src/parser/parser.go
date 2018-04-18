@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"bazo-smartcontract/src/bazo-vm"
+	"bazo-smartcontract/src/vm"
 	"bufio"
 	"fmt"
 	"math/big"
@@ -25,7 +25,7 @@ func Program(sourceCode string) []byte {
 
 		switch word {
 		case "PUSH":
-			instructionSet = append(instructionSet, bazovm.PUSH)
+			instructionSet = append(instructionSet, vm.PUSH)
 			val := new(big.Int)
 			val.SetString(restOfLine(line), 10)
 
@@ -34,7 +34,7 @@ func Program(sourceCode string) []byte {
 			instructionSet = append(instructionSet, byte(length))
 			instructionSet = append(instructionSet, val.Bytes()...)
 
-			addressCounter += length
+			addressCounter += length + 3
 
 		case "#":
 			fmt.Println("This is a comment and to be ignored")
@@ -46,6 +46,7 @@ func Program(sourceCode string) []byte {
 
 			fmt.Println("Invalid first word")
 		}
+		fmt.Println(addressCounter)
 	}
 
 	fmt.Println(labels)

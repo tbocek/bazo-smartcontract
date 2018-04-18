@@ -1,4 +1,4 @@
-package bazovm
+package vm
 
 import (
 	"encoding/binary"
