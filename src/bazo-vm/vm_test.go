@@ -1103,6 +1103,24 @@ func TestFuzzReproduction2(t *testing.T) {
 	}
 }
 
+func TestFuzzReproduction3(t *testing.T) {
+
+	code := []byte{
+		29, 36, 222, 203, 229, 51, 52, 138, 144, 109, 48,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "invalid data type supplied" {
+		t.Errorf("Expected tos to be 'invalid data type supplied' error message but was %v", BigIntToString(tos))
+	}
+}
+
 func TestFunctionCall(t *testing.T) {
 	code := []byte{
 		// start ABI

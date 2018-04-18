@@ -15,7 +15,7 @@ func NewArray() Array{
 func ArrayFromBigInt(arr big.Int) (Array, error) {
 	ba := arr.Bytes()
 	if ba[0] != 0x02 {
-		return Array{}, errors.New("Invalid datatype supplied")
+		return Array{}, errors.New("invalid data type supplied")
 	}
 	return Array(ba), nil
 }

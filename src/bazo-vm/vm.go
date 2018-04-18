@@ -727,28 +727,33 @@ func (vm *VM) Exec(trace bool) bool {
 
 
 		case ARRAT:
-			a, aerr := vm.evaluationStack.Peek()
-			ba, ferr := vm.fetchMany(2)
-			index := BaToUI16(ba)
-			if ferr != nil {
-				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
+			a, err := vm.evaluationStack.Peek()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
 			}
 
-			if aerr != nil {
-				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+			ba, err := vm.fetchMany(2)
+			index := BaToUI16(ba)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
 			}
 
 			arr, err := ArrayFromBigInt(a)
 			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
 			}
 
 			e, err := arr.At(index)
 			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
 			}
 			result := big.Int{}
