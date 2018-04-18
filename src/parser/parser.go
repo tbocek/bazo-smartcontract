@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func Program(sourceCode string) []byte {
@@ -13,7 +15,7 @@ func Program(sourceCode string) []byte {
 	var addressCounter int
 	labels := make(map[string]int)
 
-	lines, err := StringToLines(sourceCode)
+	lines, err := stringToLines(sourceCode)
 
 	if err != nil {
 		panic(err)
@@ -21,39 +23,73 @@ func Program(sourceCode string) []byte {
 
 	for _, line := range lines {
 
-		word := firstWord(line)
+		// Get a string array of every word in line
+		words := strings.Fields(line)
 
-		switch word {
-		case "PUSH":
-			instructionSet = append(instructionSet, vm.PUSH)
-			val := new(big.Int)
-			val.SetString(restOfLine(line), 10)
+		// If case to ignore empty lines
+		if len(words) > 0 {
+			firstWord := words[0]
 
-			length := len(val.Bytes()) - 1
+			switch firstWord {
+			case "PUSH":
+				err := checkIllegalWordsAfterArguments(1, words)
+				if err != nil {
+					fmt.Println(err)
+				}
 
-			instructionSet = append(instructionSet, byte(length))
-			instructionSet = append(instructionSet, val.Bytes()...)
+				instructionSet = append(instructionSet, vm.PUSH)
+				val := new(big.Int)
+				val.SetString(words[1], 10)
 
-			addressCounter += length + 3
+				length := len(val.Bytes()) - 1
 
-		case "#":
-			fmt.Println("This is a comment and to be ignored")
+				instructionSet = append(instructionSet, byte(length))
+				instructionSet = append(instructionSet, val.Bytes()...)
 
-		default:
-			if word[len(line)-1:] == ":" {
-				labels[word[:len(word)-1]] = addressCounter
+				addressCounter += length + 3
+
+			case "CALL":
+				err := checkIllegalWordsAfterArguments(2, words)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				instructionSet = append(instructionSet, vm.CALL)
+
+			case "ADD":
+				err := checkIllegalWordsAfterArguments(0, words)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				instructionSet = append(instructionSet, vm.ADD)
+				addressCounter++
+
+			case "HALT":
+				err := checkIllegalWordsAfterArguments(0, words)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				instructionSet = append(instructionSet, vm.HALT)
+				addressCounter++
+
+			case "#":
+				// Do nothing, comments should be ignored
+
+			default:
+				if firstWord[len(line)-1:] == ":" {
+					labels[firstWord[:len(firstWord)-1]] = addressCounter
+				}
+
+				fmt.Println("Invalid first word")
 			}
-
-			fmt.Println("Invalid first word")
 		}
-		fmt.Println(addressCounter)
 	}
-
-	fmt.Println(labels)
 	return instructionSet
 }
 
-func StringToLines(s string) (lines []string, err error) {
+func stringToLines(s string) (lines []string, err error) {
 	scanner := bufio.NewScanner(strings.NewReader(s))
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
@@ -62,21 +98,11 @@ func StringToLines(s string) (lines []string, err error) {
 	return
 }
 
-// First Word in line is either an opCode, a '#' to signal the beginning of a comment or a label with ':' as ending char
-func firstWord(value string) string {
-	for i := range value {
-		if value[i] == ' ' {
-			return value[0:i]
+func checkIllegalWordsAfterArguments(expectedCount int, words []string) error {
+	if len(words) > expectedCount+1 {
+		if words[expectedCount+1] != "#" {
+			return errors.New("Illegal word in line")
 		}
 	}
-	return value
-}
-
-func restOfLine(value string) string {
-	for i := range value {
-		if value[i] == ' ' {
-			return value[i+1:]
-		}
-	}
-	return value
+	return nil
 }

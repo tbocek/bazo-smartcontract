@@ -2,17 +2,22 @@ package parser
 
 import (
 	"fmt"
+	"io/ioutil"
+	"reflect"
 	"testing"
 )
 
-/*func TestProgram(t *testing.T) {
-	s := "# asdf asdf asdf\nPUSH 43155\nPUSH 489\nfunctionName:\n"
+func TestProgramAddNums(t *testing.T) {
+	contract, err := ioutil.ReadFile("../contracts/addNums.sc")
+	if err != nil {
+		fmt.Print(err)
+	}
 
-	fmt.Println(Program(s))
-}*/
+	contractAsString := string(contract) // convert content to a 'string'
 
-func TestProgram2(t *testing.T) {
-	s := "PUSH 43155\nPUSH 489\nPUSH 4684723121\nPUSH 12\n"
+	instructionCode := Program(contractAsString)
 
-	fmt.Println(Program(s))
+	if !reflect.DeepEqual(instructionCode, []byte{0, 0, 5, 0, 0, 5, 4, 32}) {
+		t.Errorf("After parsing file it should be {0, 0, 5, 0, 0, 5, 4, 32} but is %v", instructionCode)
+	}
 }
