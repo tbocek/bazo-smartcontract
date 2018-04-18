@@ -32,6 +32,7 @@ const (
 	NEWMAP
 	MAPPUSH
 	MAPGETVAL
+	MAPREMOVE
 	NEWARR
 	ARRAPPEND
 	ARRREMOVE
@@ -81,6 +82,7 @@ var OpCodes = map[int]OpCode{
 	NEWMAP:    OpCode{"newmap", 0, 1},
 	MAPPUSH:    OpCode{"mappush", 1, 1},
 	MAPGETVAL:    OpCode{"mapgetval", 1, 1},
+	MAPREMOVE:    OpCode{"mapremove", 1, 1},
 	NEWARR:    OpCode{"newarr", 1, 1},
 	ARRAPPEND:    OpCode{"arrappend", 0, 1},
 	ARRREMOVE:    OpCode{"arrremove", 1, 1},

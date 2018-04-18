@@ -603,7 +603,6 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			m.Append(k.Bytes(), v.Bytes())
-			m.IncrementSize()
 			vm.evaluationStack.Push(m.ToBigInt())
 
 		case MAPGETVAL:
@@ -635,6 +634,28 @@ func (vm *VM) Exec(trace bool) bool {
 			result := big.Int{}
 			result.SetBytes(v)
 			vm.evaluationStack.Push(result)
+
+		case MAPREMOVE:
+			kbi, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			mbi, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			m, err := MapFromBigInt(mbi)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			m.Remove(kbi.Bytes())
+			vm.evaluationStack.Push(m.ToBigInt())
 
 
 		case NEWARR:
@@ -725,7 +746,7 @@ func (vm *VM) Exec(trace bool) bool {
 			result.SetBytes(e)
 			vm.evaluationStack.Push(result)
 
-			
+
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()
 
@@ -791,12 +812,6 @@ func (vm *VM) Exec(trace bool) bool {
 			return true
 		}
 	}
-}
-func getMapProperties(mba []byte) (uint64, uint64, uint64) {
-	kl := BaToi(mba[1:9])
-	vl := BaToi(mba[9:17])
-	size := BaToi(mba[17:25])
-	return kl, vl, size
 }
 
 func (vm *VM) fetch() (element byte, err error) {

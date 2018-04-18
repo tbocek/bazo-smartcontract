@@ -787,6 +787,56 @@ func TestMapGetVAL(t *testing.T){
 	}
 }
 
+
+func TestMapRemove(t *testing.T){
+	code := []byte{
+		NEWMAP,
+		PUSH, 0x01, 0x48, 0x69,
+		PUSH, 0x00, 0x03,
+		MAPPUSH,
+		PUSH, 0x01, 0x69, 0x69,
+		PUSH, 0x00, 0x02,
+		MAPPUSH,
+		PUSH, 0x01, 0x48, 0x48,
+		PUSH, 0x00, 0x01,
+		MAPPUSH,
+		PUSH, 0x00, 0x03,
+		MAPREMOVE,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	mbi, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	m, err := MapFromBigInt(mbi)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	e := []byte{0x01,
+				0x02, 0x00,
+				0x01, 0x00,		0x02,
+				0x02, 0x00,		0x69, 0x69,
+				0x01, 0x00,		0x01,
+				0x02, 0x00,		0x48, 0x48,
+	}
+
+
+	if bytes.Compare(m, e) != 0 {
+		t.Errorf("invalid datastructure, Expected %v but was '%v'", e, m)
+	}
+}
+
 func TestNewArr(t *testing.T){
 	code := []byte{
 		NEWARR,
@@ -961,8 +1011,8 @@ func TestArgumentsExceedInstructionSet(t *testing.T) {
 	}
 }
 
-/*
-func TestPopOnEmptyStack(t *testing.T) {
+
+/*func TestPopOnEmptyStack(t *testing.T) {
 
 	code := []byte{
 		PUSH, 0x00, 0x01, SHA3, 0x05, 0x02, 0x03,
@@ -978,7 +1028,7 @@ func TestPopOnEmptyStack(t *testing.T) {
 	if BigIntToString(tos) != "pop() on empty stack" {
 		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
 	}
-}
+}*/
 
 func TestFuzzReproductionInstructionSetOutOfBounds(t *testing.T) {
 
@@ -1052,4 +1102,3 @@ func TestFuzzReproduction2(t *testing.T) {
 		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
 	}
 }
-*/

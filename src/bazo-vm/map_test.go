@@ -93,3 +93,33 @@ func TestMap_GetVal(t *testing.T) {
 	}
 
 }
+
+func TestMap_Remove(t *testing.T) {
+	actual := NewMap()
+	actual.Append([]byte{0x00,}, []byte{0x00,})
+	actual.Append([]byte{0x01,}, []byte{0x01, 0x01})
+	actual.Append([]byte{0x02,0x00}, []byte{0x02, 0x02, 0x02})
+	actual.Append([]byte{0x03,0x00,0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
+
+	if actual.getSize() != 4{
+		t.Errorf("Expected map size to be '4' but was '%v'", actual.getSize())
+	}
+
+	expected := NewMap()
+	expected.Append([]byte{0x00,}, []byte{0x00,})
+	expected.Append([]byte{0x01,}, []byte{0x01, 0x01})
+	expected.Append([]byte{0x03,0x00,0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
+
+	err := actual.Remove([]byte{0x02,0x00})
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if actual.getSize() != 3{
+		t.Errorf("Expected map size to be '3' but was '%v'", actual.getSize())
+	}
+
+	if bytes.Compare(expected, actual) != 0{
+		t.Errorf("Expected map to be '[%# x]' but was '[%# x]' after element removal", expected, actual)
+	}
+}

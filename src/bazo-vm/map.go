@@ -63,6 +63,7 @@ func (m *Map) Append(key []byte, value []byte) error {
 	tmp = append(tmp, UI16ToBa(uint16(sv))...)
 	tmp = append(tmp, value...)
 	*m = tmp
+	m.IncrementSize()
 	return nil
 }
 
@@ -93,4 +94,35 @@ func (m *Map) GetVal(key []byte) ([]byte, error) {
 	}
 
 	return []byte{}, errors.New("key not found")
+}
+
+func (m *Map) Remove(key []byte) (error) {
+	offset := 3
+	l := len(*m)
+	for i := offset; i < l; {
+		if i > l - 3 {
+			return errors.New("value sizes are 0")
+		}
+
+		ksize := BaToUI16((*m)[i:i+2])
+
+		valueSizeStart := i+2+int(ksize)
+
+		k := (*m)[i+2:valueSizeStart]
+		vsize := BaToUI16((*m)[valueSizeStart:valueSizeStart+2])
+		vSizeEnd := valueSizeStart+2+int(vsize)
+		if bytes.Compare(key, k) == 0 {
+			tmp := append([]byte{}, (*m)[:i]...)
+			*m = append(tmp, (*m)[vSizeEnd:]...)
+			m.DecrementSize()
+			return nil
+		}
+
+		if i == vSizeEnd {
+			return errors.New("value sizes are 0")
+		}
+		i = vSizeEnd
+	}
+
+	return errors.New("key not found")
 }

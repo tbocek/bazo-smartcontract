@@ -1,9 +1,10 @@
 package bazo_vm
-/*
+
 import (
 	"log"
 	"testing"
 )
+
 
 
 func Fuzz() {
@@ -26,4 +27,3 @@ func TestFuzz(t *testing.T) {
 		Fuzz()
 	}
 }
-*/
