@@ -70,7 +70,6 @@ func (a * Array) At(index uint16) ([]byte, error) {
 	}
 
 	return []byte{}, errors.New("array internals error")
-
 }
 
 func (a * Array) Append(e big.Int) error {

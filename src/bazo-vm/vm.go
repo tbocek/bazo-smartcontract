@@ -574,97 +574,68 @@ func (vm *VM) Exec(trace bool) bool {
 			vm.evaluationStack.Push(val)
 
 		case NEWMAP:
-			//TODO guards and errors
-			datastructure, _ := vm.fetch()
-
-			ba := []byte{datastructure}
-
-			keylength := vm.code[vm.pc : vm.pc+8]
-			ba = append(ba, keylength...)
-			vm.pc += 8
-
-			valuelength := vm.code[vm.pc : vm.pc+8]
-			ba = append(ba, valuelength...)
-			vm.pc += 8
-
-			size := vm.code[vm.pc : vm.pc+8]
-			ba = append(ba, size...)
-			vm.pc += 8
-
-			m := big.Int{}
-			m.SetBytes(ba)
-			vm.evaluationStack.Push(m)
+			m := NewMap()
+			vm.evaluationStack.Push(m.ToBigInt())
 
 		case MAPPUSH:
 			k, kerr := vm.evaluationStack.Pop()
-			v, verr := vm.evaluationStack.Pop()
-			m, merr := vm.evaluationStack.Pop()
-
-
 			if kerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
 				return false
 			}
+
+			v, verr := vm.evaluationStack.Pop()
 			if verr != nil {
 				vm.evaluationStack.Push(StrToBigInt(verr.Error()))
 				return false
 			}
+
+			mbi, mbierr := vm.evaluationStack.Pop()
+			if mbierr != nil {
+				vm.evaluationStack.Push(StrToBigInt(mbierr.Error()))
+				return false
+			}
+
+			m, merr := MapFromBigInt(mbi)
 			if merr != nil {
 				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
 				return false
 			}
 
-			mba := m.Bytes()
-
-
-			mba = append(mba, k.Bytes()...)
-			mba = append(mba, v.Bytes()...)
-
-			s := BaToi(mba[17:25])
-			s++
-			sba := IToBA(s)
-
-			for i, b := range sba {
-				mba[17+i] = b
-			}
-
-			m.SetBytes(mba)
-			vm.evaluationStack.Push(m)
+			m.Append(k.Bytes(), v.Bytes())
+			m.IncrementSize()
+			vm.evaluationStack.Push(m.ToBigInt())
 
 		case MAPGETVAL:
-			tmpKey, kerr := vm.evaluationStack.Pop()
-			m, merr := vm.evaluationStack.Pop()
-
+			kbi, kerr := vm.evaluationStack.Pop()
 			if kerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
 				return false
 			}
 
+			mbi, mbierr := vm.evaluationStack.Pop()
+			if mbierr != nil {
+				vm.evaluationStack.Push(StrToBigInt(mbierr.Error()))
+				return false
+			}
+
+			k := kbi.Bytes()
+			m, merr := MapFromBigInt(mbi)
 			if merr != nil {
 				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
 				return false
 			}
 
-			key := tmpKey.Bytes()
-			mba := m.Bytes()
-
-			kl, vl, size := getMapProperties(mba)
-			mel := kl + vl
-
-			data := mba[25:]
-			var i uint64 = 0
-			var offset uint64 = 0
-			for ; i < size; i++ {
-				bv := offset + kl
-				k := data[offset:bv]
-				if reflect.DeepEqual(k, key) {
-					v := data[bv:bv+vl]
-					r := big.Int{}
-					r.SetBytes(v)
-					vm.evaluationStack.Push(r)
-				}
-				offset += mel
+			v, err := m.GetVal(k)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
 			}
+
+			result := big.Int{}
+			result.SetBytes(v)
+			vm.evaluationStack.Push(result)
+
 
 		case NEWARR:
 			a := NewArray()
@@ -689,42 +660,50 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-
 			vm.evaluationStack.Push(arr.ToBigInt())
 
 		case ARRREMOVE:
 			a, aerr := vm.evaluationStack.Pop()
-			index := BaToUI16(vm.code[vm.pc : vm.pc+2])
-			vm.pc += 2
 			if aerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
+			ba, ferr := vm.fetchMany(2)
+			index := BaToUI16(ba)
+			if ferr != nil {
+				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
 				return false
 			}
 
 			arr, perr := ArrayFromBigInt(a)
 			if perr != nil {
-				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				vm.evaluationStack.Push(StrToBigInt(perr.Error()))
 				return false
 			}
 
 			rerr := arr.Remove(index)
 			if rerr != nil {
-				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				vm.evaluationStack.Push(StrToBigInt(rerr.Error()))
 				return false
 			}
 
 			derr := arr.DecrementSize()
 			if derr != nil {
-				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				vm.evaluationStack.Push(StrToBigInt(derr.Error()))
 				return false
 			}
 
 			vm.evaluationStack.Push(arr.ToBigInt())
 
+
 		case ARRAT:
 			a, aerr := vm.evaluationStack.Peek()
-			index := BaToUI16(vm.code[vm.pc : vm.pc+2])
-			vm.pc += 2
+			ba, ferr := vm.fetchMany(2)
+			index := BaToUI16(ba)
+			if ferr != nil {
+				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
+				return false
+			}
 
 			if aerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
@@ -746,8 +725,7 @@ func (vm *VM) Exec(trace bool) bool {
 			result.SetBytes(e)
 			vm.evaluationStack.Push(result)
 
-
-
+			
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()
 
