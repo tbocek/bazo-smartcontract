@@ -1,4 +1,4 @@
-package vm
+package bazo_vm
 
 import (
 	"encoding/binary"

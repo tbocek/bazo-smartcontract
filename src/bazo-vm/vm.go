@@ -1,4 +1,4 @@
-package vm
+package bazo_vm
 
 import (
 	"fmt"
@@ -50,9 +50,9 @@ func (vm *VM) trace() {
 
 		//TODO - Fix CALLEXT case, leads to index out of bounds exception
 	/*case "callext":
-	address := vm.code[vm.pc+1 : vm.pc+33]
-	functionHash := vm.code[vm.pc+33 : vm.pc+37]
-	nargs := int(vm.code[vm.pc+37])
+	address := bazo-vm.code[bazo-vm.pc+1 : bazo-vm.pc+33]
+	functionHash := bazo-vm.code[bazo-vm.pc+33 : bazo-vm.pc+37]
+	nargs := int(bazo-vm.code[bazo-vm.pc+37])
 
 	fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.Name, address, functionHash, nargs, stack)
 	*/
