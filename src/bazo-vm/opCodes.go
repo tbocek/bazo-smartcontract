@@ -30,6 +30,15 @@ const (
 	SSTORE
 	LOAD
 	SLOAD
+	NEWMAP
+	MAPPUSH
+	MAPGETVAL
+	MAPREMOVE
+	NEWARR
+	ARRAPPEND
+	//ARRINSERT
+	ARRREMOVE
+	ARRAT
 	SHA3
 	CHECKSIG
 	ERRHALT
@@ -79,6 +88,15 @@ var OpCodes = map[int]OpCode{
 	SSTORE:   {"sstore", 1, []int{INT}, 1},
 	LOAD:     {"load", 1, []int{INT}, 1},
 	SLOAD:    {"sload", 1, []int{INT}, 1},
+	NEWMAP:    {"newmap", 0, []int{},1},
+	MAPPUSH:    {"mappush", 0, []int{},1},
+	MAPGETVAL:    {"mapgetval", 0, []int{},1},
+	MAPREMOVE:    {"mapremove", 0, []int{},1},
+	NEWARR:    {"newarr", 0, []int{},1},
+	ARRAPPEND:    {"arrappend", 0, []int{},1},
+	//ARRINSERT:    {"arrinsert", 0, []int{}, 1},
+	ARRREMOVE:    {"arrremove", 0, []int{},1},
+	ARRAT:    {"arrat", 0, []int{},1},
 	SHA3:     {"sha3", 0, []int{}, 1},
 	CHECKSIG: {"checksig", 0, []int{}, 1},
 	HALT:     {"halt", 0, []int{}, 0},
