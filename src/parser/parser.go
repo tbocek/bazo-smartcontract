@@ -9,9 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Tokenize(sourceCode string) [][]Token {
+func Tokenize(sourceCode string) ([][]Token, map[string]int) {
 	var tokenSet [][]Token
 	var addressCounter int
+	var lineCount int
 	labels := make(map[string]int)
 
 	lines, err := stringToLines(sourceCode)
@@ -20,17 +21,15 @@ func Tokenize(sourceCode string) [][]Token {
 		panic(err)
 	}
 
-	for count, line := range lines {
-
-		// Get a string array of every word in line
-		words := strings.Fields(line)
+	for _, line := range lines {
 
 		// If case to ignore empty lines
-		if len(words) <= 0 {
+		if len(line) <= 0 {
 			continue
 		}
 
-		tokenSet = append(tokenSet, []Token{})
+		// Get a string array of every word in line
+		words := strings.Fields(line)
 
 		firstWord := words[0]
 
@@ -47,40 +46,44 @@ func Tokenize(sourceCode string) [][]Token {
 			opCode := vm.OpCodes[key]
 
 			if firstWord == strings.ToUpper(opCode.Name) {
+				tokenSet = append(tokenSet, []Token{})
+
 				err := checkIllegalWordsAfterArguments(opCode.Nargs, words)
 
 				if err != nil {
 					fmt.Println(err)
 				}
 
-				// Handle opCode with no arguments
-				tokenSet[count] = append(tokenSet[count], Token{tokenType: OPCODE, value: strings.ToUpper(opCode.Name)})
+				// Handle opCode
+				tokenSet[lineCount] = append(tokenSet[lineCount], Token{tokenType: OPCODE, value: strings.ToUpper(opCode.Name)})
 				addressCounter++
 
-				// Handle opCode with arguments
+				// Handle arguments
 				for i := 0; i < opCode.Nargs; i++ {
-					tokenSet[count] = append(tokenSet[count], Token{tokenType: opCode.ArgTypes[i], value: words[i+1]})
+					tokenSet[lineCount] = append(tokenSet[lineCount], Token{tokenType: opCode.ArgTypes[i], value: words[i+1]})
 					addressCounter++
 				}
-
+				lineCount++
+				continue
 			}
 
 		}
 	}
-	return tokenSet
+	return tokenSet, labels
 }
 
 func Parse(sourceCode string) []byte {
 	var instructionSet []byte
-	tokenSet := Tokenize(sourceCode)
+	tokenSet, labels := Tokenize(sourceCode)
+
+	fmt.Println(labels)
 
 	for lineCount := range tokenSet {
-		if lineCount <= 0 {
+		if lineCount < 0 {
 			continue
 		}
 
 		fmt.Println(tokenSet[lineCount])
-
 	}
 
 	return instructionSet

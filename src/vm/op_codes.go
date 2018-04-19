@@ -46,7 +46,7 @@ const (
 )
 
 const (
-	INT = iota
+	INT = iota + 1
 	BYTE
 	BYTES
 )
