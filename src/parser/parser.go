@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bazo-smartcontract/src/vm"
-
+	"github.com/bazo-blockchain/bazo-smartcontract/src/vm"
 	"github.com/pkg/errors"
 )
 
