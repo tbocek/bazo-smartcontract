@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"bazo-smartcontract/src/vm"
 	"bufio"
 	"fmt"
 	"strings"
+
+	"github.com/bazo-smartcontract/src/vm"
 
 	"github.com/pkg/errors"
 )
