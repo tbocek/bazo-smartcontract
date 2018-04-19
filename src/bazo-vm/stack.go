@@ -51,7 +51,7 @@ func (s *Stack) Pop() (element big.Int, err error) {
 		s.Stack = s.Stack[:s.GetLength()-1]
 		return element, nil
 	} else {
-		return *new(big.Int).SetInt64(0), errors.New("pop() on empty Stack")
+		return *new(big.Int).SetInt64(0), errors.New("pop() on empty stack")
 	}
 }
 

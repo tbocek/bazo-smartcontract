@@ -892,6 +892,38 @@ func TestArrAppend(t *testing.T) {
 	}
 }
 
+/*
+func TestArrInsert(t *testing.T){
+	code := []byte{
+		NEWARR,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0x00, 0x00,
+		PUSH, 0x01, 0x00, 0x00,
+		ARRINSERT,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	arr, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	actual := arr.Bytes()[1:2]
+	expected := []byte{0xFF, 0x00,}
+	if bytes.Compare(expected, actual) != 0 {
+		t.Errorf("invalid element appended, Expected '%# x' but was '%# x'", expected, actual)
+	}
+}*/
+
 func TestArrRemove(t *testing.T) {
 	code := []byte{
 		NEWARR,
@@ -1012,7 +1044,7 @@ func TestArgumentsExceedInstructionSet(t *testing.T) {
 }
 
 
-/*func TestPopOnEmptyStack(t *testing.T) {
+func TestPopOnEmptyStack(t *testing.T) {
 
 	code := []byte{
 		PUSH, 0x00, 0x01, SHA3, 0x05, 0x02, 0x03,
@@ -1026,9 +1058,9 @@ func TestArgumentsExceedInstructionSet(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "pop() on empty stack" {
-		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", BigIntToString(tos))
 	}
-}*/
+}
 
 func TestFuzzReproductionInstructionSetOutOfBounds(t *testing.T) {
 

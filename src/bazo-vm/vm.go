@@ -57,6 +57,7 @@ func (vm *VM) trace() {
 	case "mapgetval":
 	case "newarr":
 	case "arrappend":
+	case "arrinsert":
 	case "arrremove":
 	case "arrat":
 		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
@@ -691,6 +692,39 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			vm.evaluationStack.Push(arr.ToBigInt())
+
+		/*case ARRINSERT:
+			i, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+			if len(i.Bytes()) != 2 {
+				vm.evaluationStack.Push(StrToBigInt("Wrong index size"))
+				return false
+			}
+
+			e, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			a, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			arr, err := ArrayFromBigInt(a)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+
+
+			arr.Insert(BaToUI16(i.Bytes()), e)*/
 
 		case ARRREMOVE:
 			a, aerr := vm.evaluationStack.Pop()

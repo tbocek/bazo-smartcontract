@@ -4,6 +4,7 @@ import (
 	"testing"
 	"math/big"
 	"reflect"
+	"bytes"
 )
 
 
@@ -81,6 +82,37 @@ func TestArray_At(t *testing.T) {
 		t.Errorf("Invalid element, expected %v after append but got %v", expected2, actual2)
 	}
 
+}
+
+func TestArray_Insert(t *testing.T) {
+	a := Array([]byte{	0x02,
+		0x03, 0x00,
+
+		0x08, 0x00,		0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x04, 0x00,		0x65, 0x00, 0x00, 0x00,
+		0x02, 0x00, 	0x65, 0x00,
+	})
+
+	v := big.NewInt(1)
+	a.Insert(0, *v)
+
+	expected0 := []byte{0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}
+	actual0, err0 := a.At(1)
+	if err0 != nil {
+		t.Errorf("%v", err0)
+	}
+	if bytes.Compare(actual0, expected0) != 0 {
+		t.Errorf("Invalid element, expected '%# x' after insert at pos 0 but got '%# x'", expected0, actual0)
+	}
+
+	expected1 := []byte{0x65, 0x00, 0x00, 0x00,}
+	actual1, err1 := a.At(2)
+	if err1 != nil {
+		t.Errorf("%v", err1)
+	}
+	if bytes.Compare(actual1, expected1) != 0 {
+		t.Errorf("Invalid element, expected %v after insert at pos 0 but got %v", expected1, actual1)
+	}
 }
 
 func TestArray_Append(t *testing.T) {

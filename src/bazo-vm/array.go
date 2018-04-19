@@ -72,6 +72,30 @@ func (a * Array) At(index uint16) ([]byte, error) {
 	return []byte{}, errors.New("array internals error")
 }
 
+func (a *Array) Insert(index uint16, e big.Int) error {
+	var offset uint16 = 3
+
+	if a.getSize() < index {
+		return errors.New("array index out of bounds")
+	}
+
+	var i uint16 = 0
+	var k uint16 = offset
+	for ; k < uint16(len(*a)) && i <= index; i++{
+		s := BaToUI16((*a)[k:k+2])
+		if i == index {
+			tmp := Array{}
+			tmp = append(tmp, (*a)[:k]...)
+			tmp.Append(e)
+			*a = append(tmp, (*a)[k:]...)
+			return nil
+		}
+		k += 2 + s
+	}
+
+	return errors.New("array internals error")
+}
+
 func (a * Array) Append(e big.Int) error {
 	ba := e.Bytes()
 	s := len(ba)

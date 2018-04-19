@@ -36,6 +36,7 @@ const (
 	MAPREMOVE
 	NEWARR
 	ARRAPPEND
+	//ARRINSERT
 	ARRREMOVE
 	ARRAT
 	SHA3
@@ -87,6 +88,7 @@ var OpCodes = map[int]OpCode{
 	MAPREMOVE:    OpCode{"mapremove", 1, 1},
 	NEWARR:    OpCode{"newarr", 1, 1},
 	ARRAPPEND:    OpCode{"arrappend", 0, 1},
+	//ARRINSERT:    OpCode{"arrinsert", 0, 1},
 	ARRREMOVE:    OpCode{"arrremove", 1, 1},
 	ARRAT:    OpCode{"arrat", 1, 1},
 	SHA3:     OpCode{"sha3", 0, 1},
