@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"reflect"
 	"testing"
+	"bytes"
 )
 
 func TestVMGasConsumption(t *testing.T) {
@@ -542,7 +543,7 @@ func TestCall(t *testing.T) {
 	tos, err := vm.evaluationStack.Peek()
 
 	if err != nil {
-		t.Errorf("Expected empty stack to throw an error when using peek() but it didn't")
+		t.Errorf("Expected empty Stack to throw an error when using peek() but it didn't")
 	}
 
 	if tos.Int64() != 2 {
@@ -683,6 +684,329 @@ func TestRoll(t *testing.T) {
 	}
 }
 
+func TestNewMap(t *testing.T){
+	code := []byte{
+		NEWMAP,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.Exec(true)
+
+	r, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	result := r.Bytes()
+	expected := []byte{0x01, 0x00, 0x00,}
+
+	if !reflect.DeepEqual(expected, result) {
+		t.Errorf("expected the Value of the new Map to be %v but was %v", expected, result)
+	}
+}
+
+func TestMapPush(t *testing.T){
+	code := []byte{
+		NEWMAP,
+		PUSH, 1, 72, 105,
+		PUSH, 0, 0x03,
+		MAPPUSH,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	m, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	mp, err2 := MapFromBigInt(m)
+	if err2 != nil {
+		t.Errorf("%v", err)
+	}
+
+	datastructure := mp[0]
+	size := mp.getSize()
+
+	if datastructure != 0x01 {
+		t.Errorf("Invalid Datastructure ID, Expected 0x01 but was %v", datastructure)
+	}
+
+	if size != 1 {
+		t.Errorf("invalid size, Expected 1 but was %v", size)
+	}
+
+
+}
+
+func TestMapGetVAL(t *testing.T){
+	code := []byte{
+		NEWMAP,
+		PUSH, 0x01, 0x48, 0x69,
+		PUSH, 0x00, 0x03,
+		MAPPUSH,
+		PUSH, 0x01, 0x69, 0x69,
+		PUSH, 0x00, 0x02,
+		MAPPUSH,
+		PUSH, 0x01, 0x48, 0x48,
+		PUSH, 0x00, 0x01,
+		MAPPUSH,
+		PUSH, 0x00, 0x01,
+		MAPGETVAL,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	v, err := vm.evaluationStack.Pop()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	e := []byte{72, 72}
+	if bytes.Compare(v.Bytes(), e) != 0 {
+		t.Errorf("invalid value, Expected %v but was '%v'", e, v)
+	}
+}
+
+
+func TestMapRemove(t *testing.T){
+	code := []byte{
+		NEWMAP,
+		PUSH, 0x01, 0x48, 0x69,
+		PUSH, 0x00, 0x03,
+		MAPPUSH,
+		PUSH, 0x01, 0x69, 0x69,
+		PUSH, 0x00, 0x02,
+		MAPPUSH,
+		PUSH, 0x01, 0x48, 0x48,
+		PUSH, 0x00, 0x01,
+		MAPPUSH,
+		PUSH, 0x00, 0x03,
+		MAPREMOVE,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	mbi, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	m, err := MapFromBigInt(mbi)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	e := []byte{0x01,
+				0x02, 0x00,
+				0x01, 0x00,		0x02,
+				0x02, 0x00,		0x69, 0x69,
+				0x01, 0x00,		0x01,
+				0x02, 0x00,		0x48, 0x48,
+	}
+
+
+	if bytes.Compare(m, e) != 0 {
+		t.Errorf("invalid datastructure, Expected %v but was '%v'", e, m)
+	}
+}
+
+func TestNewArr(t *testing.T){
+	code := []byte{
+		NEWARR,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	arr, err := vm.evaluationStack.Pop()
+	ba := arr.Bytes()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	expectedSize := []byte{0x00, 0x00,}
+	actualSize := ba[1:3]
+	if !reflect.DeepEqual(expectedSize, actualSize) {
+		t.Errorf("invalid size, Expected %v but was '%v'", expectedSize, actualSize)
+	}
+}
+
+func TestArrAppend(t *testing.T) {
+	code := []byte{
+		NEWARR,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	arr, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	actual := arr.Bytes()[5:7]
+	expected := []byte{0xFF, 0x00,}
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("invalid element appended, Expected '%v' but was '%v'", expected, actual)
+	}
+}
+
+/*
+func TestArrInsert(t *testing.T){
+	code := []byte{
+		NEWARR,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0x00, 0x00,
+		PUSH, 0x01, 0x00, 0x00,
+		ARRINSERT,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	arr, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	actual := arr.Bytes()[1:2]
+	expected := []byte{0xFF, 0x00,}
+	if bytes.Compare(expected, actual) != 0 {
+		t.Errorf("invalid element appended, Expected '%# x' but was '%# x'", expected, actual)
+	}
+}*/
+
+func TestArrRemove(t *testing.T) {
+	code := []byte{
+		NEWARR,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xAA, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xBB, 0x00,
+		ARRAPPEND,
+		ARRREMOVE, 0x01, 0x00,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	a, err := vm.evaluationStack.Pop()
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	arr, bierr := ArrayFromBigInt(a)
+	if bierr != nil {
+		t.Errorf("%v", err)
+	}
+
+	size := arr.getSize()
+	if size != uint16(2) {
+		t.Errorf("invalid array size, Expected 2 but was '%v'", size)
+	}
+
+	expectedSecondElement := []byte{0xBB, 0x00,}
+	actualSecondElement, err2 := arr.At(uint16(1))
+	if err2 != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !reflect.DeepEqual(expectedSecondElement, actualSecondElement){
+		t.Errorf("invalid element on second index, Expected %# x but was %# x", expectedSecondElement, actualSecondElement)
+	}
+}
+
+func TestArrAt(t *testing.T) {
+	code := []byte{
+		NEWARR,
+		PUSH, 0x01, 0xFF, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xAA, 0x00,
+		ARRAPPEND,
+		PUSH, 0x01, 0xBB, 0x00,
+		ARRAPPEND,
+		ARRAT, 0x02, 0x00,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	exec := vm.Exec(true)
+
+	if !exec {
+		errorMessage, _ := vm.evaluationStack.Pop()
+		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
+	}
+
+	v1, err1 := vm.evaluationStack.Pop()
+
+	if err1 != nil {
+		t.Errorf("%v", err1)
+	}
+
+	expected1 := []byte{0xBB, 0x00}
+	actual1 := v1.Bytes()
+	if !reflect.DeepEqual(expected1, actual1){
+		t.Errorf("invalid element on first index, Expected %# x but was %# x", expected1, actual1)
+	}
+
+}
+
 func TestNonValidOpCode(t *testing.T) {
 
 	code := []byte{
@@ -719,6 +1043,7 @@ func TestArgumentsExceedInstructionSet(t *testing.T) {
 	}
 }
 
+
 func TestPopOnEmptyStack(t *testing.T) {
 
 	code := []byte{
@@ -733,7 +1058,7 @@ func TestPopOnEmptyStack(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "pop() on empty stack" {
-		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", BigIntToString(tos))
 	}
 }
 
@@ -807,6 +1132,24 @@ func TestFuzzReproduction2(t *testing.T) {
 
 	if BigIntToString(tos) != "Index out of bounds" {
 		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
+	}
+}
+
+func TestFuzzReproduction3(t *testing.T) {
+
+	code := []byte{
+		29, 36, 222, 203, 229, 51, 52, 138, 144, 109, 48,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "invalid data type supplied" {
+		t.Errorf("Expected tos to be 'invalid data type supplied' error message but was %v", BigIntToString(tos))
 	}
 }
 

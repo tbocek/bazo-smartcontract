@@ -4,13 +4,9 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
-
 	"errors"
-
 	"crypto/ecdsa"
-
 	"crypto/elliptic"
-
 	"golang.org/x/crypto/sha3"
 )
 
@@ -56,6 +52,23 @@ func (vm *VM) trace() {
 
 	fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.name, address, functionHash, nargs, stack)
 	*/
+
+	case "mappush":
+	case "mapgetval":
+	case "newarr":
+	case "arrappend":
+	case "arrinsert":
+	case "arrremove":
+	case "arrat":
+		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
+		fmt.Printf("%04d: %-6s %v ", addr, opCode.name, args)
+
+		for _, e := range stack.Stack {
+			fmt.Printf("%# x", e.Bytes())
+			fmt.Printf("\n")
+		}
+
+		fmt.Printf("\n")
 
 	default:
 		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
@@ -569,6 +582,218 @@ func (vm *VM) Exec(trace bool) bool {
 
 			val := callstackTos.variables[int(address)]
 			vm.evaluationStack.Push(val)
+
+		case NEWMAP:
+			m := NewMap()
+			vm.evaluationStack.Push(m.ToBigInt())
+
+		case MAPPUSH:
+			k, kerr := vm.evaluationStack.Pop()
+			if kerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
+				return false
+			}
+
+			v, verr := vm.evaluationStack.Pop()
+			if verr != nil {
+				vm.evaluationStack.Push(StrToBigInt(verr.Error()))
+				return false
+			}
+
+			mbi, mbierr := vm.evaluationStack.Pop()
+			if mbierr != nil {
+				vm.evaluationStack.Push(StrToBigInt(mbierr.Error()))
+				return false
+			}
+
+			m, merr := MapFromBigInt(mbi)
+			if merr != nil {
+				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
+				return false
+			}
+
+			m.Append(k.Bytes(), v.Bytes())
+			vm.evaluationStack.Push(m.ToBigInt())
+
+		case MAPGETVAL:
+			kbi, kerr := vm.evaluationStack.Pop()
+			if kerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(kerr.Error()))
+				return false
+			}
+
+			mbi, mbierr := vm.evaluationStack.Pop()
+			if mbierr != nil {
+				vm.evaluationStack.Push(StrToBigInt(mbierr.Error()))
+				return false
+			}
+
+			k := kbi.Bytes()
+			m, merr := MapFromBigInt(mbi)
+			if merr != nil {
+				vm.evaluationStack.Push(StrToBigInt(merr.Error()))
+				return false
+			}
+
+			v, err := m.GetVal(k)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			result := big.Int{}
+			result.SetBytes(v)
+			vm.evaluationStack.Push(result)
+
+		case MAPREMOVE:
+			kbi, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			mbi, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			m, err := MapFromBigInt(mbi)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			m.Remove(kbi.Bytes())
+			vm.evaluationStack.Push(m.ToBigInt())
+
+
+		case NEWARR:
+			a := NewArray()
+			vm.evaluationStack.Push(a.ToBigInt())
+
+		case ARRAPPEND:
+			v, verr := vm.evaluationStack.Pop()
+			a, aerr := vm.evaluationStack.Pop()
+			if aerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
+			if verr != nil {
+				vm.evaluationStack.Push(StrToBigInt(verr.Error()))
+				return false
+			}
+
+			arr := Array(a.Bytes())
+			err := arr.Append(v)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt("Invalid argument size of ARRAPPEND"))
+				return false
+			}
+
+			vm.evaluationStack.Push(arr.ToBigInt())
+
+		/*case ARRINSERT:
+			i, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+			if len(i.Bytes()) != 2 {
+				vm.evaluationStack.Push(StrToBigInt("Wrong index size"))
+				return false
+			}
+
+			e, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			a, err := vm.evaluationStack.Pop()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			arr, err := ArrayFromBigInt(a)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+
+
+			arr.Insert(BaToUI16(i.Bytes()), e)*/
+
+		case ARRREMOVE:
+			a, aerr := vm.evaluationStack.Pop()
+			if aerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
+				return false
+			}
+			ba, ferr := vm.fetchMany(2)
+			index := BaToUI16(ba)
+			if ferr != nil {
+				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
+				return false
+			}
+
+			arr, perr := ArrayFromBigInt(a)
+			if perr != nil {
+				vm.evaluationStack.Push(StrToBigInt(perr.Error()))
+				return false
+			}
+
+			rerr := arr.Remove(index)
+			if rerr != nil {
+				vm.evaluationStack.Push(StrToBigInt(rerr.Error()))
+				return false
+			}
+
+			derr := arr.DecrementSize()
+			if derr != nil {
+				vm.evaluationStack.Push(StrToBigInt(derr.Error()))
+				return false
+			}
+
+			vm.evaluationStack.Push(arr.ToBigInt())
+
+
+		case ARRAT:
+			a, err := vm.evaluationStack.Peek()
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			ba, err := vm.fetchMany(2)
+			index := BaToUI16(ba)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			arr, err := ArrayFromBigInt(a)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			e, err := arr.At(index)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+			result := big.Int{}
+			result.SetBytes(e)
+			vm.evaluationStack.Push(result)
+
 
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()

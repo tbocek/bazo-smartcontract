@@ -30,6 +30,15 @@ const (
 	SSTORE
 	LOAD
 	SLOAD
+	NEWMAP
+	MAPPUSH
+	MAPGETVAL
+	MAPREMOVE
+	NEWARR
+	ARRAPPEND
+	//ARRINSERT
+	ARRREMOVE
+	ARRAT
 	SHA3
 	CHECKSIG
 	ERRHALT
@@ -41,6 +50,7 @@ type OpCode struct {
 	nargs    int
 	gasPrice uint64
 }
+
 
 var OpCodes = map[int]OpCode{
 	PUSH:     OpCode{"push", 0, 1},
@@ -72,6 +82,15 @@ var OpCodes = map[int]OpCode{
 	SSTORE:   OpCode{"sstore", 1, 1},
 	LOAD:     OpCode{"load", 1, 1},
 	SLOAD:    OpCode{"sload", 1, 1},
+	NEWMAP:    OpCode{"newmap", 0, 1},
+	MAPPUSH:    OpCode{"mappush", 1, 1},
+	MAPGETVAL:    OpCode{"mapgetval", 1, 1},
+	MAPREMOVE:    OpCode{"mapremove", 1, 1},
+	NEWARR:    OpCode{"newarr", 1, 1},
+	ARRAPPEND:    OpCode{"arrappend", 0, 1},
+	//ARRINSERT:    OpCode{"arrinsert", 0, 1},
+	ARRREMOVE:    OpCode{"arrremove", 1, 1},
+	ARRAT:    OpCode{"arrat", 1, 1},
 	SHA3:     OpCode{"sha3", 0, 1},
 	CHECKSIG: OpCode{"checksig", 0, 1},
 	HALT:     OpCode{"halt", 0, 0},
