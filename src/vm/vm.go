@@ -39,13 +39,13 @@ func (vm *VM) trace() {
 	opCode := OpCodes[int(vm.code[vm.pc])]
 	var args []byte
 
-	switch opCode.name {
+	switch opCode.Name {
 	case "push":
 		nargs := int(vm.code[vm.pc+1])
 
 		if vm.pc+nargs < (len(vm.code) - vm.pc) {
 			args = vm.code[vm.pc+2 : vm.pc+nargs+3]
-			fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
+			fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.Name, ByteArrayToInt(args), stack)
 		}
 
 		//TODO - Fix CALLEXT case, leads to index out of bounds exception
@@ -54,12 +54,12 @@ func (vm *VM) trace() {
 	functionHash := vm.code[vm.pc+33 : vm.pc+37]
 	nargs := int(vm.code[vm.pc+37])
 
-	fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.name, address, functionHash, nargs, stack)
+	fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.Name, address, functionHash, nargs, stack)
 	*/
 
 	default:
-		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
-		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.name, args, stack)
+		args = vm.code[vm.pc+1 : vm.pc+opCode.Nargs+1]
+		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.Name, args, stack)
 	}
 }
 

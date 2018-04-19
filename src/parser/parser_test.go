@@ -15,7 +15,7 @@ func TestProgramAddNums(t *testing.T) {
 
 	contractAsString := string(contract) // convert content to a 'string'
 
-	instructionCode := Program(contractAsString)
+	instructionCode := Parse(contractAsString)
 
 	if !reflect.DeepEqual(instructionCode, []byte{0, 0, 5, 0, 0, 5, 4, 32}) {
 		t.Errorf("After parsing file it should be {0, 0, 5, 0, 0, 5, 4, 32} but is %v", instructionCode)

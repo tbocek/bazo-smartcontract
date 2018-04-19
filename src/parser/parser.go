@@ -4,14 +4,13 @@ import (
 	"bazo-smartcontract/src/vm"
 	"bufio"
 	"fmt"
-	"math/big"
 	"strings"
 
 	"github.com/pkg/errors"
 )
 
-func Program(sourceCode string) []byte {
-	var instructionSet []byte
+func Tokenize(sourceCode string) [][]Token {
+	var tokenSet [][]Token
 	var addressCounter int
 	labels := make(map[string]int)
 
@@ -21,73 +20,85 @@ func Program(sourceCode string) []byte {
 		panic(err)
 	}
 
-	for _, line := range lines {
+	for count, line := range lines {
 
 		// Get a string array of every word in line
 		words := strings.Fields(line)
 
 		// If case to ignore empty lines
-		if len(words) > 0 {
-			firstWord := words[0]
+		if len(words) <= 0 {
+			continue
+		}
 
-			switch firstWord {
-			case "PUSH":
-				err := checkIllegalWordsAfterArguments(1, words)
+		tokenSet = append(tokenSet, []Token{})
+
+		firstWord := words[0]
+
+		if firstWord == "#" {
+			continue
+		}
+
+		if firstWord[len(firstWord)-1:] == ":" {
+			labels[firstWord[:len(firstWord)-1]] = addressCounter
+			continue
+		}
+
+		for key := range vm.OpCodes {
+			opCode := vm.OpCodes[key]
+
+			if firstWord == strings.ToUpper(opCode.Name) {
+				err := checkIllegalWordsAfterArguments(opCode.Nargs, words)
+
 				if err != nil {
 					fmt.Println(err)
 				}
 
-				instructionSet = append(instructionSet, vm.PUSH)
-				val := new(big.Int)
-				val.SetString(words[1], 10)
-
-				length := len(val.Bytes()) - 1
-
-				instructionSet = append(instructionSet, byte(length))
-				instructionSet = append(instructionSet, val.Bytes()...)
-
-				addressCounter += length + 3
-
-			case "CALL":
-				err := checkIllegalWordsAfterArguments(2, words)
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				instructionSet = append(instructionSet, vm.CALL)
-
-			case "ADD":
-				err := checkIllegalWordsAfterArguments(0, words)
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				instructionSet = append(instructionSet, vm.ADD)
+				// Handle opCode with no arguments
+				tokenSet[count] = append(tokenSet[count], Token{tokenType: OPCODE, value: strings.ToUpper(opCode.Name)})
 				addressCounter++
 
-			case "HALT":
-				err := checkIllegalWordsAfterArguments(0, words)
-				if err != nil {
-					fmt.Println(err)
+				// Handle opCode with arguments
+				for i := 0; i < opCode.Nargs; i++ {
+					tokenSet[count] = append(tokenSet[count], Token{tokenType: opCode.ArgTypes[i], value: words[i+1]})
+					addressCounter++
 				}
 
-				instructionSet = append(instructionSet, vm.HALT)
-				addressCounter++
-
-			case "#":
-				// Do nothing, comments should be ignored
-
-			default:
-				if firstWord[len(line)-1:] == ":" {
-					labels[firstWord[:len(firstWord)-1]] = addressCounter
-				}
-
-				fmt.Println("Invalid first word")
 			}
+
 		}
 	}
+	return tokenSet
+}
+
+func Parse(sourceCode string) []byte {
+	var instructionSet []byte
+	tokenSet := Tokenize(sourceCode)
+
+	for lineCount := range tokenSet {
+		if lineCount <= 0 {
+			continue
+		}
+
+		fmt.Println(tokenSet[lineCount])
+
+	}
+
 	return instructionSet
 }
+
+// TODO: push
+/*
+	instructionSet = append(instructionSet, vm.PUSH)
+	val := new(big.Int)
+	val.SetString(words[1], 10)
+
+	length := len(val.Bytes()) - 1
+
+	instructionSet = append(instructionSet, byte(length))
+	instructionSet = append(instructionSet, val.Bytes()...)
+
+	addressCounter += length + 3
+*/
 
 func stringToLines(s string) (lines []string, err error) {
 	scanner := bufio.NewScanner(strings.NewReader(s))
