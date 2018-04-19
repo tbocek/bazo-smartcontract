@@ -1,8 +1,8 @@
-package bazo_vm
+package vm
 
 import (
-	"testing"
 	"bytes"
+	"testing"
 )
 
 func Test_NewMap(t *testing.T) {
@@ -16,13 +16,13 @@ func Test_NewMap(t *testing.T) {
 func TestMap_IncerementSize(t *testing.T) {
 	m := NewMap()
 
-	s := BaToUI16(m[1:3])
+	s := ByteArrayToUI16(m[1:3])
 	if s != 0 {
 		t.Errorf("Invalid Array Size, Expected 0 but got %v", s)
 	}
 
 	m.IncrementSize()
-	si := BaToUI16(m[1:3])
+	si := ByteArrayToUI16(m[1:3])
 	if si != 1 {
 		t.Errorf("Invalid Map Size, Expected 1 after increment but got %v", si)
 	}
@@ -31,13 +31,13 @@ func TestMap_IncerementSize(t *testing.T) {
 func TestMap_DecrementSize(t *testing.T) {
 	a := Array([]byte{0x02, 0x02, 0x00})
 
-	s := BaToUI16(a[1:3])
+	s := ByteArrayToUI16(a[1:3])
 	if s != 2 {
 		t.Errorf("Invalid Array Size, Expected 2 but got %v", s)
 	}
 
 	a.DecrementSize()
-	sd := BaToUI16(a[1:3])
+	sd := ByteArrayToUI16(a[1:3])
 	if sd != 1 {
 		t.Errorf("Invalid Array Size, Expected 1 after decrement but got %v", sd)
 	}
@@ -45,7 +45,7 @@ func TestMap_DecrementSize(t *testing.T) {
 
 func TestMap_Append(t *testing.T) {
 	m := NewMap()
-	k := []byte{0x01,}
+	k := []byte{0x01}
 	v := []byte{0x64, 0x00}
 	err := m.Append(k, v)
 
@@ -69,26 +69,26 @@ func TestMap_Append(t *testing.T) {
 
 func TestMap_GetVal(t *testing.T) {
 	m := NewMap()
-	m.Append([]byte{0x00,}, []byte{0x00,})
-	m.Append([]byte{0x01,}, []byte{0x01, 0x01})
-	m.Append([]byte{0x02,0x00}, []byte{0x02, 0x02, 0x02})
-	m.Append([]byte{0x03,0x00,0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
+	m.Append([]byte{0x00}, []byte{0x00})
+	m.Append([]byte{0x01}, []byte{0x01, 0x01})
+	m.Append([]byte{0x02, 0x00}, []byte{0x02, 0x02, 0x02})
+	m.Append([]byte{0x03, 0x00, 0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
 
 	expected4 := []byte{0x03, 0x03, 0x03, 0x03, 0x03}
-	actual4, err4 := m.GetVal([]byte{0x03,0x00,0x00})
+	actual4, err4 := m.GetVal([]byte{0x03, 0x00, 0x00})
 	if err4 != nil {
 		t.Errorf("%v", err4)
 	}
-	if bytes.Compare(expected4, actual4) != 0{
+	if !bytes.Equal(expected4, actual4) {
 		t.Errorf("Unexpected value, Expected '%# x' but was '%# x'", expected4, actual4)
 	}
 
-	expected3 := []byte{0x02, 0x02, 0x02,}
-	actual3, err3 := m.GetVal([]byte{0x02,0x00})
+	expected3 := []byte{0x02, 0x02, 0x02}
+	actual3, err3 := m.GetVal([]byte{0x02, 0x00})
 	if err3 != nil {
 		t.Errorf("%v", err3)
 	}
-	if bytes.Compare(expected3, actual3) != 0{
+	if !bytes.Equal(expected3, actual3) {
 		t.Errorf("Unexpected value, Expected '%# x' but was '%# x'", expected3, actual3)
 	}
 
@@ -96,30 +96,30 @@ func TestMap_GetVal(t *testing.T) {
 
 func TestMap_Remove(t *testing.T) {
 	actual := NewMap()
-	actual.Append([]byte{0x00,}, []byte{0x00,})
-	actual.Append([]byte{0x01,}, []byte{0x01, 0x01})
-	actual.Append([]byte{0x02,0x00}, []byte{0x02, 0x02, 0x02})
-	actual.Append([]byte{0x03,0x00,0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
+	actual.Append([]byte{0x00}, []byte{0x00})
+	actual.Append([]byte{0x01}, []byte{0x01, 0x01})
+	actual.Append([]byte{0x02, 0x00}, []byte{0x02, 0x02, 0x02})
+	actual.Append([]byte{0x03, 0x00, 0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
 
-	if actual.getSize() != 4{
+	if actual.getSize() != 4 {
 		t.Errorf("Expected map size to be '4' but was '%v'", actual.getSize())
 	}
 
 	expected := NewMap()
-	expected.Append([]byte{0x00,}, []byte{0x00,})
-	expected.Append([]byte{0x01,}, []byte{0x01, 0x01})
-	expected.Append([]byte{0x03,0x00,0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
+	expected.Append([]byte{0x00}, []byte{0x00})
+	expected.Append([]byte{0x01}, []byte{0x01, 0x01})
+	expected.Append([]byte{0x03, 0x00, 0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
 
-	err := actual.Remove([]byte{0x02,0x00})
+	err := actual.Remove([]byte{0x02, 0x00})
 	if err != nil {
 		t.Errorf("%v", err)
 	}
 
-	if actual.getSize() != 3{
+	if actual.getSize() != 3 {
 		t.Errorf("Expected map size to be '3' but was '%v'", actual.getSize())
 	}
 
-	if bytes.Compare(expected, actual) != 0{
+	if !bytes.Equal(expected, actual) {
 		t.Errorf("Expected map to be '[%# x]' but was '[%# x]' after element removal", expected, actual)
 	}
 }

@@ -1,13 +1,13 @@
 package parser
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
-	"reflect"
 	"testing"
 )
 
-func TestProgramAddNums(t *testing.T) {
+func TestParser_ProgramAddNums(t *testing.T) {
 	contract, err := ioutil.ReadFile("../contracts/addNums.sc")
 	if err != nil {
 		fmt.Print(err)
@@ -17,7 +17,7 @@ func TestProgramAddNums(t *testing.T) {
 
 	instructionCode := Parse(contractAsString)
 
-	if !reflect.DeepEqual(instructionCode, []byte{0, 0, 5, 0, 0, 5, 4, 32}) {
+	if !bytes.Equal(instructionCode, []byte{0, 0, 5, 0, 0, 5, 4, 32}) {
 		t.Errorf("After parsing file it should be {0, 0, 5, 0, 0, 5, 4, 32} but is %v", instructionCode)
 	}
 }

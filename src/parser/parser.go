@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"bazo-smartcontract/src/bazo-vm"
+	"bazo-smartcontract/src/vm"
 	"bufio"
 	"fmt"
 	"strings"
@@ -43,8 +43,8 @@ func Tokenize(sourceCode string) [][]Token {
 			continue
 		}
 
-		for key := range bazo_vm.OpCodes {
-			opCode := bazo_vm.OpCodes[key]
+		for key := range vm.OpCodes {
+			opCode := vm.OpCodes[key]
 
 			if firstWord == strings.ToUpper(opCode.Name) {
 				err := checkIllegalWordsAfterArguments(opCode.Nargs, words)
@@ -88,7 +88,7 @@ func Parse(sourceCode string) []byte {
 
 // TODO: push
 /*
-	instructionSet = append(instructionSet, bazo-vm.PUSH)
+	instructionSet = append(instructionSet, vm.PUSH)
 	val := new(big.Int)
 	val.SetString(words[1], 10)
 
