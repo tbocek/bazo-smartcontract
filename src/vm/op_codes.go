@@ -49,6 +49,7 @@ const (
 	INT = iota + 1
 	BYTE
 	BYTES
+	LABEL
 )
 
 type OpCode struct {
@@ -78,15 +79,15 @@ var OpCodes = map[int]OpCode{
 	SHIFTL:    {"shiftl", 1, []int{BYTE}, 1},
 	SHIFTR:    {"shiftl", 1, []int{BYTE}, 1},
 	NOP:       {"nop", 0, []int{}, 1},
-	JMP:       {"jmp", 1, []int{BYTE}, 1},
-	JMPIF:     {"jmpif", 1, []int{BYTE}, 1},
-	CALL:      {"call", 2, []int{BYTE, BYTE}, 1},
+	JMP:       {"jmp", 1, []int{LABEL}, 1},
+	JMPIF:     {"jmpif", 1, []int{LABEL}, 1},
+	CALL:      {"call", 2, []int{LABEL, BYTE}, 1},
 	CALLEXT:   {"callext", 3, []int{BYTES, BYTES, BYTE}, 1},
 	RET:       {"ret", 0, []int{}, 1},
 	SIZE:      {"size", 0, []int{}, 1},
 	STORE:     {"store", 0, []int{}, 1},
 	SSTORE:    {"sstore", 1, []int{INT}, 1},
-	LOAD:      {"load", 1, []int{INT}, 1},
+	LOAD:      {"load", 1, []int{BYTE}, 1},
 	SLOAD:     {"sload", 1, []int{INT}, 1},
 	NEWMAP:    {"newmap", 0, []int{}, 1},
 	MAPPUSH:   {"mappush", 0, []int{}, 1},

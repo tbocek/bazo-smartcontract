@@ -691,7 +691,7 @@ func TestVM_Exec_NewMap(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	vm.Exec(true)
+	vm.Exec(false)
 
 	r, err := vm.evaluationStack.Pop()
 
@@ -717,7 +717,7 @@ func TestVM_Exec_MapPush(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -766,7 +766,7 @@ func TestVM_Exec_MapGetVAL(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -804,7 +804,7 @@ func TestVM_Exec_MapRemove(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -841,7 +841,7 @@ func TestVM_Exec_NewArr(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -870,7 +870,7 @@ func TestVM_Exec_ArrAppend(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
 		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
@@ -935,7 +935,7 @@ func TestVM_Exec_ArrRemove(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -982,7 +982,7 @@ func TestVM_Exec_ArrAt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -1139,7 +1139,7 @@ func TestVM_Exec_FuzzReproduction_InvalidDataType(t *testing.T) {
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
 	vm.context.MaxGasAmount = 300
-	vm.Exec(true)
+	vm.Exec(false)
 
 	tos, _ := vm.evaluationStack.Pop()
 
@@ -1179,5 +1179,11 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 		PUSH, 0, 24, // Function hash
 	}
 
-	vm.Exec(true)
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if tos.Uint64() != 3 {
+		t.Errorf("Expected tos to be '3' error message but was %v", tos)
+	}
 }

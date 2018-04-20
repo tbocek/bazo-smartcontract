@@ -20,6 +20,9 @@ func (m *Map) ToBigInt() big.Int {
 
 func MapFromBigInt(m big.Int) (Map, error) {
 	ba := m.Bytes()
+	if len(ba) <= 0 {
+		return Map{}, errors.New("empty map")
+	}
 	if ba[0] != 0x01 {
 		return Map{}, errors.New("invalid datatype supplied")
 	}
