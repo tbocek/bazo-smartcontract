@@ -1,4 +1,4 @@
-package bazo_vm
+package vm
 
 import (
 	"fmt"
@@ -6,14 +6,14 @@ import (
 	"testing"
 )
 
-func TestNewStack(t *testing.T) {
+func TestStack_NewStack(t *testing.T) {
 	s := NewStack()
 	if s.GetLength() != 0 {
 		t.Errorf("Expected Stack with size 0 but got %v", s.GetLength())
 	}
 }
 
-func TestStackPopWhenEmpty(t *testing.T) {
+func TestStack_PopWhenEmpty(t *testing.T) {
 	s := NewStack()
 	val, err := s.Peek()
 
@@ -22,7 +22,7 @@ func TestStackPopWhenEmpty(t *testing.T) {
 	}
 }
 
-func TestStackPopIfRemoves(t *testing.T) {
+func TestStack_PopIfRemoves(t *testing.T) {
 	s := NewStack()
 
 	var val1 big.Int
@@ -52,7 +52,7 @@ func TestStackPopIfRemoves(t *testing.T) {
 	}
 }
 
-func TestStackPeek(t *testing.T) {
+func TestStack_Peek(t *testing.T) {
 	s := NewStack()
 
 	var val big.Int
@@ -86,7 +86,7 @@ func TestStack_PopIndexAt(t *testing.T) {
 	}
 }
 
-func TestPushAndPopElement(t *testing.T) {
+func TestStack_PushAndPopElement(t *testing.T) {
 	s := NewStack()
 
 	if s.GetLength() != 0 {

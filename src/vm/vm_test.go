@@ -1,13 +1,24 @@
-package bazo_vm
+package vm
 
 import (
-	"math/big"
-	"reflect"
-	"testing"
 	"bytes"
+	"math/big"
+	"testing"
 )
 
-func TestVMGasConsumption(t *testing.T) {
+func TestVM_NewVM(t *testing.T) {
+	vm := NewVM()
+
+	if len(vm.code) > 0 {
+		t.Errorf("Actual code length is %v, should be 0 after initialization", len(vm.code))
+	}
+
+	if vm.pc != 0 {
+		t.Errorf("Actual pc counter is %v, should be 0 after initialization", vm.pc)
+	}
+}
+
+func TestVM_Exec_GasConsumption(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 8,
 		PUSH, 0, 8,
@@ -28,19 +39,7 @@ func TestVMGasConsumption(t *testing.T) {
 	}
 }
 
-func TestNewVM(t *testing.T) {
-	vm := NewVM()
-
-	if len(vm.code) > 0 {
-		t.Errorf("Actual code length is %v, should be 0 after initialization", len(vm.code))
-	}
-
-	if vm.pc != 0 {
-		t.Errorf("Actual pc counter is %v, should be 0 after initialization", vm.pc)
-	}
-}
-
-func TestPushOutOfBounds(t *testing.T) {
+func TestVM_Exec_PushOutOfBounds(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 125,
 		PUSH, 126, 12,
@@ -64,7 +63,7 @@ func TestPushOutOfBounds(t *testing.T) {
 	}
 }
 
-func TestAddition(t *testing.T) {
+func TestVM_Exec_Addition(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 125,
 		PUSH, 1, 168, 22,
@@ -88,7 +87,7 @@ func TestAddition(t *testing.T) {
 	}
 }
 
-func TestSubtraction(t *testing.T) {
+func TestVM_Exec_Subtraction(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 3,
@@ -112,7 +111,7 @@ func TestSubtraction(t *testing.T) {
 	}
 }
 
-func TestSubtractionWithNegativeResults(t *testing.T) {
+func TestVM_Exec_SubtractionWithNegativeResults(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		PUSH, 0, 6,
@@ -136,7 +135,7 @@ func TestSubtractionWithNegativeResults(t *testing.T) {
 	}
 }
 
-func TestMultiplication(t *testing.T) {
+func TestVM_Exec_Multiplication(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 5,
 		PUSH, 0, 2,
@@ -160,7 +159,7 @@ func TestMultiplication(t *testing.T) {
 	}
 }
 
-func TestModulo(t *testing.T) {
+func TestVM_Exec_Modulo(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 5,
 		PUSH, 0, 2,
@@ -184,7 +183,7 @@ func TestModulo(t *testing.T) {
 	}
 }
 
-func TestNegate(t *testing.T) {
+func TestVM_Exec_Negate(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 5,
 		NEG,
@@ -207,7 +206,7 @@ func TestNegate(t *testing.T) {
 	}
 }
 
-func TestDivision(t *testing.T) {
+func TestVM_Exec_Division(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 2,
@@ -231,7 +230,7 @@ func TestDivision(t *testing.T) {
 	}
 }
 
-func TestDivisionByZero(t *testing.T) {
+func TestVM_Exec_DivisionByZero(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 0,
@@ -256,7 +255,7 @@ func TestDivisionByZero(t *testing.T) {
 	}
 }
 
-func TestEq(t *testing.T) {
+func TestVM_Exec_Eq(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 6,
@@ -280,7 +279,7 @@ func TestEq(t *testing.T) {
 	}
 }
 
-func TestNeq(t *testing.T) {
+func TestVM_Exec_Neq(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 5,
@@ -304,7 +303,7 @@ func TestNeq(t *testing.T) {
 	}
 }
 
-func TestLt(t *testing.T) {
+func TestVM_Exec_Lt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 4,
 		PUSH, 0, 6,
@@ -328,7 +327,7 @@ func TestLt(t *testing.T) {
 	}
 }
 
-func TestGt(t *testing.T) {
+func TestVM_Exec_Gt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 1, 0, 4,
@@ -352,7 +351,7 @@ func TestGt(t *testing.T) {
 	}
 }
 
-func TestLte(t *testing.T) {
+func TestVM_Exec_Lte(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 4,
 		PUSH, 0, 6,
@@ -392,7 +391,7 @@ func TestLte(t *testing.T) {
 	}
 }
 
-func TestGte(t *testing.T) {
+func TestVM_Exec_Gte(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 6,
 		PUSH, 0, 4,
@@ -432,7 +431,7 @@ func TestGte(t *testing.T) {
 	}
 }
 
-func TestShiftl(t *testing.T) {
+func TestVM_Exec_Shiftl(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 1,
 		SHIFTL, 3,
@@ -450,7 +449,7 @@ func TestShiftl(t *testing.T) {
 	}
 }
 
-func TestShiftr(t *testing.T) {
+func TestVM_Exec_Shiftr(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 8,
 		SHIFTR, 3,
@@ -469,7 +468,7 @@ func TestShiftr(t *testing.T) {
 	}
 }
 
-func TestJmpif(t *testing.T) {
+func TestVM_Exec_Jmpif(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		PUSH, 0, 4,
@@ -494,7 +493,7 @@ func TestJmpif(t *testing.T) {
 	}
 }
 
-func TestJmp(t *testing.T) {
+func TestVM_Exec_Jmp(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		JMP, 13,
@@ -521,7 +520,7 @@ func TestJmp(t *testing.T) {
 	}
 }
 
-func TestCall(t *testing.T) {
+func TestVM_Exec_Call(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 10,
 		PUSH, 0, 8,
@@ -557,7 +556,7 @@ func TestCall(t *testing.T) {
 	}
 }
 
-func TestTosSize(t *testing.T) {
+func TestVM_Exec_TosSize(t *testing.T) {
 	code := []byte{
 		PUSH, 2, 10, 4, 5,
 		SIZE,
@@ -580,7 +579,7 @@ func TestTosSize(t *testing.T) {
 	}
 }
 
-func TestCallExt(t *testing.T) {
+func TestVM_Exec_CallExt(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 10,
 		PUSH, 0, 8,
@@ -595,7 +594,7 @@ func TestCallExt(t *testing.T) {
 
 }
 
-func TestSload(t *testing.T) {
+func TestVM_Exec_Sload(t *testing.T) {
 	code := []byte{
 		SLOAD, 0,
 		HALT,
@@ -621,7 +620,7 @@ func TestSload(t *testing.T) {
 	}
 }
 
-func TestSstore(t *testing.T) {
+func TestVM_Exec_Sstore(t *testing.T) {
 	code := []byte{
 		PUSH, 9, 72, 105, 32, 84, 104, 101, 114, 101, 33, 33,
 		SSTORE, 0,
@@ -642,7 +641,7 @@ func TestSstore(t *testing.T) {
 	}
 }
 
-func TestSha3(t *testing.T) {
+func TestVM_Exec_Sha3(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		SHA3,
@@ -656,12 +655,12 @@ func TestSha3(t *testing.T) {
 
 	val, _ := vm.evaluationStack.Pop()
 
-	if !reflect.DeepEqual(val.Bytes(), []byte{227, 237, 86, 189, 8, 109, 137, 88, 72, 58, 18, 115, 79, 160, 174, 127, 92, 139, 177, 96, 239, 144, 146, 198, 126, 130, 237, 155, 25, 228, 199, 178}) {
+	if !bytes.Equal(val.Bytes(), []byte{227, 237, 86, 189, 8, 109, 137, 88, 72, 58, 18, 115, 79, 160, 174, 127, 92, 139, 177, 96, 239, 144, 146, 198, 126, 130, 237, 155, 25, 228, 199, 178}) {
 		t.Errorf("Actual value is %v, should be {227, 237, 86, 189...} after jumping to halt", val)
 	}
 }
 
-func TestRoll(t *testing.T) {
+func TestVM_Exec_Roll(t *testing.T) {
 	code := []byte{
 		PUSH, 0, 3,
 		PUSH, 0, 4,
@@ -684,7 +683,7 @@ func TestRoll(t *testing.T) {
 	}
 }
 
-func TestNewMap(t *testing.T){
+func TestVM_Exec_NewMap(t *testing.T) {
 	code := []byte{
 		NEWMAP,
 		HALT,
@@ -692,7 +691,7 @@ func TestNewMap(t *testing.T){
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	vm.Exec(true)
+	vm.Exec(false)
 
 	r, err := vm.evaluationStack.Pop()
 
@@ -700,14 +699,14 @@ func TestNewMap(t *testing.T){
 		t.Errorf("%v", err)
 	}
 	result := r.Bytes()
-	expected := []byte{0x01, 0x00, 0x00,}
+	expected := []byte{0x01, 0x00, 0x00}
 
-	if !reflect.DeepEqual(expected, result) {
+	if !bytes.Equal(expected, result) {
 		t.Errorf("expected the Value of the new Map to be %v but was %v", expected, result)
 	}
 }
 
-func TestMapPush(t *testing.T){
+func TestVM_Exec_MapPush(t *testing.T) {
 	code := []byte{
 		NEWMAP,
 		PUSH, 1, 72, 105,
@@ -718,7 +717,7 @@ func TestMapPush(t *testing.T){
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -746,10 +745,9 @@ func TestMapPush(t *testing.T){
 		t.Errorf("invalid size, Expected 1 but was %v", size)
 	}
 
-
 }
 
-func TestMapGetVAL(t *testing.T){
+func TestVM_Exec_MapGetVAL(t *testing.T) {
 	code := []byte{
 		NEWMAP,
 		PUSH, 0x01, 0x48, 0x69,
@@ -768,7 +766,7 @@ func TestMapGetVAL(t *testing.T){
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -782,13 +780,12 @@ func TestMapGetVAL(t *testing.T){
 	}
 
 	e := []byte{72, 72}
-	if bytes.Compare(v.Bytes(), e) != 0 {
+	if !bytes.Equal(v.Bytes(), e) {
 		t.Errorf("invalid value, Expected %v but was '%v'", e, v)
 	}
 }
 
-
-func TestMapRemove(t *testing.T){
+func TestVM_Exec_MapRemove(t *testing.T) {
 	code := []byte{
 		NEWMAP,
 		PUSH, 0x01, 0x48, 0x69,
@@ -807,7 +804,7 @@ func TestMapRemove(t *testing.T){
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -824,20 +821,19 @@ func TestMapRemove(t *testing.T){
 	}
 
 	e := []byte{0x01,
-				0x02, 0x00,
-				0x01, 0x00,		0x02,
-				0x02, 0x00,		0x69, 0x69,
-				0x01, 0x00,		0x01,
-				0x02, 0x00,		0x48, 0x48,
+		0x02, 0x00,
+		0x01, 0x00, 0x02,
+		0x02, 0x00, 0x69, 0x69,
+		0x01, 0x00, 0x01,
+		0x02, 0x00, 0x48, 0x48,
 	}
 
-
-	if bytes.Compare(m, e) != 0 {
+	if !bytes.Equal(m, e) {
 		t.Errorf("invalid datastructure, Expected %v but was '%v'", e, m)
 	}
 }
 
-func TestNewArr(t *testing.T){
+func TestVM_Exec_NewArr(t *testing.T) {
 	code := []byte{
 		NEWARR,
 		HALT,
@@ -845,7 +841,7 @@ func TestNewArr(t *testing.T){
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -857,14 +853,14 @@ func TestNewArr(t *testing.T){
 	if err != nil {
 		t.Errorf("%v", err)
 	}
-	expectedSize := []byte{0x00, 0x00,}
+	expectedSize := []byte{0x00, 0x00}
 	actualSize := ba[1:3]
-	if !reflect.DeepEqual(expectedSize, actualSize) {
+	if !bytes.Equal(expectedSize, actualSize) {
 		t.Errorf("invalid size, Expected %v but was '%v'", expectedSize, actualSize)
 	}
 }
 
-func TestArrAppend(t *testing.T) {
+func TestVM_Exec_ArrAppend(t *testing.T) {
 	code := []byte{
 		NEWARR,
 		PUSH, 0x01, 0xFF, 0x00,
@@ -874,7 +870,7 @@ func TestArrAppend(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
 		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
@@ -886,14 +882,14 @@ func TestArrAppend(t *testing.T) {
 	}
 
 	actual := arr.Bytes()[5:7]
-	expected := []byte{0xFF, 0x00,}
-	if !reflect.DeepEqual(expected, actual) {
+	expected := []byte{0xFF, 0x00}
+	if !bytes.Equal(expected, actual) {
 		t.Errorf("invalid element appended, Expected '%v' but was '%v'", expected, actual)
 	}
 }
 
 /*
-func TestArrInsert(t *testing.T){
+func TestVM_Exec_ArrInsert(t *testing.T){
 	code := []byte{
 		NEWARR,
 		PUSH, 0x01, 0xFF, 0x00,
@@ -919,12 +915,12 @@ func TestArrInsert(t *testing.T){
 
 	actual := arr.Bytes()[1:2]
 	expected := []byte{0xFF, 0x00,}
-	if bytes.Compare(expected, actual) != 0 {
+	if !bytes.Equal(expected, actual) {
 		t.Errorf("invalid element appended, Expected '%# x' but was '%# x'", expected, actual)
 	}
 }*/
 
-func TestArrRemove(t *testing.T) {
+func TestVM_Exec_ArrRemove(t *testing.T) {
 	code := []byte{
 		NEWARR,
 		PUSH, 0x01, 0xFF, 0x00,
@@ -939,7 +935,7 @@ func TestArrRemove(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -960,18 +956,18 @@ func TestArrRemove(t *testing.T) {
 		t.Errorf("invalid array size, Expected 2 but was '%v'", size)
 	}
 
-	expectedSecondElement := []byte{0xBB, 0x00,}
+	expectedSecondElement := []byte{0xBB, 0x00}
 	actualSecondElement, err2 := arr.At(uint16(1))
 	if err2 != nil {
 		t.Errorf("%v", err)
 	}
 
-	if !reflect.DeepEqual(expectedSecondElement, actualSecondElement){
+	if !bytes.Equal(expectedSecondElement, actualSecondElement) {
 		t.Errorf("invalid element on second index, Expected %# x but was %# x", expectedSecondElement, actualSecondElement)
 	}
 }
 
-func TestArrAt(t *testing.T) {
+func TestVM_Exec_ArrAt(t *testing.T) {
 	code := []byte{
 		NEWARR,
 		PUSH, 0x01, 0xFF, 0x00,
@@ -986,7 +982,7 @@ func TestArrAt(t *testing.T) {
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
@@ -1001,13 +997,13 @@ func TestArrAt(t *testing.T) {
 
 	expected1 := []byte{0xBB, 0x00}
 	actual1 := v1.Bytes()
-	if !reflect.DeepEqual(expected1, actual1){
+	if !bytes.Equal(expected1, actual1) {
 		t.Errorf("invalid element on first index, Expected %# x but was %# x", expected1, actual1)
 	}
 
 }
 
-func TestNonValidOpCode(t *testing.T) {
+func TestVM_Exec_NonValidOpCode(t *testing.T) {
 
 	code := []byte{
 		89,
@@ -1021,11 +1017,11 @@ func TestNonValidOpCode(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "Not a valid opCode" {
-		t.Errorf("Expected tos to be 'Not a valid opCode' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'Not a valid opCode' error message but was %v", BigIntToString(tos))
 	}
 }
 
-func TestArgumentsExceedInstructionSet(t *testing.T) {
+func TestVM_Exec_ArgumentsExceedInstructionSet(t *testing.T) {
 
 	code := []byte{
 		PUSH, 0x00, 0x00, PUSH, 0x0b, 0x01, 0x00, 0x03, 0x12, 0x05,
@@ -1039,12 +1035,11 @@ func TestArgumentsExceedInstructionSet(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "instructionSet out of bounds" {
-		t.Errorf("Expected tos to be 'instructionSet out of bounds' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'instructionSet out of bounds' error message but was %v", BigIntToString(tos))
 	}
 }
 
-
-func TestPopOnEmptyStack(t *testing.T) {
+func TestVM_Exec_PopOnEmptyStack(t *testing.T) {
 
 	code := []byte{
 		PUSH, 0x00, 0x01, SHA3, 0x05, 0x02, 0x03,
@@ -1062,7 +1057,7 @@ func TestPopOnEmptyStack(t *testing.T) {
 	}
 }
 
-func TestFuzzReproductionInstructionSetOutOfBounds(t *testing.T) {
+func TestVM_Exec_FuzzReproduction_InstructionSetOutOfBounds(t *testing.T) {
 
 	code := []byte{
 		PUSH, 0, 20,
@@ -1077,11 +1072,11 @@ func TestFuzzReproductionInstructionSetOutOfBounds(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "instructionSet out of bounds" {
-		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", BigIntToString(tos))
 	}
 }
 
-func TestFuzzReproductionInstructionSetOutOfBounds2(t *testing.T) {
+func TestVM_Exec_FuzzReproduction_InstructionSetOutOfBounds2(t *testing.T) {
 
 	code := []byte{
 		CALLEXT, 231,
@@ -1095,11 +1090,11 @@ func TestFuzzReproductionInstructionSetOutOfBounds2(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "instructionSet out of bounds" {
-		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'pop() on empty stack' error message but was %v", BigIntToString(tos))
 	}
 }
 
-func TestFuzzReproduction(t *testing.T) {
+func TestVM_Exec_FuzzReproduction_IndexOutOfBounds1(t *testing.T) {
 
 	code := []byte{
 		SLOAD, 0, 0, 33,
@@ -1113,11 +1108,11 @@ func TestFuzzReproduction(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "Index out of bounds" {
-		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", BigIntToString(tos))
 	}
 }
 
-func TestFuzzReproduction2(t *testing.T) {
+func TestVM_Exec_FuzzReproduction_IndexOutOfBounds2(t *testing.T) {
 
 	code := []byte{
 		PUSH, 4, 46, 110, 66, 50, 255, SSTORE, 123, 119,
@@ -1131,11 +1126,11 @@ func TestFuzzReproduction2(t *testing.T) {
 	tos, _ := vm.evaluationStack.Pop()
 
 	if BigIntToString(tos) != "Index out of bounds" {
-		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", tos)
+		t.Errorf("Expected tos to be 'Index out of bounds' error message but was %v", BigIntToString(tos))
 	}
 }
 
-func TestFuzzReproduction3(t *testing.T) {
+func TestVM_Exec_FuzzReproduction_InvalidDataType(t *testing.T) {
 
 	code := []byte{
 		29, 36, 222, 203, 229, 51, 52, 138, 144, 109, 48,
@@ -1144,7 +1139,7 @@ func TestFuzzReproduction3(t *testing.T) {
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
 	vm.context.MaxGasAmount = 300
-	vm.Exec(true)
+	vm.Exec(false)
 
 	tos, _ := vm.evaluationStack.Pop()
 
@@ -1153,7 +1148,7 @@ func TestFuzzReproduction3(t *testing.T) {
 	}
 }
 
-func TestFunctionCall(t *testing.T) {
+func TestVM_Exec_FunctionCall(t *testing.T) {
 	code := []byte{
 		// start ABI
 		DUP,
@@ -1184,5 +1179,11 @@ func TestFunctionCall(t *testing.T) {
 		PUSH, 0, 24, // Function hash
 	}
 
-	vm.Exec(true)
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if tos.Uint64() != 3 {
+		t.Errorf("Expected tos to be '3' error message but was %v", tos)
+	}
 }

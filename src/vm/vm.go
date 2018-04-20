@@ -1,12 +1,12 @@
-package bazo_vm
+package vm
 
 import (
-	"fmt"
-	"math/big"
-	"reflect"
-	"errors"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"errors"
+	"fmt"
+	"math/big"
+
 	"golang.org/x/crypto/sha3"
 )
 
@@ -35,13 +35,13 @@ func (vm *VM) trace() {
 	opCode := OpCodes[int(vm.code[vm.pc])]
 	var args []byte
 
-	switch opCode.name {
+	switch opCode.Name {
 	case "push":
 		nargs := int(vm.code[vm.pc+1])
 
 		if vm.pc+nargs < (len(vm.code) - vm.pc) {
 			args = vm.code[vm.pc+2 : vm.pc+nargs+3]
-			fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.name, ByteArrayToInt(args), stack)
+			fmt.Printf("%04d: %-6s %-10v %v\n", addr, opCode.Name, ByteArrayToInt(args), stack)
 		}
 
 		//TODO - Fix CALLEXT case, leads to index out of bounds exception
@@ -50,7 +50,7 @@ func (vm *VM) trace() {
 	functionHash := vm.code[vm.pc+33 : vm.pc+37]
 	nargs := int(vm.code[vm.pc+37])
 
-	fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.name, address, functionHash, nargs, stack)
+	fmt.Printf("%04d: %-6s %x %x %v %v\n", addr, opCode.Name, address, functionHash, nargs, stack)
 	*/
 
 	case "mappush":
@@ -60,8 +60,8 @@ func (vm *VM) trace() {
 	case "arrinsert":
 	case "arrremove":
 	case "arrat":
-		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
-		fmt.Printf("%04d: %-6s %v ", addr, opCode.name, args)
+		args = vm.code[vm.pc+1 : vm.pc+opCode.Nargs+1]
+		fmt.Printf("%04d: %-6s %v ", addr, opCode.Name, args)
 
 		for _, e := range stack.Stack {
 			fmt.Printf("%# x", e.Bytes())
@@ -71,8 +71,8 @@ func (vm *VM) trace() {
 		fmt.Printf("\n")
 
 	default:
-		args = vm.code[vm.pc+1 : vm.pc+opCode.nargs+1]
-		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.name, args, stack)
+		args = vm.code[vm.pc+1 : vm.pc+opCode.Nargs+1]
+		fmt.Printf("%04d: %-6s %v %v\n", addr, opCode.Name, args, stack)
 	}
 }
 
@@ -108,7 +108,7 @@ func (vm *VM) Exec(trace bool) bool {
 			return false
 		}
 
-		// Substract gas used for operation
+		// Subtract gas used for operation
 		if vm.context.MaxGasAmount < OpCodes[int(opCode)].gasPrice {
 			vm.evaluationStack.Push(StrToBigInt("out of gas"))
 			return false
@@ -121,7 +121,7 @@ func (vm *VM) Exec(trace bool) bool {
 
 		case PUSH:
 			arg, errArg1 := vm.fetch()
-			byteCount := int(arg) + 1 // Amount of bytes pushed
+			byteCount := int(arg) + 1 // Amount of bytes pushed, maximum amount of bytes that can be pushed is 256
 			bytes, errArg2 := vm.fetchMany(byteCount)
 
 			if !vm.checkErrors([]error{errArg1, errArg2}) {
@@ -298,7 +298,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			if reflect.DeepEqual(left, right) {
+			if left.Cmp(&right) == 0 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
 				vm.evaluationStack.Push(*big.NewInt(0))
@@ -312,10 +312,10 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			if reflect.DeepEqual(left, right) {
-				vm.evaluationStack.Push(*big.NewInt(0))
-			} else {
+			if left.Cmp(&right) != 0 {
 				vm.evaluationStack.Push(*big.NewInt(1))
+			} else {
+				vm.evaluationStack.Push(*big.NewInt(0))
 			}
 
 		case LT:
@@ -326,9 +326,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			value := left.Cmp(&right)
-
-			if value == -1 {
+			if left.Cmp(&right) == -1 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
 				vm.evaluationStack.Push(*big.NewInt(0))
@@ -342,9 +340,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			value := left.Cmp(&right)
-
-			if value == 1 {
+			if left.Cmp(&right) == 1 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
 				vm.evaluationStack.Push(*big.NewInt(0))
@@ -358,9 +354,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			value := left.Cmp(&right)
-
-			if value == -1 || value == 0 {
+			if left.Cmp(&right) == -1 || left.Cmp(&right) == 0 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
 				vm.evaluationStack.Push(*big.NewInt(0))
@@ -374,9 +368,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
-			value := left.Cmp(&right)
-
-			if value == 1 || value == 0 {
+			if left.Cmp(&right) == 1 || left.Cmp(&right) == 0 {
 				vm.evaluationStack.Push(*big.NewInt(1))
 			} else {
 				vm.evaluationStack.Push(*big.NewInt(0))
@@ -446,15 +438,15 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 		case CALL:
-			jumpAddress, errArg1 := vm.fetch() // Shows where to jump after executing
-			argsToLoad, errArg2 := vm.fetch()  // Shows how many elements have to be popped from evaluationStack
+			returnAddress, errArg1 := vm.fetch() // Shows where to jump after executing
+			argsToLoad, errArg2 := vm.fetch()    // Shows how many elements have to be popped from evaluationStack
 
 			if !vm.checkErrors([]error{errArg1, errArg2}) {
 				return false
 			}
 
-			if int(jumpAddress) == 0 || int(jumpAddress) > len(vm.code) {
-				vm.evaluationStack.Push(StrToBigInt("JumpAddress out of bounds"))
+			if int(returnAddress) == 0 || int(returnAddress) > len(vm.code) {
+				vm.evaluationStack.Push(StrToBigInt("ReturnAddress out of bounds"))
 				return false
 			}
 
@@ -469,7 +461,7 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			vm.callStack.Push(frame)
-			vm.pc = int(jumpAddress) - 1
+			vm.pc = int(returnAddress) - 1
 
 		case CALLEXT:
 			transactionAddress, errArg1 := vm.fetchMany(32) // Addresses are 32 bytes (var name: transactionAddress)
@@ -581,11 +573,22 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			val := callstackTos.variables[int(address)]
-			vm.evaluationStack.Push(val)
+
+			err := vm.evaluationStack.Push(val)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case NEWMAP:
 			m := NewMap()
-			vm.evaluationStack.Push(m.ToBigInt())
+			err = vm.evaluationStack.Push(m.ToBigInt())
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case MAPPUSH:
 			k, kerr := vm.evaluationStack.Pop()
@@ -613,7 +616,12 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			m.Append(k.Bytes(), v.Bytes())
-			vm.evaluationStack.Push(m.ToBigInt())
+			err := vm.evaluationStack.Push(m.ToBigInt())
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case MAPGETVAL:
 			kbi, kerr := vm.evaluationStack.Pop()
@@ -643,30 +651,29 @@ func (vm *VM) Exec(trace bool) bool {
 
 			result := big.Int{}
 			result.SetBytes(v)
-			vm.evaluationStack.Push(result)
+			err = vm.evaluationStack.Push(result)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case MAPREMOVE:
-			kbi, err := vm.evaluationStack.Pop()
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
+			kbi, err1 := vm.evaluationStack.Pop()
+			mbi, err2 := vm.evaluationStack.Pop()
+			m, err3 := MapFromBigInt(mbi)
 
-			mbi, err := vm.evaluationStack.Pop()
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
-
-			m, err := MapFromBigInt(mbi)
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+			if !vm.checkErrors([]error{err1, err2, err3}) {
 				return false
 			}
 
 			m.Remove(kbi.Bytes())
-			vm.evaluationStack.Push(m.ToBigInt())
+			err = vm.evaluationStack.Push(m.ToBigInt())
 
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
 
 		case NEWARR:
 			a := NewArray()
@@ -694,37 +701,37 @@ func (vm *VM) Exec(trace bool) bool {
 			vm.evaluationStack.Push(arr.ToBigInt())
 
 		/*case ARRINSERT:
-			i, err := vm.evaluationStack.Pop()
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
-			if len(i.Bytes()) != 2 {
-				vm.evaluationStack.Push(StrToBigInt("Wrong index size"))
-				return false
-			}
+		i, err := vm.evaluationStack.Pop()
+		if err != nil {
+			vm.evaluationStack.Push(StrToBigInt(err.Error()))
+			return false
+		}
+		if len(i.Bytes()) != 2 {
+			vm.evaluationStack.Push(StrToBigInt("Wrong index size"))
+			return false
+		}
 
-			e, err := vm.evaluationStack.Pop()
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
+		e, err := vm.evaluationStack.Pop()
+		if err != nil {
+			vm.evaluationStack.Push(StrToBigInt(err.Error()))
+			return false
+		}
 
-			a, err := vm.evaluationStack.Pop()
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
+		a, err := vm.evaluationStack.Pop()
+		if err != nil {
+			vm.evaluationStack.Push(StrToBigInt(err.Error()))
+			return false
+		}
 
-			arr, err := ArrayFromBigInt(a)
-			if err != nil {
-				vm.evaluationStack.Push(StrToBigInt(err.Error()))
-				return false
-			}
+		arr, err := ArrayFromBigInt(a)
+		if err != nil {
+			vm.evaluationStack.Push(StrToBigInt(err.Error()))
+			return false
+		}
 
 
 
-			arr.Insert(BaToUI16(i.Bytes()), e)*/
+		arr.Insert(ByteArrayToUI16(i.Bytes()), e)*/
 
 		case ARRREMOVE:
 			a, aerr := vm.evaluationStack.Pop()
@@ -733,7 +740,7 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 			ba, ferr := vm.fetchMany(2)
-			index := BaToUI16(ba)
+			index := ByteArrayToUI16(ba)
 			if ferr != nil {
 				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
 				return false
@@ -759,7 +766,6 @@ func (vm *VM) Exec(trace bool) bool {
 
 			vm.evaluationStack.Push(arr.ToBigInt())
 
-
 		case ARRAT:
 			a, err := vm.evaluationStack.Peek()
 			if err != nil {
@@ -768,7 +774,7 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			ba, err := vm.fetchMany(2)
-			index := BaToUI16(ba)
+			index := ByteArrayToUI16(ba)
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
@@ -793,7 +799,6 @@ func (vm *VM) Exec(trace bool) bool {
 			result := big.Int{}
 			result.SetBytes(e)
 			vm.evaluationStack.Push(result)
-
 
 		case SHA3:
 			right, err := vm.evaluationStack.Pop()
