@@ -581,6 +581,50 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 
+		case ADDRESS:
+			address := new(big.Int)
+			address.SetBytes(vm.context.ContractAccount.Address[:])
+
+			err := vm.evaluationStack.Push(*address)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case BALANCE:
+			balance := new(big.Int)
+			balance.SetUint64(vm.context.ContractAccount.Balance)
+
+			err := vm.evaluationStack.Push(*balance)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case CALLER:
+			address := new(big.Int)
+			address.SetBytes(vm.context.ContractTx.From[:])
+
+			err := vm.evaluationStack.Push(*address)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case CALLVAL:
+			value := new(big.Int)
+			value.SetUint64(vm.context.ContractTx.Amount)
+
+			err := vm.evaluationStack.Push(*value)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
 		case NEWMAP:
 			m := NewMap()
 			err = vm.evaluationStack.Push(m.ToBigInt())

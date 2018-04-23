@@ -30,6 +30,10 @@ const (
 	SSTORE
 	LOAD
 	SLOAD
+	ADDRESS // Address of account
+	BALANCE // Balance of account
+	CALLER
+	CALLVAL // Amount of bazo coins transacted in transaction
 	NEWMAP
 	MAPPUSH
 	MAPGETVAL
@@ -85,6 +89,10 @@ var OpCodes = map[int]OpCode{
 	CALLEXT:   {"callext", 3, []int{BYTES, BYTES, BYTE}, 1},
 	RET:       {"ret", 0, []int{}, 1},
 	SIZE:      {"size", 0, []int{}, 1},
+	ADDRESS:   {"address", 0, []int{}, 1},
+	BALANCE:   {"balance", 0, []int{}, 1},
+	CALLER:    {"balance", 0, []int{}, 1},
+	CALLVAL:   {"callval", 0, []int{}, 1},
 	STORE:     {"store", 0, []int{}, 1},
 	SSTORE:    {"sstore", 1, []int{INT}, 1},
 	LOAD:      {"load", 1, []int{BYTE}, 1},
