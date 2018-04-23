@@ -5,6 +5,7 @@ import (
 	"math/big"
 )
 
+type action func(array *Array, k uint16, s uint16)([]byte, error)
 type Array []byte
 
 func NewArray() Array {
@@ -54,47 +55,23 @@ func (a *Array) DecrementSize() error {
 }
 
 func (a *Array) At(index uint16) ([]byte, error) {
-	var offset uint16 = 3
-
-	if a.getSize() < index {
-		return []byte{}, errors.New("array index out of bounds")
+	var f action = func(array *Array, k uint16, s uint16)([]byte, error) {
+		return (*array)[k+2: k+2+s], nil
 	}
-
-	var i uint16 = 0
-	var k uint16 = offset
-	for ; k < uint16(len(*a)) && i <= index; i++ {
-		s := ByteArrayToUI16((*a)[k : k+2])
-		if i == index {
-			return (*a)[k+2 : k+2+s], nil
-		}
-		k += 2 + s
-	}
-
-	return []byte{}, errors.New("array internals error")
+	result, err := a.goToIndex(index, f)
+	return result, err
 }
 
 func (a *Array) Insert(index uint16, e big.Int) error {
-	var offset uint16 = 3
-
-	if a.getSize() < index {
-		return errors.New("array index out of bounds")
+	var f action = func(array *Array, k uint16, s uint16)([]byte, error) {
+		tmp := Array{}
+		tmp = append(tmp, (*a)[:k]...)
+		tmp.Append(e)
+		*a = append(tmp, (*a)[k:]...)
+		return []byte{}, nil
 	}
-
-	var i uint16 = 0
-	var k uint16 = offset
-	for ; k < uint16(len(*a)) && i <= index; i++ {
-		s := ByteArrayToUI16((*a)[k : k+2])
-		if i == index {
-			tmp := Array{}
-			tmp = append(tmp, (*a)[:k]...)
-			tmp.Append(e)
-			*a = append(tmp, (*a)[k:]...)
-			return nil
-		}
-		k += 2 + s
-	}
-
-	return errors.New("array internals error")
+	_, err := a.goToIndex(index, f)
+	return err
 }
 
 func (a *Array) Append(e big.Int) error {
@@ -112,24 +89,36 @@ func (a *Array) Append(e big.Int) error {
 }
 
 func (a *Array) Remove(index uint16) error {
+	var f action = func(array *Array, k uint16, s uint16)([]byte, error) {
+		tmp := Array{}
+		tmp = append(tmp, (*a)[:k]...)
+		*a = append(tmp, (*a)[k+2+s:]...)
+		return []byte{}, nil
+	}
+	_, err := a.goToIndex(index, f)
+	return err
+}
+
+func (a *Array) goToIndex(index uint16, f action) ([]byte, error) {
 	var offset uint16 = 3
 
 	if a.getSize() < index {
-		return errors.New("array index out of bounds")
+		return []byte{}, errors.New("array index out of bounds")
 	}
 
-	var i uint16 = 0
-	var k uint16 = offset
-	for ; k < uint16(len(*a)) && i <= index; i++ {
-		s := ByteArrayToUI16((*a)[k : k+2])
-		if i == index {
-			tmp := Array{}
-			tmp = append(tmp, (*a)[:k]...)
-			*a = append(tmp, (*a)[k+2+s:]...)
-			return nil
+	var currentElement uint16 = 0
+	//Since the Elements can be of variable size,
+	//each Element has to be visited to know how many bytes it occupies
+
+	var indexOnByteArrray uint16 = offset
+	for; indexOnByteArrray < uint16(len(*a)) && currentElement <= index; currentElement++ {
+		elementSize := ByteArrayToUI16((*a)[indexOnByteArrray: indexOnByteArrray+2])
+		if currentElement == index {
+			result, err := f(a, indexOnByteArrray, elementSize)
+			return result, err
 		}
-		k += 2 + s
+			indexOnByteArrray += 2 + elementSize
 	}
 
-	return errors.New("array internals error")
+	return []byte{}, errors.New("array internals error")
 }
