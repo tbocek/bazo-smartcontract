@@ -1130,17 +1130,18 @@ func TestVM_Exec_FuzzReproduction_IndexOutOfBounds2(t *testing.T) {
 	}
 }
 
-func TestVM_Exec_FunctionCall(t *testing.T) {
+func TestVM_Exec_FunctionCallSub(t *testing.T) {
 	code := []byte{
 		// start ABI
+		CALLDATA,
 		DUP,
-		PUSH, 0, 24,
+		PUSH, 0, 16,
 		EQ,
-		JMPIF, 24,
+		JMPIF, 16,
 		DUP,
-		PUSH, 0, 27,
+		PUSH, 0, 19,
 		EQ,
-		JMPIF, 27,
+		JMPIF, 19,
 		HALT,
 		// end ABI
 		POP,
@@ -1156,16 +1157,57 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 	vm.context.MaxGasAmount = 50
 
 	vm.context.TransactionData = []byte{
-		PUSH, 0, 2,
-		PUSH, 0, 5,
-		PUSH, 0, 24, // Function hash
+		0, 2,
+		0, 5,
+		0, 16, // Function hash
 	}
 
-	vm.Exec(false)
+	vm.Exec(true)
 
 	tos, _ := vm.evaluationStack.Pop()
 
 	if tos.Uint64() != 3 {
 		t.Errorf("Expected tos to be '3' error message but was %v", tos)
+	}
+}
+
+func TestVM_Exec_FunctionAdd(t *testing.T) {
+	code := []byte{
+		// start ABI
+		CALLDATA,
+		DUP,
+		PUSH, 0, 16,
+		EQ,
+		JMPIF, 16,
+		DUP,
+		PUSH, 0, 19,
+		EQ,
+		JMPIF, 19,
+		HALT,
+		// end ABI
+		POP,
+		SUB,
+		HALT,
+		POP,
+		ADD,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 50
+
+	vm.context.TransactionData = []byte{
+		0, 2,
+		0, 5,
+		0, 19, // Function hash
+	}
+
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if tos.Uint64() != 7 {
+		t.Errorf("Expected tos to be '7' error message but was %v", tos)
 	}
 }

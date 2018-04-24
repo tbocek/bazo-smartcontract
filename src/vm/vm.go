@@ -85,9 +85,6 @@ func (vm *VM) Exec(trace bool) bool {
 		return false
 	}
 
-	// Prepend passed transaction data so parameter and function hash get pushed on stack as soon as transaction is executed
-	vm.code = append(vm.context.TransactionData, vm.code...)
-
 	// Infinite Loop until return called
 	for {
 		if trace {
@@ -623,6 +620,20 @@ func (vm *VM) Exec(trace bool) bool {
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
+			}
+
+		case CALLDATA:
+			for i := 0; i < len(vm.context.TransactionData); i++ {
+				length := int(vm.context.TransactionData[i]) // Length of parameters
+
+				err := vm.evaluationStack.Push(*big.NewInt(0).SetBytes(vm.context.TransactionData[i+1 : i+length+2]))
+
+				if err != nil {
+					vm.evaluationStack.Push(StrToBigInt(err.Error()))
+					return false
+				}
+
+				i += int(vm.context.TransactionData[i]) + 1 // Increase to next parameter length
 			}
 
 		case NEWMAP:
