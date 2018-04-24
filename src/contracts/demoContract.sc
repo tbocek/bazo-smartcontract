@@ -1,5 +1,7 @@
 # This is a simple program with very basic opcodes with ABI
 
+CALLDATA
+
 # ABI
 DUP
 PUSH 1          # should be replaced with function signature hash
