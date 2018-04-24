@@ -38,3 +38,29 @@ func TestParser_ProgrammFunctionCall(t *testing.T) {
 		t.Errorf("Expected tos to be '0, 1, 217, 228, 0, 0, 5, 21, 12, 2, 45, 27, 0, 27, 1, 4, 23' error message but was %v", instructionCode)
 	}
 }
+
+func TestParser_ProgrammContractWithVariable(t *testing.T) {
+	contract, err := ioutil.ReadFile("../contracts/benchmark.sc")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	contractAsString := string(contract) // convert content to a 'string'
+
+	instructionCode := Parse(contractAsString)
+
+	fmt.Println(instructionCode)
+}
+
+func TestParser_ProgrammDemoContract(t *testing.T) {
+	contract, err := ioutil.ReadFile("../contracts/demoContract.sc")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	contractAsString := string(contract) // convert content to a 'string'
+
+	instructionCode := Parse(contractAsString)
+
+	fmt.Println(instructionCode)
+}

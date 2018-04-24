@@ -2,6 +2,7 @@ package vm
 
 import (
 	"bytes"
+	"fmt"
 	"math/big"
 	"testing"
 )
@@ -1171,7 +1172,79 @@ func TestVM_Exec_FunctionCallSub(t *testing.T) {
 	}
 }
 
-func TestVM_Exec_FunctionAdd(t *testing.T) {
+func TestVM_Exec_ParsedFromParserFunction1(t *testing.T) {
+	code := []byte{
+		DUP,
+		PUSH, 0, 1,
+		EQ,
+		JMPIF, 24,
+		DUP,
+		PUSH, 0, 2,
+		EQ,
+		JMPIF, 27,
+		HALT,
+		POP,
+		ADD,
+		HALT,
+		POP,
+		SUB,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+
+	vm.context.TransactionData = []byte{
+		PUSH, 0, 2,
+		PUSH, 0, 5,
+		PUSH, 0, 1, // Function hash
+	}
+
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(tos)
+}
+
+func TestVM_Exec_ParsedFromParserFunction(t *testing.T) {
+	code := []byte{
+		DUP,
+		PUSH, 0, 1,
+		EQ,
+		JMPIF, 24,
+		DUP,
+		PUSH, 0, 2,
+		EQ,
+		JMPIF, 27,
+		HALT,
+		POP,
+		ADD,
+		HALT,
+		POP,
+		SUB,
+		HALT,
+	}
+
+	vm := NewVM()
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+
+	vm.context.TransactionData = []byte{
+		PUSH, 0, 2,
+		PUSH, 0, 5,
+		PUSH, 0, 2, // Function hash
+	}
+
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(tos)
+}
+
+func TestVM_Exec_FunctionCall(t *testing.T) {
 	code := []byte{
 		// start ABI
 		CALLDATA,
