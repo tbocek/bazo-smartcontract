@@ -92,7 +92,7 @@ var OpCodes = map[int]OpCode{
 	SIZE:      {"size", 0, []int{}, 1},
 	ADDRESS:   {"address", 0, []int{}, 1},
 	BALANCE:   {"balance", 0, []int{}, 1},
-	CALLER:    {"balance", 0, []int{}, 1},
+	CALLER:    {"caller", 0, []int{}, 1},
 	CALLVAL:   {"callval", 0, []int{}, 1},
 	CALLDATA:  {"calldata", 0, []int{}, 1},
 	STORE:     {"store", 0, []int{}, 1},

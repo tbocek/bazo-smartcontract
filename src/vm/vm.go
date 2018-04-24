@@ -591,6 +591,12 @@ func (vm *VM) Exec(trace bool) bool {
 
 		case BALANCE:
 			balance := new(big.Int)
+
+			if vm.context.ContractTx.Amount == 0 {
+				balance.SetUint64(0)
+				continue
+			}
+
 			balance.SetUint64(vm.context.ContractAccount.Balance)
 
 			err := vm.evaluationStack.Push(*balance)
@@ -613,6 +619,12 @@ func (vm *VM) Exec(trace bool) bool {
 
 		case CALLVAL:
 			value := new(big.Int)
+
+			if vm.context.ContractTx.Amount == 0 {
+				value.SetUint64(0)
+				continue
+			}
+
 			value.SetUint64(vm.context.ContractTx.Amount)
 
 			err := vm.evaluationStack.Push(*value)
