@@ -5,7 +5,7 @@ import (
 	"math/big"
 )
 
-type action func(array *Array, k uint16, s uint16)([]byte, error)
+type action func(array *Array, k uint16, s uint16) ([]byte, error)
 type Array []byte
 
 func NewArray() Array {
@@ -55,15 +55,15 @@ func (a *Array) DecrementSize() error {
 }
 
 func (a *Array) At(index uint16) ([]byte, error) {
-	var f action = func(array *Array, k uint16, s uint16)([]byte, error) {
-		return (*array)[k+2: k+2+s], nil
+	var f action = func(array *Array, k uint16, s uint16) ([]byte, error) {
+		return (*array)[k+2 : k+2+s], nil
 	}
 	result, err := a.goToIndex(index, f)
 	return result, err
 }
 
 func (a *Array) Insert(index uint16, e big.Int) error {
-	var f action = func(array *Array, k uint16, s uint16)([]byte, error) {
+	var f action = func(array *Array, k uint16, s uint16) ([]byte, error) {
 		tmp := Array{}
 		tmp = append(tmp, (*a)[:k]...)
 		tmp.Append(e)
@@ -89,7 +89,7 @@ func (a *Array) Append(e big.Int) error {
 }
 
 func (a *Array) Remove(index uint16) error {
-	var f action = func(array *Array, k uint16, s uint16)([]byte, error) {
+	var f action = func(array *Array, k uint16, s uint16) ([]byte, error) {
 		tmp := Array{}
 		tmp = append(tmp, (*a)[:k]...)
 		*a = append(tmp, (*a)[k+2+s:]...)
@@ -111,13 +111,13 @@ func (a *Array) goToIndex(index uint16, f action) ([]byte, error) {
 	//each Element has to be visited to know how many bytes it occupies
 
 	var indexOnByteArrray uint16 = offset
-	for; indexOnByteArrray < uint16(len(*a)) && currentElement <= index; currentElement++ {
-		elementSize := ByteArrayToUI16((*a)[indexOnByteArrray: indexOnByteArrray+2])
+	for ; indexOnByteArrray < uint16(len(*a)) && currentElement <= index; currentElement++ {
+		elementSize := ByteArrayToUI16((*a)[indexOnByteArrray : indexOnByteArrray+2])
 		if currentElement == index {
 			result, err := f(a, indexOnByteArrray, elementSize)
 			return result, err
 		}
-			indexOnByteArrray += 2 + elementSize
+		indexOnByteArrray += 2 + elementSize
 	}
 
 	return []byte{}, errors.New("array internals error")
