@@ -85,9 +85,6 @@ func (vm *VM) Exec(trace bool) bool {
 		return false
 	}
 
-	// Prepend passed transaction data so parameter and function hash get pushed on stack as soon as transaction is executed
-	vm.code = append(vm.context.TransactionData, vm.code...)
-
 	// Infinite Loop until return called
 	for {
 		if trace {
@@ -579,6 +576,76 @@ func (vm *VM) Exec(trace bool) bool {
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false
+			}
+
+		case ADDRESS:
+			address := new(big.Int)
+			address.SetBytes(vm.context.ContractAccount.Address[:])
+
+			err := vm.evaluationStack.Push(*address)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case BALANCE:
+			balance := new(big.Int)
+
+			if vm.context.ContractTx.Amount == 0 {
+				balance.SetUint64(0)
+				continue
+			}
+
+			balance.SetUint64(vm.context.ContractAccount.Balance)
+
+			err := vm.evaluationStack.Push(*balance)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case CALLER:
+			address := new(big.Int)
+			address.SetBytes(vm.context.ContractTx.From[:])
+
+			err := vm.evaluationStack.Push(*address)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case CALLVAL:
+			value := new(big.Int)
+
+			if vm.context.ContractTx.Amount == 0 {
+				value.SetUint64(0)
+				continue
+			}
+
+			value.SetUint64(vm.context.ContractTx.Amount)
+
+			err := vm.evaluationStack.Push(*value)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+		case CALLDATA:
+			for i := 0; i < len(vm.context.TransactionData); i++ {
+				length := int(vm.context.TransactionData[i]) // Length of parameters
+
+				err := vm.evaluationStack.Push(*big.NewInt(0).SetBytes(vm.context.TransactionData[i+1 : i+length+2]))
+
+				if err != nil {
+					vm.evaluationStack.Push(StrToBigInt(err.Error()))
+					return false
+				}
+
+				i += int(vm.context.TransactionData[i]) + 1 // Increase to next parameter length
 			}
 
 		case NEWMAP:
