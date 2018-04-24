@@ -74,27 +74,30 @@ func (m *Map) Append(key []byte, value []byte) error {
 func (m *Map) GetVal(key []byte) ([]byte, error) {
 	offset := 3
 	l := len(*m)
-	for i := offset; i < l; {
-		if i > l-3 {
-			return []byte{}, errors.New("value sizes are 0")
+
+	//bai stands for byteArrayIndex and is the index on the
+	//byte array which the map is built upon
+	for bai := offset; bai < l; {
+		if l == 3 {
+			return []byte{}, errors.New("no elements in map")
 		}
 
-		ksize := ByteArrayToUI16((*m)[i : i+2])
+		sizeOfKey := ByteArrayToUI16((*m)[bai: bai+2])
 
-		valueSizeStart := i + 2 + int(ksize)
+		valueSizeStartIndex := bai + 2 + int(sizeOfKey)
 
-		k := (*m)[i+2 : valueSizeStart]
-		vsize := ByteArrayToUI16((*m)[valueSizeStart : valueSizeStart+2])
-		vSizeEnd := valueSizeStart + 2 + int(vsize)
-		v := (*m)[valueSizeStart+2 : vSizeEnd]
+		k := (*m)[bai+2 : valueSizeStartIndex]
+		sizeOfValue := ByteArrayToUI16((*m)[valueSizeStartIndex: valueSizeStartIndex+2])
+		valueEndIndex := valueSizeStartIndex + 2 + int(sizeOfValue)
+		v := (*m)[valueSizeStartIndex+2 : valueEndIndex]
 		if bytes.Equal(key, k) {
 			return v, nil
 		}
 
-		if i == vSizeEnd {
-			return []byte{}, errors.New("value sizes are 0")
+		if bai == valueEndIndex {
+			return []byte{}, errors.New("element sizes are 0")
 		}
-		i = vSizeEnd
+		bai = valueEndIndex
 	}
 
 	return []byte{}, errors.New("key not found")
@@ -103,29 +106,32 @@ func (m *Map) GetVal(key []byte) ([]byte, error) {
 func (m *Map) Remove(key []byte) error {
 	offset := 3
 	l := len(*m)
-	for i := offset; i < l; {
-		if i > l-3 {
-			return errors.New("value sizes are 0")
+
+	//bai stands for byteArrayIndex and is the index on the
+	//byte array which the map is built upon
+	for bai := offset; bai < l; {
+		if l == 3 {
+			return errors.New("no elements in map")
 		}
 
-		ksize := ByteArrayToUI16((*m)[i : i+2])
+		sizeOfKey := ByteArrayToUI16((*m)[bai: bai+2])
 
-		valueSizeStart := i + 2 + int(ksize)
+		valueSizeStartIndex := bai + 2 + int(sizeOfKey)
 
-		k := (*m)[i+2 : valueSizeStart]
-		vsize := ByteArrayToUI16((*m)[valueSizeStart : valueSizeStart+2])
-		vSizeEnd := valueSizeStart + 2 + int(vsize)
+		k := (*m)[bai+2 : valueSizeStartIndex]
+		sizeOfValue := ByteArrayToUI16((*m)[valueSizeStartIndex: valueSizeStartIndex+2])
+		valueEndIndex := valueSizeStartIndex + 2 + int(sizeOfValue)
 		if bytes.Equal(key, k) {
-			tmp := append([]byte{}, (*m)[:i]...)
-			*m = append(tmp, (*m)[vSizeEnd:]...)
+			tmp := append([]byte{}, (*m)[:bai]...)
+			*m = append(tmp, (*m)[valueEndIndex:]...)
 			m.DecrementSize()
 			return nil
 		}
 
-		if i == vSizeEnd {
-			return errors.New("value sizes are 0")
+		if bai == valueEndIndex {
+			return errors.New("element sizes are 0")
 		}
-		i = vSizeEnd
+		bai = valueEndIndex
 	}
 
 	return errors.New("key not found")
