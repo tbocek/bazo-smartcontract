@@ -736,7 +736,11 @@ func TestVM_Exec_MapPush(t *testing.T) {
 	}
 
 	datastructure := mp[0]
-	size := mp.getSize()
+	size, err := mp.getSize()
+
+	if err != nil {
+		t.Error(err)
+	}
 
 	if datastructure != 0x01 {
 		t.Errorf("Invalid Datastructure ID, Expected 0x01 but was %v", datastructure)
@@ -952,7 +956,12 @@ func TestVM_Exec_ArrRemove(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	size := arr.getSize()
+	size, err := arr.getSize()
+
+	if err != nil {
+		t.Error(err)
+	}
+
 	if size != uint16(2) {
 		t.Errorf("invalid array size, Expected 2 but was '%v'", size)
 	}
@@ -1282,5 +1291,26 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 
 	if tos.Uint64() != 7 {
 		t.Errorf("Expected tos to be '7' error message but was %v", tos)
+	}
+}
+
+func TestVM_Exec_GithubIssue13(t *testing.T) {
+
+	code := []byte{
+		ADDRESS, ARRAT,
+	}
+
+	vm := NewVM()
+
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+	vm.Exec(true)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	fmt.Println(BigIntToString(tos))
+
+	if BigIntToString(tos) != "instructionSet out of bounds" {
+		t.Errorf("instructionSet out of bounds %v", tos)
 	}
 }

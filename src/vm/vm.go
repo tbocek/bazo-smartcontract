@@ -807,7 +807,13 @@ func (vm *VM) Exec(trace bool) bool {
 				return false
 			}
 			ba, ferr := vm.fetchMany(2)
-			index := ByteArrayToUI16(ba)
+			index, err := ByteArrayToUI16(ba)
+
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
+				return false
+			}
+
 			if ferr != nil {
 				vm.evaluationStack.Push(StrToBigInt(ferr.Error()))
 				return false
@@ -841,7 +847,13 @@ func (vm *VM) Exec(trace bool) bool {
 			}
 
 			ba, err := vm.fetchMany(2)
-			index := ByteArrayToUI16(ba)
+			index, conversionErr := ByteArrayToUI16(ba)
+
+			if conversionErr != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt(err.Error()))
 				return false

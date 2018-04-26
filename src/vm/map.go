@@ -3,6 +3,7 @@ package vm
 import (
 	"bytes"
 	"errors"
+	"log"
 	"math/big"
 )
 
@@ -29,8 +30,12 @@ func MapFromBigInt(m big.Int) (Map, error) {
 	return Map(ba), nil
 }
 
-func (m *Map) getSize() uint16 {
-	return ByteArrayToUI16((*m)[1:3])
+func (m *Map) getSize() (uint16, error) {
+	value, err := ByteArrayToUI16((*m)[1:3])
+	if err != nil {
+		return 0, errors.New("cannot get size of map")
+	}
+	return value, nil
 }
 
 func (m *Map) setSize(ba []byte) {
@@ -39,13 +44,19 @@ func (m *Map) setSize(ba []byte) {
 }
 
 func (m *Map) IncrementSize() {
-	s := m.getSize()
+	s, err := m.getSize()
+	if err != nil {
+		log.Fatal("could not increment size")
+	}
 	s++
 	m.setSize(UInt16ToByteArray(s))
 }
 
 func (m *Map) DecrementSize() error {
-	s := m.getSize()
+	s, err := m.getSize()
+	if err != nil {
+		log.Fatal("could not decrement size")
+	}
 
 	if s <= 0 {
 		return errors.New("Map size already 0")
@@ -82,12 +93,21 @@ func (m *Map) GetVal(key []byte) ([]byte, error) {
 			return []byte{}, errors.New("no elements in map")
 		}
 
-		sizeOfKey := ByteArrayToUI16((*m)[bai: bai+2])
+		sizeOfKey, err := ByteArrayToUI16((*m)[bai : bai+2])
+
+		if err != nil {
+			return []byte{}, err
+		}
 
 		valueSizeStartIndex := bai + 2 + int(sizeOfKey)
 
 		k := (*m)[bai+2 : valueSizeStartIndex]
-		sizeOfValue := ByteArrayToUI16((*m)[valueSizeStartIndex: valueSizeStartIndex+2])
+
+		sizeOfValue, err := ByteArrayToUI16((*m)[valueSizeStartIndex : valueSizeStartIndex+2])
+		if err != nil {
+			return []byte{}, err
+		}
+
 		valueEndIndex := valueSizeStartIndex + 2 + int(sizeOfValue)
 		v := (*m)[valueSizeStartIndex+2 : valueEndIndex]
 		if bytes.Equal(key, k) {
@@ -114,12 +134,19 @@ func (m *Map) Remove(key []byte) error {
 			return errors.New("no elements in map")
 		}
 
-		sizeOfKey := ByteArrayToUI16((*m)[bai: bai+2])
+		sizeOfKey, err := ByteArrayToUI16((*m)[bai : bai+2])
+		if err != nil {
+			return err
+		}
 
 		valueSizeStartIndex := bai + 2 + int(sizeOfKey)
 
 		k := (*m)[bai+2 : valueSizeStartIndex]
-		sizeOfValue := ByteArrayToUI16((*m)[valueSizeStartIndex: valueSizeStartIndex+2])
+		sizeOfValue, err := ByteArrayToUI16((*m)[valueSizeStartIndex : valueSizeStartIndex+2])
+		if err != nil {
+			return err
+		}
+
 		valueEndIndex := valueSizeStartIndex + 2 + int(sizeOfValue)
 		if bytes.Equal(key, k) {
 			tmp := append([]byte{}, (*m)[:bai]...)

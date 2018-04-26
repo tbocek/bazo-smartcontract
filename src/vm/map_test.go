@@ -16,14 +16,14 @@ func Test_NewMap(t *testing.T) {
 func TestMap_IncerementSize(t *testing.T) {
 	m := NewMap()
 
-	s := ByteArrayToUI16(m[1:3])
-	if s != 0 {
+	s, err := ByteArrayToUI16(m[1:3])
+	if s != 0 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 0 but got %v", s)
 	}
 
 	m.IncrementSize()
-	si := ByteArrayToUI16(m[1:3])
-	if si != 1 {
+	si, err := ByteArrayToUI16(m[1:3])
+	if si != 1 || err != nil {
 		t.Errorf("Invalid Map Size, Expected 1 after increment but got %v", si)
 	}
 }
@@ -31,14 +31,14 @@ func TestMap_IncerementSize(t *testing.T) {
 func TestMap_DecrementSize(t *testing.T) {
 	a := Array([]byte{0x02, 0x02, 0x00})
 
-	s := ByteArrayToUI16(a[1:3])
-	if s != 2 {
+	s, err := ByteArrayToUI16(a[1:3])
+	if s != 2 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 2 but got %v", s)
 	}
 
 	a.DecrementSize()
-	sd := ByteArrayToUI16(a[1:3])
-	if sd != 1 {
+	sd, err := ByteArrayToUI16(a[1:3])
+	if sd != 1 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 1 after decrement but got %v", sd)
 	}
 }
@@ -101,8 +101,9 @@ func TestMap_Remove(t *testing.T) {
 	actual.Append([]byte{0x02, 0x00}, []byte{0x02, 0x02, 0x02})
 	actual.Append([]byte{0x03, 0x00, 0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
 
-	if actual.getSize() != 4 {
-		t.Errorf("Expected map size to be '4' but was '%v'", actual.getSize())
+	size, err := actual.getSize()
+	if size != 4 || err != nil {
+		t.Errorf("Expected map size to be '4' but was '%v'", size)
 	}
 
 	expected := NewMap()
@@ -110,13 +111,14 @@ func TestMap_Remove(t *testing.T) {
 	expected.Append([]byte{0x01}, []byte{0x01, 0x01})
 	expected.Append([]byte{0x03, 0x00, 0x00}, []byte{0x03, 0x03, 0x03, 0x03, 0x03})
 
-	err := actual.Remove([]byte{0x02, 0x00})
+	err = actual.Remove([]byte{0x02, 0x00})
 	if err != nil {
 		t.Errorf("%v", err)
 	}
 
-	if actual.getSize() != 3 {
-		t.Errorf("Expected map size to be '3' but was '%v'", actual.getSize())
+	size, err = actual.getSize()
+	if size != 3 || err != nil {
+		t.Errorf("Expected map size to be '3' but was '%v'", size)
 	}
 
 	if !bytes.Equal(expected, actual) {

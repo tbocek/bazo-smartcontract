@@ -2,6 +2,7 @@ package vm
 
 import (
 	"errors"
+	"log"
 	"math/big"
 )
 
@@ -16,6 +17,11 @@ func NewArray() Array {
 
 func ArrayFromBigInt(arr big.Int) (Array, error) {
 	ba := arr.Bytes()
+
+	if len(ba) == 0 {
+		return Array{}, errors.New("not a valid array")
+	}
+
 	if ba[0] != 0x02 {
 		return Array{}, errors.New("invalid data type supplied")
 	}
@@ -28,8 +34,12 @@ func (a *Array) ToBigInt() big.Int {
 	return arr
 }
 
-func (a *Array) getSize() uint16 {
-	return ByteArrayToUI16((*a)[1:3])
+func (a *Array) getSize() (uint16, error) {
+	value, err := ByteArrayToUI16((*a)[1:3])
+	if err != nil {
+		return 0, errors.New("cannot get size of array")
+	}
+	return value, nil
 }
 
 func (a *Array) setSize(ba []byte) {
@@ -38,13 +48,19 @@ func (a *Array) setSize(ba []byte) {
 }
 
 func (a *Array) IncrementSize() {
-	s := a.getSize()
+	s, err := a.getSize()
+	if err != nil {
+		log.Fatal("could not increase size")
+	}
 	s++
 	a.setSize(UInt16ToByteArray(s))
 }
 
 func (a *Array) DecrementSize() error {
-	s := a.getSize()
+	s, err := a.getSize()
+	if err != nil {
+		log.Fatal("could not decrement size")
+	}
 
 	if s <= 0 {
 		return errors.New("Array size already 0")
@@ -102,7 +118,12 @@ func (a *Array) Remove(index uint16) error {
 func (a *Array) goToIndex(index uint16, f action) ([]byte, error) {
 	var offset uint16 = 3
 
-	if a.getSize() < index {
+	size, err := a.getSize()
+	if err != nil {
+		return []byte{}, err
+	}
+
+	if size < index {
 		return []byte{}, errors.New("array index out of bounds")
 	}
 
@@ -112,7 +133,12 @@ func (a *Array) goToIndex(index uint16, f action) ([]byte, error) {
 
 	var indexOnByteArrray uint16 = offset
 	for ; indexOnByteArrray < uint16(len(*a)) && currentElement <= index; currentElement++ {
-		elementSize := ByteArrayToUI16((*a)[indexOnByteArrray : indexOnByteArrray+2])
+		elementSize, err := ByteArrayToUI16((*a)[indexOnByteArrray : indexOnByteArrray+2])
+
+		if err != nil {
+			return []byte{}, err
+		}
+
 		if currentElement == index {
 			result, err := f(a, indexOnByteArrray, elementSize)
 			return result, err

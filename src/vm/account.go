@@ -3,7 +3,7 @@ package vm
 import "math/big"
 
 type ContractAccount struct {
-	Address            [64]byte
+	Address            [32]byte
 	Balance            uint64
 	TxCnt              uint64
 	IsStaking          bool
@@ -13,7 +13,7 @@ type ContractAccount struct {
 	ContractVariables  []big.Int // Additional to standard account
 }
 
-func NewContractAccount(address [64]byte, balance uint64, isStaking bool, hashedSeed [32]byte, code []byte) ContractAccount {
+func NewContractAccount(address [32]byte, balance uint64, isStaking bool, hashedSeed [32]byte, code []byte) ContractAccount {
 	newSC := ContractAccount{
 		address,
 		balance,

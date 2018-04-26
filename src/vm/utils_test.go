@@ -23,7 +23,11 @@ func TestUtils_ByteArrayToUI16(t *testing.T) {
 	ba := []byte{0xFF, 0xFF}
 	var ui16max uint16 = 65535
 
-	r := ByteArrayToUI16(ba)
+	r, err := ByteArrayToUI16(ba)
+
+	if err != nil {
+		t.Error(err)
+	}
 
 	if r != ui16max {
 		t.Errorf("Expected result to be 65535 but was %v", r)
@@ -32,13 +36,23 @@ func TestUtils_ByteArrayToUI16(t *testing.T) {
 
 func TestUtils_UI16AndByteArrayConversions(t *testing.T) {
 	ba := UInt16ToByteArray(15)
-	r := ByteArrayToUI16(ba)
+	r, err := ByteArrayToUI16(ba)
+
+	if err != nil {
+		t.Error(err)
+	}
+
 	if r != 15 {
 		t.Errorf("Expected result to be 15 but was %v", r)
 	}
 
 	ba2 := UInt16ToByteArray(65535)
-	r2 := ByteArrayToUI16(ba2)
+	r2, err := ByteArrayToUI16(ba2)
+
+	if err != nil {
+		t.Error(err)
+	}
+
 	if r2 != 65535 {
 		t.Errorf("Expected result to be 65535 but was %v", r)
 	}

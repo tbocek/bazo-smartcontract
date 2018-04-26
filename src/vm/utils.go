@@ -7,6 +7,8 @@ import (
 	"math/big"
 	rand2 "math/rand"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const UINT16_MAX uint16 = 65535
@@ -23,8 +25,11 @@ func UInt16ToByteArray(element uint16) []byte {
 	return ba
 }
 
-func ByteArrayToUI16(element []byte) uint16 {
-	return binary.LittleEndian.Uint16(element)
+func ByteArrayToUI16(element []byte) (uint16, error) {
+	if len(element) != 2 {
+		return 0, errors.New("not a valid uint16 representation")
+	}
+	return binary.LittleEndian.Uint16(element), nil
 }
 
 func StrToBigInt(element string) big.Int {

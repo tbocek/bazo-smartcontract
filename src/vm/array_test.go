@@ -17,14 +17,14 @@ func TestArray_NewArray(t *testing.T) {
 func TestArray_IncerementSize(t *testing.T) {
 	a := NewArray()
 
-	s := ByteArrayToUI16(a[1:3])
-	if s != 0 {
+	s, err := ByteArrayToUI16(a[1:3])
+	if s != 0 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 0 but got %v", s)
 	}
 
 	a.IncrementSize()
-	si := ByteArrayToUI16(a[1:3])
-	if si != 1 {
+	si, err := ByteArrayToUI16(a[1:3])
+	if si != 1 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 1 after increment but got %v", si)
 	}
 }
@@ -32,14 +32,14 @@ func TestArray_IncerementSize(t *testing.T) {
 func TestArray_DecrementSize(t *testing.T) {
 	a := Array([]byte{0x02, 0x02, 0x00})
 
-	s := ByteArrayToUI16(a[1:3])
-	if s != 2 {
+	s, err := ByteArrayToUI16(a[1:3])
+	if s != 2 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 2 but got %v", s)
 	}
 
 	a.DecrementSize()
-	sd := ByteArrayToUI16(a[1:3])
-	if sd != 1 {
+	sd, err := ByteArrayToUI16(a[1:3])
+	if sd != 1 || err != nil {
 		t.Errorf("Invalid Array Size, Expected 1 after decrement but got %v", sd)
 	}
 }
@@ -122,7 +122,8 @@ func TestArray_Append(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if a.getSize() != 1 {
-		t.Errorf("Invalid Array Size, Expected 1 after append but got %v", a.getSize())
+	size, err := a.getSize()
+	if size != 1 || err != nil {
+		t.Errorf("Invalid Array Size, Expected 1 after append but got %v", size)
 	}
 }
