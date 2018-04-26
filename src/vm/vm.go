@@ -749,17 +749,24 @@ func (vm *VM) Exec(trace bool) bool {
 		case ARRAPPEND:
 			v, verr := vm.evaluationStack.Pop()
 			a, aerr := vm.evaluationStack.Pop()
+
 			if aerr != nil {
 				vm.evaluationStack.Push(StrToBigInt(aerr.Error()))
 				return false
 			}
+
 			if verr != nil {
 				vm.evaluationStack.Push(StrToBigInt(verr.Error()))
 				return false
 			}
 
-			arr := Array(a.Bytes())
-			err := arr.Append(v)
+			arr, err := ArrayFromBigInt(a)
+			if err != nil {
+				vm.evaluationStack.Push(StrToBigInt(err.Error()))
+				return false
+			}
+
+			err = arr.Append(v)
 			if err != nil {
 				vm.evaluationStack.Push(StrToBigInt("Invalid argument size of ARRAPPEND"))
 				return false

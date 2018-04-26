@@ -2,7 +2,6 @@ package vm
 
 import (
 	"bytes"
-	"fmt"
 	"math/big"
 	"testing"
 )
@@ -907,7 +906,7 @@ func TestVM_Exec_ArrInsert(t *testing.T){
 
 	vm := NewVM()
 	vm.context.ContractAccount.Contract = code
-	exec := vm.Exec(true)
+	exec := vm.Exec(false)
 	if !exec {
 		errorMessage, _ := vm.evaluationStack.Pop()
 		t.Errorf("VM.Exec terminated with Error: %v", BigIntToString(errorMessage))
@@ -1172,85 +1171,13 @@ func TestVM_Exec_FunctionCallSub(t *testing.T) {
 		0, 16, // Function hash
 	}
 
-	vm.Exec(true)
+	vm.Exec(false)
 
 	tos, _ := vm.evaluationStack.Pop()
 
 	if tos.Uint64() != 3 {
 		t.Errorf("Expected tos to be '3' error message but was %v", tos)
 	}
-}
-
-func TestVM_Exec_ParsedFromParserFunction1(t *testing.T) {
-	code := []byte{
-		DUP,
-		PUSH, 0, 1,
-		EQ,
-		JMPIF, 24,
-		DUP,
-		PUSH, 0, 2,
-		EQ,
-		JMPIF, 27,
-		HALT,
-		POP,
-		ADD,
-		HALT,
-		POP,
-		SUB,
-		HALT,
-	}
-
-	vm := NewVM()
-	vm.context.ContractAccount.Contract = code
-	vm.context.MaxGasAmount = 300
-
-	vm.context.TransactionData = []byte{
-		PUSH, 0, 2,
-		PUSH, 0, 5,
-		PUSH, 0, 1, // Function hash
-	}
-
-	vm.Exec(true)
-
-	tos, _ := vm.evaluationStack.Pop()
-
-	fmt.Println(tos)
-}
-
-func TestVM_Exec_ParsedFromParserFunction(t *testing.T) {
-	code := []byte{
-		DUP,
-		PUSH, 0, 1,
-		EQ,
-		JMPIF, 24,
-		DUP,
-		PUSH, 0, 2,
-		EQ,
-		JMPIF, 27,
-		HALT,
-		POP,
-		ADD,
-		HALT,
-		POP,
-		SUB,
-		HALT,
-	}
-
-	vm := NewVM()
-	vm.context.ContractAccount.Contract = code
-	vm.context.MaxGasAmount = 300
-
-	vm.context.TransactionData = []byte{
-		PUSH, 0, 2,
-		PUSH, 0, 5,
-		PUSH, 0, 2, // Function hash
-	}
-
-	vm.Exec(true)
-
-	tos, _ := vm.evaluationStack.Pop()
-
-	fmt.Println(tos)
 }
 
 func TestVM_Exec_FunctionCall(t *testing.T) {
@@ -1285,7 +1212,7 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 		0, 19, // Function hash
 	}
 
-	vm.Exec(true)
+	vm.Exec(false)
 
 	tos, _ := vm.evaluationStack.Pop()
 
@@ -1295,7 +1222,6 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 }
 
 func TestVM_Exec_GithubIssue13(t *testing.T) {
-
 	code := []byte{
 		ADDRESS, ARRAT,
 	}
@@ -1304,13 +1230,47 @@ func TestVM_Exec_GithubIssue13(t *testing.T) {
 
 	vm.context.ContractAccount.Contract = code
 	vm.context.MaxGasAmount = 300
-	vm.Exec(true)
+	vm.Exec(false)
 
 	tos, _ := vm.evaluationStack.Pop()
 
-	fmt.Println(BigIntToString(tos))
-
 	if BigIntToString(tos) != "instructionSet out of bounds" {
 		t.Errorf("instructionSet out of bounds %v", tos)
+	}
+}
+
+func TestVm_Exec_FuzzReproduction_ContextOpCode1(t *testing.T) {
+	code := []byte{
+		CALLER, CALLER, ARRAPPEND,
+	}
+
+	vm := NewVM()
+
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "not a valid array" {
+		t.Errorf("not a valid array %v", tos)
+	}
+}
+
+func TestVm_Exec_FuzzReproduction_ContextOpCode2(t *testing.T) {
+	code := []byte{
+		ADDRESS, CALLER, 39,
+	}
+
+	vm := NewVM()
+
+	vm.context.ContractAccount.Contract = code
+	vm.context.MaxGasAmount = 300
+	vm.Exec(false)
+
+	tos, _ := vm.evaluationStack.Pop()
+
+	if BigIntToString(tos) != "not a valid array" {
+		t.Errorf("not a valid array %v", tos)
 	}
 }
