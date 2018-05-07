@@ -1,7 +1,6 @@
 package vm
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 )
@@ -75,8 +74,6 @@ func TestStack_PopIndexAt(t *testing.T) {
 	s.Push(*big.NewInt(int64(6)))
 	element, _ := s.PopIndexAt(2)
 
-	fmt.Println(s)
-
 	if s.GetLength() != 3 {
 		t.Errorf("Expected Stack with size 3 but got %v", s.GetLength())
 	}
@@ -109,8 +106,6 @@ func TestStack_PushAndPopElement(t *testing.T) {
 	if s.GetLength() != 1 {
 		t.Errorf("Expected size to be 1 but was %v", s.GetLength())
 	}
-
-	fmt.Print(s)
 }
 
 func TestStack_MemoryUsage(t *testing.T) {
