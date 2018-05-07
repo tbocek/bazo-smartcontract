@@ -1185,20 +1185,20 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 		// start ABI
 		CALLDATA,
 		DUP,
-		PUSH, 0, 16,
+		PUSH, 0, 1, // Function hash
 		EQ,
 		JMPIF, 16,
 		DUP,
-		PUSH, 0, 19,
+		PUSH, 0, 2, // Function hash
 		EQ,
 		JMPIF, 19,
 		HALT,
 		// end ABI
 		POP,
-		SUB,
+		ADD,
 		HALT,
 		POP,
-		ADD,
+		SUB,
 		HALT,
 	}
 
@@ -1209,7 +1209,7 @@ func TestVM_Exec_FunctionCall(t *testing.T) {
 	vm.context.TransactionData = []byte{
 		0, 2,
 		0, 5,
-		0, 19, // Function hash
+		0, 1, // Function hash
 	}
 
 	vm.Exec(false)

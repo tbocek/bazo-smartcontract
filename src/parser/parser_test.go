@@ -34,8 +34,8 @@ func TestParser_ProgrammFunctionCall(t *testing.T) {
 	instructionCode := Parse(contractAsString)
 	fmt.Println(instructionCode)
 
-	if !bytes.Equal(instructionCode, []byte{0, 1, 217, 228, 0, 0, 5, 21, 12, 2, 45, 27, 0, 27, 1, 4, 23}) {
-		t.Errorf("Expected tos to be '0, 1, 217, 228, 0, 0, 5, 21, 12, 2, 45, 27, 0, 27, 1, 4, 23' error message but was %v", instructionCode)
+	if !bytes.Equal(instructionCode, []byte{0, 1, 217, 228, 0, 0, 5, 21, 11, 2, 45, 27, 0, 27, 1, 4, 23}) {
+		t.Errorf("Expected tos to be '0, 1, 217, 228, 0, 0, 5, 21, 11, 2, 45, 27, 0, 27, 1, 4, 23' error message but was %v", instructionCode)
 	}
 }
 

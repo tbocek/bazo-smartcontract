@@ -103,7 +103,7 @@ func Tokenize(sourceCode string) ([][]Token, map[string]int) {
 		}
 
 		if firstWord[len(firstWord)-1:] == ":" {
-			labels[firstWord[:len(firstWord)-1]] = addressCounter - 1
+			labels[firstWord[:len(firstWord)-1]] = addressCounter - 2
 			continue
 		}
 
