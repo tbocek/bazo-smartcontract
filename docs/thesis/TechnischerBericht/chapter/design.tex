@@ -1,0 +1,148 @@
+\chapter{Design}
+\thispagestyle{main} % Needed for Footer and Header on Chapterpage
+This is the big picture overview over our project. Here technologies, abstractions and layers are described to give an overview over our project.
+
+\section{Overview}
+Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
+
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=\textwidth]{./images/execution-cycle}
+	\caption{Virtual machine execution cycle}
+	\label{vmexecutioncycle}
+	\end{center}
+\end{figure}
+
+\section{Virtual machine}
+The VM interprets the byte code.
+
+\subsection{Types of virtual machines}
+There are two types of virtual machines. On the one hand there are register-based virtual machines.
+\begin{description}
+  \item[Register based] ...
+  \item[Stack based] ...
+\end{description}
+
+\subsection{VM instruction cycle}
+The instruction cycle of a VM can be split in three steps:
+\begin{description}
+  \item[Fetch] ...
+  \item[Decode] ...
+  \item[Execute] ...
+\end{description}
+
+% TODO add source to vm, write more about vm
+
+\section{Accounts}
+Accounts are the result of processing an account transaction. They are object on the heap of the miner. The bazo miner already had the transaction type to create accounts by design.
+
+\subsection{Externally owned accounts}
+Externally owned accounts are accounts that are owned by the person which has access to the combination of the public and private key. Having both the person is able to execute transaction subtracting the balance. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier.
+
+\subsection{Smart contract accounts}
+Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction.
+
+\begin{description}
+  \item[Contract] This field contains the smart contract.
+  \item[ContractVariables] This field contains the state variables that can be altered by contract functions.
+\end{description}
+
+\section{Smart contracts}
+Smart contracts are programs that are stored on the blockchain. A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed through a transaction (AccTx). Calling a certain function is also made through a transaction (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in a designated data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
+
+\subsection{Coding smart contracts}
+Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity is being developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts.
+
+\subsubsection{Sample smart contact in Solidity}
+\begin{lstlisting}[caption={Solidity contract},captionpos=b,label={lst:dialogex}]
+contract MyFirstContract {
+  uint myData; //State variable
+
+  function set(uint x) public {
+    myData = x;
+  }
+
+  function add(uint amount) public {
+    myData += amount;
+  }
+
+  function sub(uint amount) public {
+    myData -= amount;
+  }
+
+  function get() public constant returns (uint) {
+    return myData;
+  }
+}	
+\end{lstlisting}
+
+This contract has the state variable myData. Calling the function set() with an uint parameter sets the variable. Calling the function add or sub allows the transaction sender to either add or subtract a certain amount from that variable. In order to call a function a transaction must be executed.
+
+\subsubsection{Sample smart contract in bazo-vm byte code instructions}
+Compiled Smart Contract with ABI would look like this:
+\begin{lstlisting}[caption={Bazo-VM byte code instruction contract},captionpos=b,label={lst:dialogex}]
+CALLDATA        # Puts the arguments passed to the smart contract
+                # and the function hash on top of stack
+# ABI:
+DUP
+PUSH set
+EQ
+JMPIF set
+
+DUP
+PUSH add
+EQ
+JMPIF add
+
+DUP
+PUSH sub
+EQ
+JMPIF sub
+
+HALT
+
+:set            # set function
+SSTORE myData   # stores the variable in ContractVariables
+HALT
+
+:add            # add function
+POP
+SLOAD myData    # loads the variable and puts a local copy on the stack
+ADD
+SSTORE myData   # overwrites the variable in ContractVariables
+HALT
+
+:sub            # sub function
+...	
+\end{lstlisting}
+
+\section{Execution context}
+With data coming from the transaction, the account and the miner the Execution Context is composed. The Execution Context contains all the data needed to start the execution cycle. Every field is needed and/or can be used by the virtual machine. We use the pattern parameterize from above and encapsulate copies of all the variables we want to access in a context object.
+
+Providing specific byte code instructions that put the value of a certain field on the top of the stack smart contract, functions that for instance can only be called by the owner of the smart contract account or functions that only can be executed if the balance is enough can be created.
+
+\subsection{Data from transaction}
+\begin{description}
+  \item[Sender] The sender field shows the transactions sender public address.
+  \item[Fee] The maximum price the transaction can cost.
+  \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
+  \item[Amount] This field shows the amount of bazo units send in this transaction.
+\end{description}
+
+\subsection{Data from account}
+\begin{description}
+  \item[Issuer/Owner] This field contains the public address of the account owner.
+  \item[Balance] This field contains the amount of coins this account owns.
+  \item[Contract] This field is the smart contract itself and contains the byte code. The datatype is \texttt{[]byte}, so it can easily be packed into a transaction field.
+  \item[ContractVariables] This field contains the state variables that are changed by executing transactions.
+\end{description}
+
+\subsection{Data from miner}
+\begin{description}
+  \item[Block header] This field is needed for block number/hash
+\end{description}
+
+\section{Fee}
+Running a node in the network carries costs and the node operators want to be compensated. The fee is expressed in the smallest unit of bazo coins available. The cost of execution vary since depending on the complexity of the function the amount of time which the whole network is busy processing differs. Ethereum calculates the cost depending on which instructions (such as ADD known from assembler) are used. In Ethereum and Neo this fee is called gas. Bitcoin calculates the cost depending on the size of the transaction. We combine both concepts with the goal of simplifying the calculation of the execution fee.
+
+The fee is also a way to secure the network. As mentioned before the execution must be deterministic. Using a JUMP instruction (changing the program counter of the execution) a smart contract creator could develop a smart contract function containing an endless-loop, which then he could call, causing the network to jam and not accepting new transactions because the execution doesn't come to an end. With the introduction of gas subtracted with every instruction once no more gas is available the processing of the transaction is aborted.

@@ -1,0 +1,55 @@
+\chapter{Background and related work}
+\thispagestyle{main} % Needed for Footer and Header on Chapterpage
+This bachelor thesis is focused on the implementation of Smart Contracts into the BAZO blockchain.
+\section{Related work}
+The following section either introduces the tools and technologies used in bazo or references explanations of previous theses in the context of the bazo-blockchain. Also the theses of other students working on the bazo-blockchain are referenced.
+
+\subsection{Bazo environment}
+As of writing this thesis the bazo-blockchain looks as follows:
+% TODO insert image of packages
+
+The bazo-blockchain currently contains the following sub projects:
+\begin{description}
+  \item[Miner] ...
+  \item[Wallet] ...
+  \item[Virtual machine] ...
+  \item[Client] ...
+  \item[Block explorer] ...
+\end{description}
+
+There are also some further small useful tools, liky keygen but they are not further discussed here. The organization on github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}.
+
+Following on the previous work of 
+\begin{itemize}
+	\item lsgie
+	\item etc. during this work a vm was build and then implemented into the existing miner application to execute byte code stored in transactions (smart contracts).
+\end{itemize}
+
+\subsection{Similar existent projects}
+A huge help in being able to reason by analogy were the open source repositories of NEO and Ethereum. We learned a lot by looking through their code and building our own VM with their implementation in mind. Basically all three (BAZO, Ethereum and NEO) are platforms for decentralized applications on the basis of smart contracts. 
+
+\subsubsection{NEO}
+NEO is a blockchain project \frqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth}
+
+\subsubsection{Ethereum}
+The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \frqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth}
+
+\subsubsection{How do they differ from the Bazo Blockchain?}
+As for now, Bazo is just a research project but the goal is also to become a platform for Decentralized Applications.
+
+\section{Background}
+In this section the tools and technologies used to build the bazo-blockchain are explained.
+
+\subsection{Blockchain}
+What is a blockchain and reference livios work for blockchain based cryptocurrencies. Blockchains are basically blocks of data chained together by hashfunctions. The data inside these blocks are transactions. In order to make the non-repudiatable digital signatures are used. The transactions are also validated by a miner. The miner validates the signatures and checks if the assed transmitted by the transaction, usually money actually exists on the account of the other person. Since the bazo-blockchain is also account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of bazo also dive deeper into cryptocurrencies and blockchains [BA lsige, MA chetelat].
+
+Write that bazo blockchain is an account based blockchain.
+
+\subsection{Decentralized applications}
+What is a decentralized application? 
+
+\subsection{Smart contracts}
+
+\subsection{Transactions}
+
+\subsection{Virtual machine}
