@@ -10,11 +10,11 @@ As of writing this thesis the bazo-blockchain looks as follows:
 
 The bazo-blockchain currently contains the following sub projects:
 \begin{description}
-  \item[Miner] ...
-  \item[Wallet] ...
-  \item[Virtual machine] ...
-  \item[Client] ...
-  \item[Block explorer] ...
+  \item[Miner] The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date and contacts other miners about new transactions or blocks.
+  \item[Wallet] 
+  \item[Virtual machine] The virtual machine executes the code of the contract.
+  \item[Client] The client is used to create and send new transactions.
+  \item[Block explorer] The block explorer is used to view transactions.
 \end{description}
 
 There are also some further small useful tools, liky keygen but they are not further discussed here. The organization on github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}.
@@ -27,6 +27,18 @@ Following on the previous work of
 
 \subsection{Similar existent projects}
 A huge help in being able to reason by analogy were the open source repositories of NEO and Ethereum. We learned a lot by looking through their code and building our own VM with their implementation in mind. Basically all three (BAZO, Ethereum and NEO) are platforms for decentralized applications on the basis of smart contracts. 
+
+
+
+\begin{center}
+\begin{tabular}{ |c|c|c| } 
+ \hline
+ Table that compares the different smart contract platforms & cell2 & cell3 \\ \hline
+ cell4 & cell5 & cell6 \\ 
+ cell7 & cell8 & cell9 \\ 
+ \hline
+\end{tabular}
+\end{center}
 
 \subsubsection{NEO}
 NEO is a blockchain project \frqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth}

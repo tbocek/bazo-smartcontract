@@ -1,6 +1,6 @@
 \chapter{Implementation}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-This chapter focuses on explaining why we did what. We describe the trade-offs and decisions we've taken while building the VM, and describe them in a manner that follow up works get a better understanding of why some parts of the VM are implemented in a certain way so that they either are more secure when changing something or to help them reach the same conclusion faster.
+This chapter focuses on explaining why things were implemented in a certain manner. Here the trade-offs and decisions which were taken while building the VM are described in a manner that follow up works get a better understanding of why some parts of the VM are implemented in a certain way so that they either are more certain when changing something or to help them reach the same conclusion faster.
 
 \section{Stack}
 
@@ -27,3 +27,12 @@ Since the VM operates on copies the values will also not be changed by a faulty 
 
 \subsection{opCodes}
 % TODO add opcodes table
+
+\section{Integration}
+
+\subsection{Testing}
+
+\subsubsection{Fuzz Testing}
+To check if the VM fails gracefully, we implemented a fuzz test which creates contracts with random values and then executes them. The VM should then always fail gracefully. 
+
+%insert number of testcoverage
