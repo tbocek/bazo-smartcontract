@@ -1,0 +1,181 @@
+{
+  "type": "Container",
+  "scope": "BAZO miner",
+  "description": "The container diagram for my software system.",
+  "size": "A5_Landscape",
+
+
+  "elements": [
+    {
+      "type": "Software System",
+      "name": "BAZO miner",
+      "description": "",
+      "tags": "",
+      "containers": [
+        {
+          "type": "Container",
+          "name": "miner",
+          "description": "Contains the logic to verify transactions.",
+          "technology": "golang",
+          "tags": "",
+          "position": "900,95",
+          "components": []
+        },
+        {
+          "type": "Container",
+          "name": "peer to peer",
+          "description": "Communicates with other miners in a decentralized, unstructured ad hoc peer-to-peer network",
+          "technology": "golang",
+          "tags": "",
+          "position": "900,1190",
+          "components": []
+        },
+        {
+          "type": "Container",
+          "name": "protocol",
+          "description": "Contains the types used throughout the whole application",
+          "technology": "golang",
+          "tags": "",
+          "position": "1685,1185",
+          "components": []
+        },
+        {
+          "type": "Container",
+          "name": "storage",
+          "description": "Stores transactions",
+          "technology": "golang, BoltDB",
+          "tags": "",
+          "position": "905,635",
+          "components": []
+        },
+        {
+          "type": "Container",
+          "name": "vm",
+          "description": "Executes the code of a called smart contract.",
+          "technology": "golang",
+          "tags": "",
+          "position": "1695,95",
+          "components": []
+        }
+      ]
+    },
+    {
+      "type": "Software System",
+      "name": "other miner",
+      "description": "Stores all of the core banking information about customers, accounts, transactions, etc.",
+      "tags": "Internal",
+      "position": "95,630",
+      "containers": []
+    },
+    {
+      "type": "Person",
+      "name": "user",
+      "description": "A user of the blockchain.",
+      "tags": "",
+      "position": "110,1125"
+    }
+  ],
+
+
+  "relationships": [
+    {
+      "source": "miner",
+      "description": "Calls vm to execute contract code",
+      "technology": "",
+      "destination": "vm",
+      "tags": ""
+    },
+    {
+      "source": "peer to peer",
+      "description": "Message exchange",
+      "technology": "http",
+      "destination": "other miner",
+      "tags": ""
+    },
+    {
+      "source": "peer to peer",
+      "description": "Stores unprocessed transactions",
+      "technology": "",
+      "destination": "storage",
+      "tags": ""
+    },
+    {
+      "source": "storage",
+      "description": "Miner gets new transactions from unprocessed transactions pool",
+      "technology": "",
+      "destination": "miner",
+      "tags": ""
+    },
+    {
+      "source": "user",
+      "description": "Sends new transactions",
+      "technology": "http",
+      "destination": "peer to peer",
+      "tags": ""
+    }
+  ],
+
+
+  "styles": [
+    {
+      "type": "element",
+      "tag": "Container",
+      "width": "",
+      "height": "",
+      "background": "#438dd5",
+      "color": "",
+      "fontSize": "",
+      "border": "",
+      "opacity": "",
+      "shape": ""
+    },
+    {
+      "type": "element",
+      "tag": "Database",
+      "width": "",
+      "height": "",
+      "background": "",
+      "color": "",
+      "fontSize": "",
+      "border": "",
+      "opacity": "",
+      "shape": "Cylinder"
+    },
+    {
+      "type": "element",
+      "tag": "Element",
+      "width": "",
+      "height": "",
+      "background": "",
+      "color": "#ffffff",
+      "fontSize": "",
+      "border": "",
+      "opacity": "",
+      "shape": ""
+    },
+    {
+      "type": "element",
+      "tag": "Person",
+      "width": "",
+      "height": "",
+      "background": "#08427b",
+      "color": "",
+      "fontSize": "",
+      "border": "",
+      "opacity": "",
+      "shape": "Person"
+    },
+    {
+      "type": "element",
+      "tag": "Software System",
+      "width": "",
+      "height": "",
+      "background": "#1168bd",
+      "color": "",
+      "fontSize": "",
+      "border": "",
+      "opacity": "",
+      "shape": ""
+    }
+  ]
+}

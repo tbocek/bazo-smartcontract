@@ -1,0 +1,201 @@
+{
+  "type": "System Context",
+  "scope": "miner 1",
+  "description": "The system context diagram for the BAZO Blockchain",
+  "size": "A4_Portrait",
+
+
+  "elements": [
+    {
+      "type": "Software System",
+      "name": "block explorer",
+      "description": "Stores all of the core banking information about users, accounts, transactions, etc.",
+      "tags": "Internal",
+      "position": "1830,900",
+      "containers": []
+    },
+    {
+      "type": "Software System",
+      "name": "client",
+      "description": "Stores all of the core banking information about users, accounts, transactions, etc.",
+      "tags": "Internal",
+      "position": "40,900",
+      "containers": []
+    },
+    {
+      "type": "Software System",
+      "name": "miner 1",
+      "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
+      "tags": "Internal",
+      "position": "940,1450",
+      "containers": []
+    },
+    {
+      "type": "Software System",
+      "name": "miner 2",
+      "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
+      "tags": "Internal",
+      "position": "40,1950",
+      "containers": []
+    },
+    {
+      "type": "Software System",
+      "name": "miner 3",
+      "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
+      "tags": "Internal",
+      "position": "1830,1950",
+      "containers": []
+    },
+    {
+      "type": "Software System",
+      "name": "miner 4",
+      "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
+      "tags": "Internal",
+      "position": "940,2500",
+      "containers": []
+    },
+    {
+      "type": "Person",
+      "name": "user",
+      "description": "A user of the blockchain",
+      "tags": "",
+      "position": "1040,65"
+    },
+    {
+      "type": "Software System",
+      "name": "wallet",
+      "description": "Stores all of the core banking information about users, accounts, transactions, etc.",
+      "tags": "Internal",
+      "position": "940,900",
+      "containers": []
+    }
+  ],
+
+
+  "relationships": [
+    {
+      "source": "block explorer",
+      "description": "Send data",
+      "technology": "http",
+      "destination": "miner 1",
+      "tags": ""
+    },
+    {
+      "source": "client",
+      "description": "Send data",
+      "technology": "http",
+      "destination": "miner 1",
+      "tags": ""
+    },
+    {
+      "source": "miner 1",
+      "description": "Send updates",
+      "technology": "http",
+      "destination": "miner 3",
+      "tags": ""
+    },
+    {
+      "source": "miner 1",
+      "description": "Send updates",
+      "technology": "http",
+      "destination": "miner 2",
+      "tags": ""
+    },
+    {
+      "source": "miner 2",
+      "description": "Send updates",
+      "technology": "http",
+      "destination": "miner 4",
+      "tags": ""
+    },
+    {
+      "source": "miner 2",
+      "description": "",
+      "technology": "",
+      "destination": "miner 3",
+      "tags": ""
+    },
+    {
+      "source": "miner 3",
+      "description": "Send updates",
+      "technology": "http",
+      "destination": "miner 2",
+      "tags": ""
+    },
+    {
+      "source": "miner 3",
+      "description": "Send updates",
+      "technology": "http",
+      "destination": "miner 4",
+      "tags": ""
+    },
+    {
+      "source": "user",
+      "description": "Creates new Transactions",
+      "technology": "http",
+      "destination": "client",
+      "tags": ""
+    },
+    {
+      "source": "user",
+      "description": "Accesses transaction history or current balance of the users account",
+      "technology": "http",
+      "destination": "wallet",
+      "tags": ""
+    },
+    {
+      "source": "user",
+      "description": "Search for specific transactions with the transaction hash",
+      "technology": "http",
+      "destination": "block explorer",
+      "tags": ""
+    },
+    {
+      "source": "wallet",
+      "description": "Send data",
+      "technology": "http",
+      "destination": "miner 1",
+      "tags": ""
+    }
+  ],
+
+
+  "styles": [
+    {
+      "type": "element",
+      "tag": "Person",
+      "width": "",
+      "height": "",
+      "background": "#08427b",
+      "color": "#ffffff",
+      "fontSize": "30",
+      "border": "",
+      "opacity": "",
+      "shape": "Person"
+    },
+    {
+      "type": "relationship",
+      "tag": "Relationship",
+      "position": "",
+      "thickness": "",
+      "width": "",
+      "color": "",
+      "fontSize": "25",
+      "dashed": "",
+      "routing": "Direct",
+      "opacity": ""
+    },
+    {
+      "type": "element",
+      "tag": "Software System",
+      "width": "600",
+      "height": "325",
+      "background": "#0f579f",
+      "color": "#ffffff",
+      "fontSize": "30",
+      "border": "",
+      "opacity": "",
+      "shape": "RoundedBox"
+    }
+  ]
+}
