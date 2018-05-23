@@ -26,7 +26,67 @@ The VM does what it's told to do from the compiled bytecode. If there are any er
 Since the VM operates on copies the values will also not be changed by a faulty contract.
 
 \subsection{opCodes}
-% TODO add opcodes table
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{List of opCodes available}
+\label{opcodes-list}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Instruction} & \textbf{Mnemonic} & \textbf{opCode} & \textbf{Description}                                     \\ \midrule
+Push Bytes           & PUSH              & 0x00            & stack $\leftarrow$ bytes                                            \\
+Duplicate            & DUP               & 0x01            & stack $\leftarrow$ peek1                           \\
+Roll                 & ROLL              & 0x02            & removes element at index and push to ToS           \\
+Pop                  & POP               & 0x03            & pops ToS                                                 \\
+Add                  & ADD               & 0x04            & stack $\leftarrow$ pop1 \+ pop2                                      \\
+Subtract             & SUB               & 0x05            & stack $\leftarrow$ pop1 \- pop2                                      \\
+Multiply             & MULT              & 0x06            & stack $\leftarrow$ pop1 \* pop2                                      \\
+Divide               & DIV               & 0x07            & stack $\leftarrow$ pop1 \/ pop2                                      \\
+Modulo               & MOD               & 0x08            & stack $\leftarrow$ pop1 \% pop2                                     \\
+Negate               & NEG               & 0x09            & stack $\leftarrow$ todo                                             \\
+Equals               & EQ                & 0x0a            & stack $\leftarrow$ 1 if pop1 == pop2, 0 otherwise                   \\
+Not equal            & NEQ               & 0x0b            & stack $\leftarrow$ 1 if pop1 != pop2, 0 otherwise                   \\
+Lower than           & LT                & 0x0c            & stack $\leftarrow$ 1 if pop1 \textless{} pop2, 0 otherwise            \\
+Greater than         & GT                & 0x0d            & stack $\leftarrow$ 1 if pop1 \textgreater{} pop2, 0 otherwise         \\
+Lower than/equals    & LTE               & 0x0e            & stack $\leftarrow$ 1 if pop1 \textless{}= pop2, 0 otherwise         \\
+Greater than/equals  & GTE               & 0x0f            & stack $\leftarrow$ 1 if pop1 \textgreater{}= pop2, 0 otherwise      \\
+Shift left           & SHIFTL            & 0x10            & stack $\leftarrow$ pop 1 \textless{}\textless nrOfShifts            \\
+Shift right          & SHIFTR            & 0x11            & stack $\leftarrow$ pop 1 \textgreater{}\textgreater nrOfShifts      \\
+No operation         & NOP               & 0x12            & does nothing                                             \\
+Jump                 & JMP               & 0x13            & jump to address                                          \\
+Jump if true         & JMPIF             & 0x14            & jumps to address if pop1 == 1                            \\
+Call                 & CALL              & 0x15            & call a function                                          \\
+Call if true         & CALLIF            & 0x16            & calls a function if pop1 == 1                            \\
+Call external        & CALLEXT           & 0x17            & calls function from external smart contract              \\
+Return               & RET               & 0x18            & returns from function                                    \\
+Size of ToS          & SIZE              & 0x19            & stack $\leftarrow$ size(pop1)                                       \\
+Store                & STORE             & 0x1a            & stores pop1 in callStack                                 \\
+State Store          & SSTORE            & 0x1b            & stores pop1 in contractVariables                         \\
+Load                 & LOAD              & 0x1c            & stack $\leftarrow$ var from callStack
+    \\
+State Load           & SLOAD             & 0x1d            & stack $\leftarrow$ receiver var from contractVariables \\
+Address              & ADDRESS           & 0x1e            & stack $\leftarrow$ receiver account address                         \\
+Balance              & BALANCE           & 0x1f            & stack $\leftarrow$ receiver account balance                         \\
+Caller               & CALLER            & 0x20            & stack $\leftarrow$ contract caller                                  \\
+Call value           & CALLVAL           & 0x21            & stack $\leftarrow$ transaction amount in bazo coins                 \\
+Call data            & CALLDATA          & 0x22            & stack $\leftarrow$ transaction data                                 \\
+New map              & NEWMAP            & 0x23            & stack $\leftarrow$ new map                                          \\
+Map push             & MAPPUSH           & 0x24            & stack $\leftarrow$ add entry to map                                 \\
+Map get value        & MAPGETVAL         & 0x25            & todo                                                     \\
+Map set value        & MAPSETVAL         & 0x26            & todo                                                     \\
+Map remove           & MAPREMOVE         & 0x27            & todo                                                     \\
+New array            & NEWARR            & 0x28            & stack $\leftarrow$ new array                                        \\
+Array append         & ARRAPPEND         & 0x29            & todo                                                     \\
+Array insert         & ARRINSERT         & 0x2a            & todo                                                     \\
+Array remove         & ARRREMOVE         & 0x2b            & todo                                                     \\
+Array index at       & ARRAT             & 0x2c            & todo                                                     \\
+SHA3 Hashing         & SHA3              & 0x2d            & stack $\leftarrow$ SHA3\_HASH(pop 1)                                \\
+Check signature      & CHECKSIG          & 0x2e            & todo                                                     \\
+Halt with error      & ERRHALT           & 0x2f            & return from Exec() function with false                   \\
+Halt                 & HALT              & 0x30            & return from Exec() function with true                    \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \section{Integration}
 
