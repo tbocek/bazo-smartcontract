@@ -5,8 +5,8 @@ This chapter focuses on explaining why things were implemented in a certain mann
 \section{Contract execution}
 
 \section{VM Package overview}
-As the miner and all other projects are written in golang, for this project also golang is used. 
-At the time of writing this thesis the VM consists of the following classes: 
+As the miner and all other projects are written in golang, for this project also golang is used.
+At the time of writing this thesis the VM consists of the following classes:
 % Insert execution cycle graphic
 
 
@@ -29,23 +29,72 @@ As underlying data structure of "Stack", keeping in mind to keep the code of the
 We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes.
 
 \section{Virtual machine}
-The virtual machine itself is implemented as a switch case where it takes different bytes and determines what has to be executed on each value. 
+The virtual machine itself is implemented as a switch case where it takes different bytes and determines what has to be executed on each value.
 
 
 % TODO insert crc card for vm
 \subsection{opCodes}
-% TODO add opcodes table
-Describe the opcodes, why it is needed and how it can be used in a table
-
-\begin{center}
-\begin{tabular}{ c | c | c }
- \textbf{Instruction} 	& \textbf{Mnemonic} 	& \textbf{Description} \\  \hline
- Push big int				& cell5 							& cell6 \\  
- cell7 & cell8 & cell9    
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{List of opCodes available}
+\label{opcodes-list}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Instruction} & \textbf{Mnemonic} & \textbf{opCode} & \textbf{Description}                                     \\ \midrule
+Push Bytes           & PUSH              & 0x00            & stack $\leftarrow$ bytes                                            \\
+Duplicate            & DUP               & 0x01            & stack $\leftarrow$ peek1                           \\
+Roll                 & ROLL              & 0x02            & removes element at index and push to ToS           \\
+Pop                  & POP               & 0x03            & pops ToS                                                 \\
+Add                  & ADD               & 0x04            & stack $\leftarrow$ pop1 \+ pop2                                      \\
+Subtract             & SUB               & 0x05            & stack $\leftarrow$ pop1 \- pop2                                      \\
+Multiply             & MULT              & 0x06            & stack $\leftarrow$ pop1 \* pop2                                      \\
+Divide               & DIV               & 0x07            & stack $\leftarrow$ pop1 \/ pop2                                      \\
+Modulo               & MOD               & 0x08            & stack $\leftarrow$ pop1 \% pop2                                     \\
+Negate               & NEG               & 0x09            & stack $\leftarrow$ todo                                             \\
+Equals               & EQ                & 0x0a            & stack $\leftarrow$ 1 if pop1 == pop2, 0 otherwise                   \\
+Not equal            & NEQ               & 0x0b            & stack $\leftarrow$ 1 if pop1 != pop2, 0 otherwise                   \\
+Lower than           & LT                & 0x0c            & stack $\leftarrow$ 1 if pop1 \textless{} pop2, 0 otherwise            \\
+Greater than         & GT                & 0x0d            & stack $\leftarrow$ 1 if pop1 \textgreater{} pop2, 0 otherwise         \\
+Lower than/equals    & LTE               & 0x0e            & stack $\leftarrow$ 1 if pop1 \textless{}= pop2, 0 otherwise         \\
+Greater than/equals  & GTE               & 0x0f            & stack $\leftarrow$ 1 if pop1 \textgreater{}= pop2, 0 otherwise      \\
+Shift left           & SHIFTL            & 0x10            & stack $\leftarrow$ pop 1 \textless{}\textless nrOfShifts            \\
+Shift right          & SHIFTR            & 0x11            & stack $\leftarrow$ pop 1 \textgreater{}\textgreater nrOfShifts      \\
+No operation         & NOP               & 0x12            & does nothing                                             \\
+Jump                 & JMP               & 0x13            & jump to address                                          \\
+Jump if true         & JMPIF             & 0x14            & jumps to address if pop1 == 1                            \\
+Call                 & CALL              & 0x15            & call a function                                          \\
+Call if true         & CALLIF            & 0x16            & calls a function if pop1 == 1                            \\
+Call external        & CALLEXT           & 0x17            & calls function from external smart contract              \\
+Return               & RET               & 0x18            & returns from function                                    \\
+Size of ToS          & SIZE              & 0x19            & stack $\leftarrow$ size(pop1)                                       \\
+Store                & STORE             & 0x1a            & stores pop1 in callStack                                 \\
+State Store          & SSTORE            & 0x1b            & stores pop1 in contractVariables                         \\
+Load                 & LOAD              & 0x1c            & stack $\leftarrow$ var from callStack
+    \\
+State Load           & SLOAD             & 0x1d            & stack $\leftarrow$ receiver var from contractVariables \\
+Address              & ADDRESS           & 0x1e            & stack $\leftarrow$ receiver account address                         \\
+Balance              & BALANCE           & 0x1f            & stack $\leftarrow$ receiver account balance                         \\
+Caller               & CALLER            & 0x20            & stack $\leftarrow$ contract caller                                  \\
+Call value           & CALLVAL           & 0x21            & stack $\leftarrow$ transaction amount in bazo coins                 \\
+Call data            & CALLDATA          & 0x22            & stack $\leftarrow$ transaction data                                 \\
+New map              & NEWMAP            & 0x23            & stack $\leftarrow$ new map                                          \\
+Map push             & MAPPUSH           & 0x24            & stack $\leftarrow$ add entry to map                                 \\
+Map get value        & MAPGETVAL         & 0x25            & todo                                                     \\
+Map set value        & MAPSETVAL         & 0x26            & todo                                                     \\
+Map remove           & MAPREMOVE         & 0x27            & todo                                                     \\
+New array            & NEWARR            & 0x28            & stack $\leftarrow$ new array                                        \\
+Array append         & ARRAPPEND         & 0x29            & todo                                                     \\
+Array insert         & ARRINSERT         & 0x2a            & todo                                                     \\
+Array remove         & ARRREMOVE         & 0x2b            & todo                                                     \\
+Array index at       & ARRAT             & 0x2c            & todo                                                     \\
+SHA3 Hashing         & SHA3              & 0x2d            & stack $\leftarrow$ SHA3\_HASH(pop 1)                                \\
+Check signature      & CHECKSIG          & 0x2e            & todo                                                     \\
+Halt with error      & ERRHALT           & 0x2f            & return from Exec() function with false                   \\
+Halt                 & HALT              & 0x30            & return from Exec() function with true                    \\ \bottomrule
 \end{tabular}
-\end{center}
-
-
+\end{table}
 
 \subsection{call stack}
 
@@ -65,12 +114,12 @@ Since the VM operates on copies the values will also not be changed by a faulty 
 
 
 \subsubsection{Fuzz Testing}
-To check if the VM fails gracefully, we implemented a fuzz test which creates contracts with random values and then executes them. The VM should then always fail gracefully. 
+To check if the VM fails gracefully, we implemented a fuzz test which creates contracts with random values and then executes them. The VM should then always fail gracefully.
 
 \subsection{Error handling}
 The VM just processes one operation code after the other.
 
-One of the problems is that it is possible to write bytecode which is not possible for the vm to execute, for example bytecode which tells the vm to push six bytes on the stack when there is only one byte left in the bytecode. This of course means that an error occours somewhere in the vm. In this example of course when trying to fetch the next arguments. It was paid a lot of attention to put guards around such critical sections to avoid calling these with invalid values and define graceful failures with error object  the message of which is later on pushed on the stack of the vm. After that the vm halts. 
+One of the problems is that it is possible to write bytecode which is not possible for the vm to execute, for example bytecode which tells the vm to push six bytes on the stack when there is only one byte left in the bytecode. This of course means that an error occours somewhere in the vm. In this example of course when trying to fetch the next arguments. It was paid a lot of attention to put guards around such critical sections to avoid calling these with invalid values and define graceful failures with error object  the message of which is later on pushed on the stack of the vm. After that the vm halts.
 
 %insert number of testcoverage
 
