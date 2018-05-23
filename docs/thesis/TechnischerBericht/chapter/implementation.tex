@@ -2,6 +2,17 @@
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 This chapter focuses on explaining why things were implemented in a certain manner. Here the trade-offs and decisions which were taken while building the VM are described in a manner that follow up works get a better understanding of why some parts of the VM are implemented in a certain way so that they either are more certain when changing something or to help them reach the same conclusion faster.
 
+\section{Contract execution}
+
+\section{VM Package overview}
+As the miner and all other projects are written in golang, for this project also golang is used. 
+At the time of writing this thesis the VM consists of the following classes: 
+% Insert execution cycle graphic
+
+
+
+
+
 \section{Stack}
 
 % TODO insert crc card for stack
@@ -18,21 +29,49 @@ As underlying data structure of "Stack", keeping in mind to keep the code of the
 We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes.
 
 \section{Virtual machine}
+The virtual machine itself is implemented as a switch case where it takes different bytes and determines what has to be executed on each value. 
 
-% TODO insert crc card for stack
-\subsection{Error handling}
-The VM does what it's told to do from the compiled bytecode. If there are any errors while executing an opCode an error value is provided. The vm pushes the error message on the Stack and halts.
 
-Since the VM operates on copies the values will also not be changed by a faulty contract.
-
+% TODO insert crc card for vm
 \subsection{opCodes}
 % TODO add opcodes table
+Describe the opcodes, why it is needed and how it can be used in a table
+
+\begin{center}
+\begin{tabular}{ c | c | c }
+ \textbf{Instruction} 	& \textbf{Mnemonic} 	& \textbf{Description} \\  \hline
+ Push big int				& cell5 							& cell6 \\  
+ cell7 & cell8 & cell9    
+\end{tabular}
+\end{center}
+
+
+
+\subsection{call stack}
+
+\subsubsection{Datastructures}
+describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
+
+
+\subsection{Context}
+
+\subsection{Sideffects on data}
+
+Since the VM operates on copies the values will also not be changed by a faulty contract.
 
 \section{Integration}
 
 \subsection{Testing}
 
+
 \subsubsection{Fuzz Testing}
 To check if the VM fails gracefully, we implemented a fuzz test which creates contracts with random values and then executes them. The VM should then always fail gracefully. 
 
+\subsection{Error handling}
+The VM just processes one operation code after the other.
+
+One of the problems is that it is possible to write bytecode which is not possible for the vm to execute, for example bytecode which tells the vm to push six bytes on the stack when there is only one byte left in the bytecode. This of course means that an error occours somewhere in the vm. In this example of course when trying to fetch the next arguments. It was paid a lot of attention to put guards around such critical sections to avoid calling these with invalid values and define graceful failures with error object  the message of which is later on pushed on the stack of the vm. After that the vm halts. 
+
 %insert number of testcoverage
+
+\section{Parser}
