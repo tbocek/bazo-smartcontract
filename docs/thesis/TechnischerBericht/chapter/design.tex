@@ -2,7 +2,15 @@
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 This is the big picture overview over our project. Here technologies, abstractions and layers are described to give an overview over our project.
 
-\section{Overview}
+\section{From contract creation to the effects of its execution}
+\subsection{Contract creation}
+A user creates a contract via the client and it's command line interface. There he provides the necessary parameters which include the code of the contract and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
+
+\subsection{Execution of a contract method}
+A user again creates a new transaction, see chapter  to call a contract. He provides the necessary parameters and the hash of the function he wants to call as parameter of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction and that it has parameters in the data field it will find the called contract and execute it's code according to the provided parameters in the data field. Now the user can check the changed properties on the blockchain. 
+\pagebreak
+
+\section{VM Overview}
 Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
 
 \begin{figure}[H]
@@ -13,36 +21,43 @@ Precondition that the VM execution cycle is started is, that the transaction mus
 	\end{center}
 \end{figure}
 
-\section{Virtual machine}
-The VM interprets the byte code. 
+\section{Miner}
 
-\subsection{Types of virtual machines}
-There are two types of virtual machines. On the one hand there are register-based virtual machines.
-\begin{description}
-  \item[Register based] ...
-  \item[Stack based] ...
-\end{description}
+\subsection{Transaction Types} \label{transactionTypes}
 
-\subsection{VM instruction cycle}
-The instruction cycle of a VM can be split in three steps:
-\begin{description}
-  \item[Fetch] ...
-  \item[Decode] ...
-  \item[Execute] ...
-\end{description}
+\cite{ba_client}
 
-% TODO add source to vm, write more about vm
+\begin{minted}
+[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+]
+{go}
+type FundsTx struct {
+	Header byte
+	Amount uint64
+	Fee    uint64
+	TxCnt  uint32
+	From   [32]byte
+	To     [32]byte
+	Sig1   [64]byte
+	Sig2   [64]byte
+	Data   []byte
+}
+\end{minted}
 
-\section{Transaction Types} \label{transactionTypes}
 
 
-\section{Accounts}
+\subsection{Accounts} \label{accounts}
 Accounts are the result of processing an account transaction. They are object on the heap of the miner. The bazo miner already had the transaction type to create accounts by design.
 
-\subsection{Externally owned accounts}
+\subsubsection{Externally owned accounts}
 Externally owned accounts are accounts that are owned by the person which has access to the combination of the public and private key. Having both the person is able to execute transaction subtracting the balance. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier.
 
-\subsection{Smart contract accounts}
+\subsubsection{Smart contract accounts}
 Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction.
 
 \begin{description}
@@ -57,7 +72,18 @@ Smart contracts are programs that are stored on the blockchain. A smart contract
 Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity is being developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts.
 
 \subsubsection{Sample smart contact in Solidity}
-\begin{lstlisting}[caption={Solidity contract},captionpos=b,label={lst:dialogex}]
+%\begin{lstlisting}[caption={Solidity contract},captionpos=b,label={lst:dialogex}]
+	
+%\end{lstlisting}
+\begin{minted}
+[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+]
+{javascript}
 contract MyFirstContract {
   uint myData; //State variable
 
@@ -76,14 +102,25 @@ contract MyFirstContract {
   function get() public constant returns (uint) {
     return myData;
   }
-}	
-\end{lstlisting}
+}
+\end{minted}
+
 
 This contract has the state variable myData. Calling the function set() with an uint parameter sets the variable. Calling the function add or sub allows the transaction sender to either add or subtract a certain amount from that variable. In order to call a function a transaction must be executed.
+\pagebreak
 
 \subsubsection{Sample smart contract in bazo-vm byte code instructions}
 Compiled Smart Contract with ABI would look like this:
-\begin{lstlisting}[caption={Bazo-VM byte code instruction contract},captionpos=b,label={lst:dialogex}]
+%\begin{lstlisting}[caption={Bazo-VM byte code instruction contract},captionpos=b,label={lst:dialogex}]
+\begin{minted}
+[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+]
+{apache}
 CALLDATA        # Puts the arguments passed to the smart contract
                 # and the function hash on top of stack
 # ABI:
@@ -117,7 +154,7 @@ HALT
 
 :sub            # sub function
 ...	
-\end{lstlisting}
+\end{minted}
 
 \section{Execution context}
 With data coming from the transaction, the account and the miner the Execution Context is composed. The Execution Context contains all the data needed to start the execution cycle. Every field is needed and/or can be used by the virtual machine. We use the pattern parameterize from above and encapsulate copies of all the variables we want to access in a context object.
