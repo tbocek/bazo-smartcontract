@@ -101,7 +101,6 @@ Halt                 & HALT              & 0x30            & return from Exec() 
 \subsubsection{Datastructures}
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
 
-
 \subsection{Context}
 
 \subsection{Sideffects on data}
@@ -111,15 +110,16 @@ Since the VM operates on copies the values will also not be changed by a faulty 
 \section{Integration}
 
 \subsection{Testing}
-
+\subsubsection{Test Driven Development}
+The project was implemented with test driven development. 
 
 \subsubsection{Fuzz Testing}
-To check if the VM fails gracefully, we implemented a fuzz test which creates contracts with random values and then executes them. The VM should then always fail gracefully.
+An instruction in a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was fixed it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository and having run it with a billion random contracts over night makes us confident that every bug was found and mitigated.
 
 \subsection{Error handling}
 The VM just processes one operation code after the other.
 
-One of the problems is that it is possible to write bytecode which is not possible for the vm to execute, for example bytecode which tells the vm to push six bytes on the stack when there is only one byte left in the bytecode. This of course means that an error occours somewhere in the vm. In this example of course when trying to fetch the next arguments. It was paid a lot of attention to put guards around such critical sections to avoid calling these with invalid values and define graceful failures with error object  the message of which is later on pushed on the stack of the vm. After that the vm halts.
+One of the problems is that it is possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the byte code. This of course means that an error occurs somewhere in the vm. In this example of course when trying to fetch the next arguments. It was paid a lot of attention to put guards around such critical sections to avoid calling these with invalid values and define graceful failures with error object  the message of which is later on pushed on the stack of the vm. After that the vm halts.
 
 %insert number of testcoverage
 
