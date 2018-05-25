@@ -1,17 +1,6 @@
 \chapter{Design}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-This is the big picture overview over our project. Here technologies, abstractions and layers are described to give an overview over our project.
-
-\section{From contract creation to the effects of its execution}
-\subsection{Contract creation}
-A user creates a contract via the client and it's command line interface. There he provides the necessary parameters which include the code of the contract and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
-
-\subsection{Execution of a contract method}
-A user again creates a new transaction, see chapter  to call a contract. He provides the necessary parameters and the hash of the function he wants to call as parameter of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction and that it has parameters in the data field it will find the called contract and execute it's code according to the provided parameters in the data field. Now the user can check the changed properties on the blockchain. 
-\pagebreak
-
-\section{VM Overview}
-Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
+This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components in one single diagram. All components and entities are described in detail in the following sections.
 
 \begin{figure}[H]
 	\begin{center}
@@ -21,6 +10,63 @@ Precondition that the VM execution cycle is started is, that the transaction mus
 	\end{center}
 \end{figure}
 
+\section{From contract creation to the effects of its execution}
+\subsection{Contract creation}
+A user creates a contract via the client and it's command line interface. There he provides the necessary parameters which include the code of the contract and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
+
+\subsection{Execution of a contract method}
+A user again creates a new transaction, see chapter  to call a contract. He provides the necessary parameters and the hash of the function he wants to call as parameter of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction and that it has parameters in the data field it will find the called contract and execute it's code according to the provided parameters in the data field. Now the user can check the changed properties on the blockchain. 
+\pagebreak
+
+\section{Virtual machine}
+There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR were both stack based virtual machines. 
+\begin{description}
+  \item[Register based] The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
+  \begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=0.5\textwidth]{./images/register-example}
+	\caption{Register based virtual machine}
+	\label{register vm}
+	\end{center}
+  \end{figure}
+  
+  \item[Stack based] A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
+  \begin{minted}	[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+	]
+	{tasm}
+	POP
+	POP
+	ADD
+	PUSH
+  \end{minted}
+  \begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=0.6\textwidth]{./images/stack-example}
+	\caption{Stack based virtual machine}
+	\label{stack vm}
+	\end{center}
+  \end{figure}
+\end{description}
+
+Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO, on which we have oriented ourselves.
+
+\subsection{VM Execution cycle}
+This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}.
+Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
+
+The starting point for the execution cycle of the virtual machine is a set of instructions and an incrementing counter, called the program counter, which points to the instruction that is executed next.
+
+The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs, the execution is halted by an instruction itself or the program counter is out of bounds of the instruction set. All this steps are handled in the \mintinline{go}{Exec()} function. This are the three steps:
+\begin{description}
+  \item[Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
+  \item[Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the execute function.
+  \item[Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcodes-list}.
+\end{description}
 \section{Miner}
 
 \subsection{Transaction Types} \label{transactionTypes}
@@ -48,8 +94,6 @@ type FundsTx struct {
 	Data   []byte
 }
 \end{minted}
-
-
 
 \subsection{Accounts} \label{accounts}
 Accounts are the result of processing an account transaction. They are object on the heap of the miner. The bazo miner already had the transaction type to create accounts by design.
@@ -120,7 +164,7 @@ Compiled Smart Contract with ABI would look like this:
 	fontsize=\footnotesize,
 	linenos
 ]
-{apache}
+{yaml}
 CALLDATA        # Puts the arguments passed to the smart contract
                 # and the function hash on top of stack
 # ABI:
@@ -173,7 +217,7 @@ Providing specific byte code instructions that put the value of a certain field 
 \begin{description}
   \item[Issuer/Owner] This field contains the public address of the account owner.
   \item[Balance] This field contains the amount of coins this account owns.
-  \item[Contract] This field is the smart contract itself and contains the byte code. The datatype is \texttt{[]byte}, so it can easily be packed into a transaction field.
+  \item[Contract] This field is the smart contract itself and contains the byte code. The datatype is \mintinline{yaml}{[]byte}, so it can easily be packed into a transaction field.
   \item[ContractVariables] This field contains the state variables that are changed by executing transactions.
 \end{description}
 
