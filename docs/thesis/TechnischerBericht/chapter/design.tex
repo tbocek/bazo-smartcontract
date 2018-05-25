@@ -31,6 +31,9 @@ There are two types of virtual machines. On the one hand there are register base
   \end{figure}
   
   \item[Stack based] A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
+  \begin{figure}[thp]%
+    \centering
+	\begin{minipage}{0.4\textwidth}
   \begin{minted}	[
 	frame=lines,
 	framesep=2mm,
@@ -44,6 +47,8 @@ There are two types of virtual machines. On the one hand there are register base
 	ADD
 	PUSH
   \end{minted}
+  \end{minipage}
+  \end{figure}
   \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=0.6\textwidth]{./images/stack-example}
@@ -73,27 +78,32 @@ The instruction cycle can be divided into three steps which are repeated over an
 
 \cite{ba_client}
 
-\begin{minted}
-[
+\begin{figure}[thp]%
+    \centering
+	\begin{minipage}{0.4\textwidth}
+	\begin{minted}
+	[
 	frame=lines,
 	framesep=2mm,
 	baselinestretch=1.2,
 	fontsize=\footnotesize,
 	linenos
-]
-{go}
-type FundsTx struct {
-	Header byte
-	Amount uint64
-	Fee    uint64
-	TxCnt  uint32
-	From   [32]byte
-	To     [32]byte
-	Sig1   [64]byte
-	Sig2   [64]byte
-	Data   []byte
-}
-\end{minted}
+	]
+	{go}
+	type FundsTx struct {
+		Header byte
+		Amount uint64
+		Fee    uint64
+		TxCnt  uint32
+		From   [32]byte
+		To     [32]byte
+		Sig1   [64]byte
+		Sig2   [64]byte
+		Data   []byte
+	}
+	\end{minted}
+\end{minipage}
+\end{figure}
 
 \subsection{Accounts} \label{accounts}
 Accounts are the result of processing an account transaction. They are object on the heap of the miner. The bazo miner already had the transaction type to create accounts by design.
@@ -119,6 +129,9 @@ Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or
 %\begin{lstlisting}[caption={Solidity contract},captionpos=b,label={lst:dialogex}]
 	
 %\end{lstlisting}
+\begin{figure}[thp]%
+    \centering
+	\begin{minipage}{0.5\textwidth}
 \begin{minted}
 [
 	frame=lines,
@@ -148,14 +161,17 @@ contract MyFirstContract {
   }
 }
 \end{minted}
-
+\end{minipage}
+\end{figure}
 
 This contract has the state variable myData. Calling the function set() with an uint parameter sets the variable. Calling the function add or sub allows the transaction sender to either add or subtract a certain amount from that variable. In order to call a function a transaction must be executed.
 \pagebreak
 
 \subsubsection{Sample smart contract in bazo-vm byte code instructions}
 Compiled Smart Contract with ABI would look like this:
-%\begin{lstlisting}[caption={Bazo-VM byte code instruction contract},captionpos=b,label={lst:dialogex}]
+\begin{figure}[thp]%
+    \centering
+	\begin{minipage}{0.7\textwidth}
 \begin{minted}
 [
 	frame=lines,
@@ -199,6 +215,8 @@ HALT
 :sub            # sub function
 ...	
 \end{minted}
+\end{minipage}
+\end{figure}
 
 \section{Execution context}
 With data coming from the transaction, the account and the miner the Execution Context is composed. The Execution Context contains all the data needed to start the execution cycle. Every field is needed and/or can be used by the virtual machine. We use the pattern parameterize from above and encapsulate copies of all the variables we want to access in a context object.
