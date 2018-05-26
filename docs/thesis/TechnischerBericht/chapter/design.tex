@@ -1,6 +1,6 @@
 \chapter{Design}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components in one single diagram. All components and entities are described in detail in the following sections.
+This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on, how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Not shown in the diagram is the parser which is also documented in this section.
 
 \begin{figure}[H]
 	\begin{center}
@@ -10,13 +10,117 @@ This chapter outlines the design of the Bazo Virtual Machine and all other compo
 	\end{center}
 \end{figure}
 
-\section{From contract creation to the effects of its execution}
-\subsection{Contract creation}
-A user creates a contract via the client and it's command line interface. There he provides the necessary parameters which include the code of the contract and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
+\section{From contract creation to the effects of execution}
+\subsection{Contract deployment}
+A user creates a contract via the command line interface client. There he provides the necessary parameters which include the code of the contract and the initial state variables and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
 
 \subsection{Execution of a contract method}
-A user again creates a new transaction, see chapter  to call a contract. He provides the necessary parameters and the hash of the function he wants to call as parameter of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction and that it has parameters in the data field it will find the called contract and execute it's code according to the provided parameters in the data field. Now the user can check the changed properties on the blockchain. 
+A user again creates a new transaction, see chapter to call a contract. He provides the necessary parameters and the hash of the function he wants to call in field of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction that the data field is not empty it will find the called contract and execute its code according to the provided parameters in the data field. Now the user can check the updated state on the blockchain. 
 \pagebreak
+
+\section{Miner}
+As mentioned before, the miner is responsible for processing and validating transactions. This sections describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes the changes that have to be made to the miner are documented.
+
+\subsection{Transaction Types} \label{transactionTypes}
+The miner comes with different types of transactions. 
+
+\begin{description}
+	\item[FundsTx] This type of transaction is used to transfer Bazo coins from one account to another.\cite{ba_miner} The Data field was added, since the FundsTx is the ideal type of transaction to call smart contract functions.
+	\begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.6\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{go}
+		type FundsTx struct {
+			Header byte
+			Amount uint64
+			Fee    uint64
+			TxCnt  uint32
+			From   [32]byte
+			To     [32]byte
+			Sig1   [64]byte
+			Sig2   [64]byte
+			Data   []byte
+		}
+		\end{minted}
+		\end{minipage}
+	\end{figure}
+	\item[AccTx] The AccTx is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account.\cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field was added.
+	 \begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.6\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{go}
+		type AccTx struct {
+			Header            byte
+			Issuer            [32]byte
+			Fee               uint64
+			PubKey            [64]byte
+			Sig               [64]byte
+			Contract          []byte
+			ContractVariables []big.Int
+		}
+		\end{minted}
+		\end{minipage}
+	\end{figure}
+	\item[ConfigTx] This type of transaction is used to change system parameters such as block size, block interval or minimum fee. This type of transaction is not discussed any further.
+	\item[StakeTx] Since the Bazo blockchain is in the transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is also not discussed any further.
+\end{description}
+
+\subsection{Accounts} \label{accounts}
+Accounts are the result of processing an account transaction. They are object on the heap of the miner. The Bazo miner already had the transaction type to create accounts by design. There is only one struct for the the two different types of account. This is the struct for account:
+
+\begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.8\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{go}
+		type Account struct {
+			Address            [64]byte  // 64 Byte
+			Issuer             [32]byte  // 32 Byte
+			Balance            uint64    // 8 Byte
+			TxCnt              uint32    // 4 Byte
+			IsStaking          bool      // 1 Byte
+			HashedSeed         [32]byte  // 32 Byte
+			StakingBlockHeight uint32    // 4 Byte
+			Contract           []byte
+			ContractVariables  []big.Int 
+		}
+		\end{minted}
+		\end{minipage}
+\end{figure}
+
+\begin{description}
+	\item[Externally owned accounts] Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transaction from that account. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier. A externally owned account does not have an Issuer, Contract and ContractVariables.
+	\item[Smart contract accounts]
+	Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The issuer shows which externally owned account issued the contract account. A contract account also has both, Contract and ContractVariables field set.
+
+	\begin{description}
+  		\item[Contract] This field contains the smart contract. The data type is byte slice, since a contract can have a variable length and contracts get compiled to byte code.
+  		\item[ContractVariables] This field contains the state variables that can be altered by contract functions. The data type is a slice of big.Int since a contract can have a variable amount of variables.
+	\end{description}
+\end{description}
 
 \section{Virtual machine}
 There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR were both stack based virtual machines. 
@@ -62,68 +166,26 @@ Despite the register based virtual machine having advantages such as more possib
 
 \subsection{VM Execution cycle}
 This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}.
-Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
+The virtual machine is embedded into the miner. Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data field is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
 
 The starting point for the execution cycle of the virtual machine is a set of instructions and an incrementing counter, called the program counter, which points to the instruction that is executed next.
 
 The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs, the execution is halted by an instruction itself or the program counter is out of bounds of the instruction set. All this steps are handled in the \mintinline{go}{Exec()} function. This are the three steps:
 \begin{description}
   \item[Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
-  \item[Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the execute function.
+  \item[Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the execute function. Within this section of the function, the costs for the instruction are deducted. Section \ref{fee} describes why a fee is needed and how it is calculated.
   \item[Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcodes-list}.
 \end{description}
-\section{Miner}
+The \mintinline{go}{Exec()} function returns a boolean. If the return value is true the execution was successful and no error or exception occurred. If the return value is false an error or exception occurred. Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true, this way there is no need to roll back if the contract could not be executed successfully.
 
-\subsection{Transaction Types} \label{transactionTypes}
-
-\cite{ba_client}
-
-\begin{figure}[thp]%
-    \centering
-	\begin{minipage}{0.4\textwidth}
-	\begin{minted}
-	[
-	frame=lines,
-	framesep=2mm,
-	baselinestretch=1.2,
-	fontsize=\footnotesize,
-	linenos
-	]
-	{go}
-	type FundsTx struct {
-		Header byte
-		Amount uint64
-		Fee    uint64
-		TxCnt  uint32
-		From   [32]byte
-		To     [32]byte
-		Sig1   [64]byte
-		Sig2   [64]byte
-		Data   []byte
-	}
-	\end{minted}
-\end{minipage}
-\end{figure}
-
-\subsection{Accounts} \label{accounts}
-Accounts are the result of processing an account transaction. They are object on the heap of the miner. The bazo miner already had the transaction type to create accounts by design.
-
-\subsubsection{Externally owned accounts}
-Externally owned accounts are accounts that are owned by the person which has access to the combination of the public and private key. Having both the person is able to execute transaction subtracting the balance. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier.
-
-\subsubsection{Smart contract accounts}
-Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction.
-
-\begin{description}
-  \item[Contract] This field contains the smart contract.
-  \item[ContractVariables] This field contains the state variables that can be altered by contract functions.
-\end{description}
+\section{Parser}
+Since writing all contracts directly in byte code can be very complicated and time-consuming, we decided to write a very basic parser. The goal of the parser was to make writing contracts easier by providing us with labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} by setting labels as jump markers. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo byte code\frqq.
 
 \section{Smart contracts}
 Smart contracts are programs that are stored on the blockchain. A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed through a transaction (AccTx). Calling a certain function is also made through a transaction (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in a designated data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
 
 \subsection{Coding smart contracts}
-Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity is being developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts.
+Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity is being developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts. In this section a simple contract is written once in Solidity and once in Bazo byte code instructions.
 
 \subsubsection{Sample smart contact in Solidity}
 %\begin{lstlisting}[caption={Solidity contract},captionpos=b,label={lst:dialogex}]
@@ -225,13 +287,13 @@ Providing specific byte code instructions that put the value of a certain field 
 
 \subsection{Data from transaction}
 \begin{description}
-  \item[Sender] The sender field shows the transactions sender public address.
+  \item[Sender/Address] The sender field shows the transactions sender public address.
   \item[Fee] The maximum price the transaction can cost.
   \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
   \item[Amount] This field shows the amount of bazo units send in this transaction.
 \end{description}
 
-\subsection{Data from account}
+\subsection{Data from receiver account}
 \begin{description}
   \item[Issuer/Owner] This field contains the public address of the account owner.
   \item[Balance] This field contains the amount of coins this account owns.
@@ -244,7 +306,7 @@ Providing specific byte code instructions that put the value of a certain field 
   \item[Block header] This field is needed for block number/hash
 \end{description}
 
-\section{Fee}
-Running a node in the network carries costs and the node operators want to be compensated. The fee is expressed in the smallest unit of bazo coins available. The cost of execution vary since depending on the complexity of the function the amount of time which the whole network is busy processing differs. Ethereum calculates the cost depending on which instructions (such as ADD known from assembler) are used. In Ethereum and Neo this fee is called gas. Bitcoin calculates the cost depending on the size of the transaction. We combine both concepts with the goal of simplifying the calculation of the execution fee.
+\section{Fee} \label{fee}
+Running a node in the network carries costs and the node operators want to be compensated. The fee is expressed in the smallest unit of bazo coins available. The cost of execution vary since depending on the complexity of the function the amount of time which the whole network is busy processing differs. Ethereum calculates the cost depending on which instructions (such as \mintinline{yaml}{ADD} known from assembler) are used. In Ethereum and Neo this fee is called gas. Bitcoin calculates the cost depending on the size of the transaction. We combine both concepts with the goal of simplifying the calculation of the execution fee.
 
 The fee is also a way to secure the network. As mentioned before the execution must be deterministic. Using a JUMP instruction (changing the program counter of the execution) a smart contract creator could develop a smart contract function containing an endless-loop, which then he could call, causing the network to jam and not accepting new transactions because the execution doesn't come to an end. With the introduction of gas subtracted with every instruction once no more gas is available the processing of the transaction is aborted.
