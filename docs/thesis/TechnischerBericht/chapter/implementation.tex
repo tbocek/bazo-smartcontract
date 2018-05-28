@@ -2,13 +2,25 @@
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 This chapter focuses on explaining why things were implemented in a certain manner. Here the trade-offs and decisions which were taken while building the VM are described in a manner that follow up works get a better understanding of why some parts of the VM are implemented in a certain way so that they either are more certain when changing something or to help them reach the same conclusion faster.
 
+\section{Software architecture}
+Figure \ref{package overview} shows the structure of the project on package-level and the dependencies among them. The miner application was built with software engineering principles in mind. Particular attention was paid to modularity. This made it easy to integrate the virtual machine into the existing miner application. Furthermore the following figure shows which packages were added and which where modified to successfully integrate the execution of smart contracts into the Bazo blockchain.
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=0.7\textwidth]{./images/package-diagram}
+	\includegraphics[width=0.9\textwidth]{./images/package-diagram}
 	\caption{UML Package Diagram}
 	\label{package overview}
 	\end{center}
   \end{figure}
+  
+\begin{description}
+	\item[Protocol] This package contains the building blocks for the Bazo blockchain. In particular it contains the structure, encoding, decoding and hashing functions of all transaction types, blocks and accounts. In addition a transaction interface is defined, allowing an abstract treatment of transactions. \cite{ba_miner}
+	\item[Miner] The miner package contains all mining related components. That includes the validation and consolidation of transactions into blocks, the calculation of the consensus mechanism and the building of the merkle tree. In addition to that, blockchain related tasks itself such as rollback operation and state changes are contained in this package. Access to P2P and Storage packages are needed in order to handle transactions over the network and signal storage-related operations. \cite{ba_miner} To execute the virtual machine and access its results, the miner also needs access to the VM package.
+	\item[VM] This package contains the virtual machine itself and all its components, namely the evaluation stack, the call stack, implementations of data structures that can be used by the virtual machine such as array and map and all available opcodes. 
+	\item[P2P] All networking related operations are implemented in the P2P package \cite{ba_miner}. Since for the integration of the virtual machine nothing had to be changed, the content of this package is not discussed any further.
+	\item[Storage] The storage package is concerned with memory-related tasks. The lower-level functionality was implemented with the external BoltDB package. Since entries are encoded before writing to storage and decoded when loaded \cite{ba_miner}, this package could be left unaltered. For that reason, this package is also not described further.
+	\item[BoltDB] This package shows the BoltDB package which is an external dependency. BoltDB is a simple, lightweight key/value base. \cite{ba_miner}
+	\item[Parser] The Parser package contains the parser, which consists of a Tokenize and Parse function and tokens. This components are needed to compile \flqq Enhanced Bazo byte code\frqq{ } to a byte code instruction set that can be interpreted by the virtual machine. This package is completely stand-alone and does not have any dependencies. The package is also kept in a separate repository.
+\end{description}
 
 \section{Contract execution}
 
