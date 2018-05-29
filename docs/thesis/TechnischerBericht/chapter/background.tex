@@ -1,12 +1,30 @@
 \chapter{Background and related work}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 The following section either introduces the tools and technologies used in bazo or references explanations of previous theses in the context of the bazo-blockchain. Furthermore the theses of other students working on the bazo-blockchain are referenced.
+
+\section{Background}
+In this section the tools and technologies used to build the bazo-blockchain are explained.
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\textbf{Blockchain} & 
+A Blockchain is basically blocks of data chained together by hashing functions. The data inside these blocks are transactions. In order to make the non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the bazo-blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains \cite{ba_miner} \cite{ba_client}  \\ \\
+
+\raggedright
+\textbf{Smart contracts} &
+A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction an is executed by the miner. \\ \\
+
+\textbf{Transactions} &
+In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As explained in \autoref{sec:transactionTypes}
+there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account. \\ \\
+
+\raggedright
+\textbf{Virtual machine} &
+A process virtual machine is an abstraction layer on top of an operating system which abstracts the formulation of the problem from the code that is actually run on a machine in order to make the formulation platform independent. \\ \\
+\end{tabular}
 \pagebreak
 
 \section{Related work}
-At the time of writing the thesis the bazo-blockchain contains the software systems as described in the following system context diagram \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. In \ref{systemcontextdiagram} multiple miner instances are displayed to represent the blockchain and to describe how the miner interact with eachother.
-
-\vfill
+At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{bazo-blockchain github organization}. contains the software systems as described in the following system context diagram \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. In \ref{systemcontextdiagram} multiple miner instances are displayed to represent the blockchain and to describe how the miner interact with eachother.
 
 \begin{figure}[H]
 	\begin{center}
@@ -17,14 +35,25 @@ At the time of writing the thesis the bazo-blockchain contains the software syst
 \end{figure}
 \pagebreak
 
-The bazo-blockchain currently contains the following sub projects:
-\begin{description}
-  \item[Miner] The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date and contacts other miners about new transactions or blocks.
-  \item[Wallet] 
-  \item[Virtual machine] The virtual machine executes the code of the contract.
-  \item[Client] The client is used to create and send new transactions.
-  \item[Block explorer] The block explorer is used to view transactions.
-\end{description}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\textbf{Miner} &
+The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date and contacts other miners about new transactions or blocks. \\ \\
+ 
+\raggedright
+\textbf{Wallet} &
+\\ \\
+ 
+\raggedright
+\textbf{Virtual Machine} &
+The virtual machine executes the code of the contract. \\ \\
+ 
+\textbf{Client} &
+The client is used to create and send new transactions. \\ \\
+
+\raggedright
+\textbf{Block Explorer} & 
+The block explorer is used to view transactions. \\ \\
+\end{tabular}
 
 There are also some further small useful tools, like keygen but they are not further discussed here. The organization on github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}.
 
@@ -49,29 +78,16 @@ As the BAZO blockchain was started in 2017 there have been multiple theses withi
 \end{itemize}
 
 \subsection{Similar existent projects}
-A huge help in being able to reason by analogy were the open source repositories of NEO and Ethereum. We learned a lot by looking through their code while building our own VM. Basically all three projects (Bazo, Ethereum and NEO) are platforms for decentralized applications based on smart contracts. 
+Since the code of NEO and Ethereum is on github and opensource, their implementation has been used and sometimes been implemented anologuously. 
 
-\subsubsection{NEO}
-NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the Neo platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\textbf{NEO} &
+NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the Neo platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper} \\ \\
 
-\subsubsection{Ethereum}
-The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is proof of work but  a proof of stake algorithm is already being developed and likely to go live in 2018.
+\textbf{Ethereum} & 
+The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is proof of work but  a proof of stake algorithm is already being developed and likely to go live in 2018. \\ \\
 
-\subsubsection{How do they differ from the Bazo Blockchain?}
-Both, Ethereum and NEO are public, permission-less smart contract platforms. At the time of writing, the Bazo blockchain is a permissioned blockchain because of the initial requirements from the financial services provider. As for now, the Bazo blockchain is just a research project. The goal is to become a public, permission-less platform for decentralized applications. To reach this goal and be able to create and maintain a competitive blockchain, a dedicated team would be needed. 
-
-\section{Background}
-In this section the tools and technologies used to build the bazo-blockchain are explained.
-
-\subsection{Blockchain}
-A Blockchain is basically blocks of data chained together by hashing functions. The data inside these blocks are transactions. In order to make the non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the bazo-blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains [BA lsige, MA chetelat].
-
-\subsection{Smart contracts}
-A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction an is executed by the miner. 
-
-\subsection{Transactions}
-In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As explained in \autoref{sec:transactionTypes}
-there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account.
-
-\subsection{Virtual machine}
-A process virtual machine is an abstraction layer on top of an operating system which abstracts the formulation of the problem from the code that is actually run on a machine in order to make the formulation platform independent.
+\raggedright
+\textbf{What are the differences to BAZO} & 
+Both, Ethereum and NEO are public, permission-less smart contract platforms. At the time of writing, the Bazo blockchain is a permissioned blockchain because of the initial requirements from the financial services provider. As for now, the Bazo blockchain is just a research project. The goal is to become a public, permission-less platform for decentralized applications. To reach this goal and be able to create and maintain a competitive blockchain, a dedicated team would be needed. \\ \\
+\end{tabular}
