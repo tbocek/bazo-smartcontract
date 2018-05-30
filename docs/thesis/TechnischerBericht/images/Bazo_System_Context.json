@@ -27,7 +27,7 @@
       "name": "miner 1",
       "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
       "tags": "Internal",
-      "position": "940,1450",
+      "position": "940,1350",
       "containers": []
     },
     {
@@ -35,7 +35,7 @@
       "name": "miner 2",
       "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
       "tags": "Internal",
-      "position": "40,1950",
+      "position": "40,1800",
       "containers": []
     },
     {
@@ -43,7 +43,7 @@
       "name": "miner 3",
       "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
       "tags": "Internal",
-      "position": "1830,1950",
+      "position": "1830,1800",
       "containers": []
     },
     {
@@ -51,7 +51,7 @@
       "name": "miner 4",
       "description": "Verifies transactions, executes contract code and Broadcast new received transactions or blocks to a subset of all miners",
       "tags": "Internal",
-      "position": "940,2500",
+      "position": "940,2250",
       "containers": []
     },
     {
@@ -59,7 +59,7 @@
       "name": "user",
       "description": "A user of the blockchain",
       "tags": "",
-      "position": "1040,65"
+      "position": "1040,145"
     },
     {
       "type": "Software System",
@@ -166,8 +166,8 @@
       "tag": "Person",
       "width": "",
       "height": "",
-      "background": "#08427b",
-      "color": "#ffffff",
+      "background": "#F5F5F5",
+      "color": "#000000",
       "fontSize": "30",
       "border": "",
       "opacity": "",
@@ -190,8 +190,8 @@
       "tag": "Software System",
       "width": "600",
       "height": "325",
-      "background": "#0f579f",
-      "color": "#ffffff",
+      "background": "#DAE8FC",
+      "color": "#000000",
       "fontSize": "30",
       "border": "",
       "opacity": "",
