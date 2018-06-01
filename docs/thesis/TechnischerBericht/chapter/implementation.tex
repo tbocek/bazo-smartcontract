@@ -29,6 +29,10 @@ As the miner and all other projects are written in golang, for this project also
 At the time of writing this thesis the VM consists of the following classes:
 % Insert execution cycle graphic
 
+\section{GAS}
+
+\section{Trace Function}
+
 \section{Stack}
 
 % TODO insert crc card for stack
@@ -54,7 +58,7 @@ The virtual machine itself is implemented as a switch case where it takes differ
 \begin{table}[]
 \centering
 \caption{List of opCodes available}
-\label{opcodes-list}
+\label{opcodes cheat sheet}
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Instruction} & \textbf{Mnemonic} & \textbf{opCode} & \textbf{Description}                                     \\ \midrule
@@ -111,18 +115,68 @@ Halt                 & HALT              & 0x30            & return from Exec() 
 \end{tabular}
 \end{table}
 
-\subsection{call stack}
+\subsubsection{call stack}
+
+\subsubsection{Arithmetic}
+
+\subsubsection{Bitoperations}
+
+
+\subsubsection{Controlflowoperations}
+
 
 \subsubsection{Datastructures}
+The datastructures the vm can create are map, array and struct on top of an array. 
+
+
+
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\textbf{NEWMAP} & 
+The opcode NEWMAP creates a new map and pushes it on the stack. 
+\\ \\
+
+\textbf{MAPPUSH} & 
+\\ \\
+
+\textbf{MAPGETVAL} & 
+\\ \\
+
+\end{tabular}
+
+The two basic datastructures map and array are directly implemented as opcodes
+
+
+
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
 
+Structs could be implemented using a 
+
+
+
 \subsection{Context}
+
+For the vm execution to have any effect it is necessary to change the state of the miner eventually. The problem with an immediate change of the miner state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with rollback but since this is rather difficult to implement because something keeping track of the changed data, it was decided to provide the state as a copy in a context object. The VM would later on perform the changes to contract data. The changed contract data would later on be written back by the miner after a successfull contract execution
+
+
+This was implemented using an interface because all the methods the VM can use are easily readable in the interface 
+
+which made it possible to create a special context mock type for testing and one for the actual miner implementation. This was and is useful when having to redefine methods, it also makes it more clear to what the vm actually has acces via reading the context interface. 
+
+
+Since the state of the vm is not persisted 
+
+The context describes all variables outside the 
 
 \subsection{Sideffects on data}
 
 Since the VM operates on copies the values will also not be changed by a faulty contract.
 
-\section{Integration}
+\section{Miner integration}
+
+\subsection{Adjustment of Transaction Encoding}
+
+\subsection{Adjustment of opcodes to context and miner}
 
 \subsection{Testing}
 \subsubsection{Test Driven Development}
@@ -138,4 +192,11 @@ Therefore it was paid a lot of attention to put guards around functions possibly
 
 %insert number of testcoverage
 
-\section{Parser}
+\section{Contracts}
+
+\subsection{Tokenization Contract}
+
+\subsection{Benchmarking Contract}
+The benchmarking contract has been implemented in solidity, as a golang programm directly and with the opcodes of our VM. 
+
+The goal is to compare the overhead
