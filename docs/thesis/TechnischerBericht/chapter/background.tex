@@ -1,35 +1,37 @@
-\chapter{Background and related work}
+\chapter{Background and Related Work}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-The following section either introduces the tools and technologies used in bazo or references explanations of previous theses in the context of the bazo-blockchain. Furthermore the theses of other students working on the bazo-blockchain are referenced.
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Chapter Contents} & 
+The section Background introduces the tools and technologies used in the Bazo Blockchain. In the section Related Work the theses of other students who worked on the Bazo Blockchain and some independent projects are described.
+\end{tabular}
 
 \section{Background}
-In this section the tools and technologies used to build the bazo-blockchain are explained.
-
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Blockchain} & 
-A Blockchain is basically blocks of data chained together by hashing functions. The data inside these blocks are transactions. In order to make the non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the bazo-blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains \cite{ba_miner} \cite{ba_client}  \\ \\
+A blockchain is basically another form of a distributed database. It consists of blocks of data chained together by hash functions. The data inside these blocks are transactions. In order to make the transactions non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the Bazo Blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains \cite{ba_miner} \cite{ba_client}  \\ \\
 
 \raggedright
-\textbf{Smart contracts} &
-A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction an is executed by the miner. \\ \\
+\textbf{Smart Contracts} &
+A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction and is executed by a VM which is part of the miner. \\ \\
 
 \textbf{Transactions} &
 In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As explained in \autoref{sec:transactionTypes}
 there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account. \\ \\
 
 \raggedright
-\textbf{Virtual machine} &
-A process virtual machine is an abstraction layer on top of an operating system which abstracts the formulation of the problem from the code that is actually run on a machine in order to make the formulation platform independent. \\ \\
+\textbf{Virtual Machine} &
+A virtual machine is an abstraction layer. A VM abstracts a program or even a whole operating system from the hardware it is actually run on to make it portable. \\ \\
 \end{tabular}
 \pagebreak
 
-\section{Related work}
-At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{bazo-blockchain github organization}. contains the software systems as described in the following system context diagram \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. In \ref{systemcontextdiagram} multiple miner instances are displayed to represent the blockchain and to describe how the miner interact with eachother.
+\section{Related Work}
+At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain github organization}. contains the software systems as described in Fig. \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Fig. \ref{systemcontextdiagram} shows the Bazo Blockchain and it's most important software systems.  It also describes how the systems interact with each other and with the out world. It contains multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
 
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=\textwidth]{./images/BAZO_System_Context}
-	\caption{BAZO blockchain system context diagram}
+	\caption{Bazo Blockchain system context diagram}
 	\label{systemcontextdiagram}
 	\end{center}
 \end{figure}
@@ -37,38 +39,42 @@ At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Miner} &
-The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date and contacts other miners about new transactions or blocks. \\ \\
+The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date, executes smart contracts via the VM and contacts other miners about new transactions or blocks. \\ \\
  
 \raggedright
 \textbf{Wallet} &
-\\ \\
- 
-\raggedright
-\textbf{Virtual Machine} &
-The virtual machine executes the code of the contract. \\ \\
+The wallet allows user to operate on the blockchain. It also stores the public/private key pair. \cite{ba_wallet} \\ \\
  
 \textbf{Client} &
-The client is used to create and send new transactions. \\ \\
+The client is used for external communication with the miner. to create and send new transactions. \\ \\
 
 \raggedright
 \textbf{Block Explorer} & 
-The block explorer is used to view transactions. \\ \\
+The block explorer is used to view transactions. It basically visualizes the blockchain. \\ \\
+
+\raggedright
+\textbf{Miscellaneous} & 
+There are also some further small useful tools, like keygen but they are not further discussed here. The organization on github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}. \\ \\
 \end{tabular}
 
-There are also some further small useful tools, like keygen but they are not further discussed here. The organization on github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}.
+\subsection{How Bazo works - an overview}
+In Fig. \ref{systemcontainerdiagram} one of the miners is expanded which makes it possible to see it's packages and their relationships with other components. 
 
-In the \ref{systemcontainerdiagram} one of the miners is expanded which makes it possible to see it's packages and their relationships with other components.
+As shown in Fig. \ref{systemcontainerdiagram} the transactions sent by the user over the web api are received and processed by the peer to peer package. If it receives a new transaction it will add it to the unprocessed transaction pool via the storage package. 
+
+The miner will continuously fetch transactions from the unprocessed transactions pool, verify their signature and their validity, add the transaction hash to the current block and save the transaction in the processed transaction pool. If the transaction calls a contract, the miner will call the VM and it will execute the called contract function. After that the miner will change it's state according to the results of the VM.
+
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=\textwidth]{./images/BAZO_Container}
-	\caption{BAZO blockchain container diagram}
+	\caption{Bazo Blockchain container diagram}
 	\label{systemcontainerdiagram}
 	\end{center}
 \end{figure}
 \pagebreak
 
 \subsection{Previous work}
-As the BAZO blockchain was started in 2017 there have been multiple theses within which different aspects of the blockchain were implemented. 
+As the Bazo Blockchain was started in 2017 there have been multiple theses within which different aspects of the blockchain were implemented. 
 \begin{itemize}
 	\item Bazo – A Cryptocurrency from Scratch \cite{ba_miner}
 	\item A Progressive Web App (PWA)-based Mobile Wallet for Bazo \cite{ba_wallet}
@@ -78,7 +84,7 @@ As the BAZO blockchain was started in 2017 there have been multiple theses withi
 \end{itemize}
 
 \subsection{Similar existent projects}
-Since the code of NEO and Ethereum is on github and opensource, their implementation has been used and sometimes been implemented anologuously. 
+Since the code of NEO and Ethereum is on github and open source, their implementation has been used and sometimes been implemented analogously. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{NEO} &
@@ -88,6 +94,6 @@ NEO is a blockchain project \flqq that utilizes blockchain technology and digita
 The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is proof of work but  a proof of stake algorithm is already being developed and likely to go live in 2018. \\ \\
 
 \raggedright
-\textbf{What are the differences to BAZO} & 
-Both, Ethereum and NEO are public, permission-less smart contract platforms. At the time of writing, the Bazo blockchain is a permissioned blockchain because of the initial requirements from the financial services provider. As for now, the Bazo blockchain is just a research project. The goal is to become a public, permission-less platform for decentralized applications. To reach this goal and be able to create and maintain a competitive blockchain, a dedicated team would be needed. \\ \\
+\textbf{What are the differences to Bazo} & 
+Both, Ethereum and NEO are public, permission-less smart contract platforms. At the time of writing, the Bazo Blockchain is a permissioned blockchain because of the initial requirements from the financial services provider. As for now, the Bazo Blockchain is just a research project. The goal is to become a public, permission-less platform for decentralized applications. To reach this goal and be able to create and maintain a competitive blockchain, a dedicated team would be needed. \\ \\
 \end{tabular}
