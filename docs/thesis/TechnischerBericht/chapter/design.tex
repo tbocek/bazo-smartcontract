@@ -24,14 +24,20 @@ As mentioned before, the miner is responsible for processing and validating tran
 \subsection{Transaction Types} \label{transactionTypes}
 The miner comes with different types of transactions. 
 
-\begin{description}
-	\item[FundsTx] This type of transaction is used to transfer Bazo coins from one account to another.\cite{ba_miner} The Data field was added, since the FundsTx is the ideal type of transaction to call smart contract functions.
-	\begin{figure}[thp]%
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{FundsTx} &
+This type of transaction is used to transfer Bazo coins from one account to another.\cite{ba_miner} The Data field was added, since the FundsTx is the ideal type of transaction to call smart contract functions.
+\\ \\
+\end{tabular}
+
+\begin{figure}[thp]%
     	\centering
-		\begin{minipage}{0.6\textwidth}
+		\begin{minipage}{0.4\textwidth}
 		\begin{minted}
 		[
 		frame=lines,
+		autogobble,
 		framesep=2mm,
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
@@ -51,15 +57,22 @@ The miner comes with different types of transactions.
 		}
 		\end{minted}
 		\end{minipage}
-	\end{figure}
-	\item[AccTx] The AccTx is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account.\cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field was added.
-	 \begin{figure}[thp]%
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{AccTx} &
+The AccTx is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account.\cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field was added. \\ \\
+\end{tabular}
+
+\begin{figure}[thp]%
     	\centering
-		\begin{minipage}{0.6\textwidth}
+		\begin{minipage}{0.4\textwidth}
 		\begin{minted}
 		[
 		frame=lines,
-		framesep=2mm,
+		autogobble,
+		framesep=2mm,		
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
 		linenos
@@ -76,22 +89,27 @@ The miner comes with different types of transactions.
 		}
 		\end{minted}
 		\end{minipage}
-	\end{figure}
-	\item[ConfigTx] This type of transaction is used to change system parameters such as block size, block interval or minimum fee. This type of transaction is not discussed any further.
-	\item[StakeTx] Since the Bazo blockchain is in the transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is also not discussed any further.
-\end{description}
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{ConfigTx} &
+This type of transaction is used to change system parameters such as block size, block interval or minimum fee. This type of transaction is not discussed any further. \\ \\
+\textbf{StakeTx} &
+Since the Bazo Blockchain is in the transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is also not discussed any further.
+\end{tabular}
 
 \subsection{Accounts} \label{accounts}
 Accounts are the result of processing an account transaction. They are object on the heap of the miner. The Bazo miner already had the transaction type to create accounts by design. There is only one struct for the the two different types of account. This is the struct for account:
 
 \begin{figure}[thp]%
     	\centering
-		\begin{minipage}{0.8\textwidth}
+		\begin{minipage}{0.6\textwidth}
 		\begin{minted}
 		[
 		frame=lines,
-		framesep=2mm,
-		baselinestretch=1.2,
+		autogobble,
+		framesep=2mm,		baselinestretch=1.2,
 		fontsize=\footnotesize,
 		linenos
 		]
@@ -111,30 +129,35 @@ Accounts are the result of processing an account transaction. They are object on
 		\end{minipage}
 \end{figure}
 
-\begin{description}
-	\item[Externally owned accounts] Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transaction from that account. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier. A externally owned account does not have an Issuer, Contract and ContractVariables.
-	\item[Smart contract accounts]
-	Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The issuer shows which externally owned account issued the contract account. A contract account also has both, Contract and ContractVariables field set.
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Externally owned accounts} &
+Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transaction from that account. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier. A externally owned account does not have an Issuer, Contract and ContractVariables. \\ \\
+\textbf{Smart contract accounts} &
+Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The issuer shows which externally owned account issued the contract account. A contract account also has both, Contract and ContractVariables field set.
 
 	\begin{description}
   		\item[Contract] This field contains the smart contract. The data type is byte slice, since a contract can have a variable length and contracts get compiled to byte code.
   		\item[ContractVariables] This field contains the state variables that can be altered by contract functions. The data type is a slice of big.Int since a contract can have a variable amount of variables.
 	\end{description}
-\end{description}
+\end{tabular}
 
 \section{Virtual machine}
-There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR were both stack based virtual machines. 
-\begin{description}
-  \item[Register based] The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
-  \begin{figure}[H]
+There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. 
+
+\subsection{Register based}
+The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
+
+\begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=0.61\textwidth]{./images/register-example}
 	\caption{Register based virtual machine}
 	\label{register vm}
 	\end{center}
-  \end{figure}
+\end{figure}
   
-  \item[Stack based] A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
+\subsection{Stack based}
+A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
   \begin{figure}[thp]%
     \centering
 	\begin{minipage}{0.4\textwidth}
@@ -160,23 +183,45 @@ There are two types of virtual machines. On the one hand there are register base
 	\label{stack vm}
 	\end{center}
   \end{figure}
-\end{description}
 
+\subsection{Design decision}
 Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO, on which we have oriented ourselves.
 
 \subsection{VM Execution cycle}
 This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}.
-The virtual machine is embedded into the miner. Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data field is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner.
 
-The starting point for the execution cycle of the virtual machine is a set of instructions and an incrementing counter, called the program counter, which points to the instruction that is executed next.
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Precondition} & 
+The virtual machine is embedded into the miner. Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data field is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner. \\ \\
 
+\textbf{Starting point} & 
+The starting point for the execution cycle of the virtual machine is a set of instructions and an incrementing counter, called the program counter, which points to the instruction that is executed next. \\ \\
+
+\textbf{Steps} &
 The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs, the execution is halted by an instruction itself or the program counter is out of bounds of the instruction set. All this steps are handled in the \mintinline{go}{Exec()} function. This are the three steps:
 \begin{description}
-  \item[Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
-  \item[Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the execute function. Within this section of the function, the costs for the instruction are deducted. Section \ref{fee} describes why a fee is needed and how it is calculated.
-  \item[Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcodes-list}.
+  \item[1. Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
+    \end{description}
+\end{tabular}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{ } & 
+\begin{description}
+	\item[2. Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the execute function. Within this section of the function, the costs for the instruction are deducted. Section \ref{fee} describes why a fee is needed and how it is calculated.
+    \item[3. Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcodes cheat sheet}.
 \end{description}
-The \mintinline{go}{Exec()} function returns a boolean. If the return value is true the execution was successful and no error or exception occurred. If the return value is false an error or exception occurred. Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true, this way there is no need to roll back if the contract could not be executed successfully.
+\end{tabular}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Return Value} &
+The \mintinline{go}{Exec()} function returns a boolean. If the return value is true the execution was successful and no error or exception occurred. If the return value is false an error or exception occurred. \\ \\
+
+\textbf{Persisting state variables} &
+Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true, this way there is no need to roll back if the contract could not be executed successfully.
+\end{tabular}
 
 \section{Parser}
 Since writing all contracts directly in byte code can be very complicated and time-consuming, we decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq. 
@@ -198,8 +243,8 @@ The parser can be split into two main functions. The function that is run first 
 		\begin{minted}
 		[
 		frame=lines,
-		framesep=2mm,
-		baselinestretch=1.2,
+		autogobble,
+		framesep=2mm,		baselinestretch=1.2,
 		fontsize=\footnotesize,
 		linenos
 		]
