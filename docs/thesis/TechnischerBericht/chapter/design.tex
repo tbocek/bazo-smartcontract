@@ -184,8 +184,8 @@ Since writing all contracts directly in byte code can be very complicated and ti
 \subsection{Tokenize function}
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=0.45\textwidth]{./images/tokenize-function}
-	\caption{Tokenize Function}
+	\includegraphics[width=0.55\textwidth]{./images/tokenize-function}
+	\caption{UML Activity Diagram of the Tokenize Function}
 	\label{tokenizefunc}
 	\end{center}
 \end{figure}
@@ -245,7 +245,7 @@ RET
 \label{basiccontract}
 \end{figure}
 
-Code snippet \ref{basiccontract} shows a basic contract written in \flqq Enhanced Bazo Byte Code\frqq{}. Code snippet \ref{tokenset} shows generated the tokenSet to the contract.
+Code snippet \ref{basiccontract} shows a basic contract written in \flqq Enhanced Bazo Byte Code\frqq{}. Code snippet \ref{tokenset} shows generated the token set to the contract.
 
 \begin{figure}[thp]%
     \centering
@@ -280,9 +280,32 @@ Code snippet \ref{basiccontract} shows a basic contract written in \flqq Enhance
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=\textwidth]{./images/parse-function}
-	\caption{Parse Function}
+	\caption{UML Activity Diagram of the Parse Function}
 	\label{parsefunc}
 	\end{center}
+\end{figure}
+
+The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq. Figure \ref{parsefunc} shows the the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{INT}. If an opcode takes an int value as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes the byte representation of the int requires. \mintinline{go}{BYTE} and \mintinline{go}{BYTES} just append the value to the instruction set. Code snipped \ref{compiledbytecode} shows the resulting instruction set.
+
+\begin{figure}[thp]%
+    \centering
+   	\begin{minipage}{0.7\textwidth}
+\begin{minted}
+[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+]
+{go}
+{
+  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 49, 28, 0, 28, 1, 4, 24, 
+}
+\end{minted}
+\end{minipage}
+\caption{Basic contract compiled to \flqq Bazo Byte Code\frqq}
+\label{compiledbytecode}
 \end{figure}
 
 \section{Smart contracts}
@@ -333,7 +356,7 @@ contract MyFirstContract {
 This contract has the state variable myData. Calling the function set() with an uint parameter sets the variable. Calling the function add or sub allows the transaction sender to either add or subtract a certain amount from that variable. In order to call a function a transaction must be executed.
 \pagebreak
 
-\subsubsection{Sample smart contract in bazo-vm byte code instructions}
+\subsubsection{Sample smart contract in Bazo-vm byte code instructions}
 Compiled Smart Contract with ABI would look like this:
 \begin{figure}[thp]%
     \centering
@@ -394,7 +417,7 @@ Providing specific byte code instructions that put the value of a certain field 
   \item[Sender/Address] The sender field shows the transactions sender public address.
   \item[Fee] The maximum price the transaction can cost.
   \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
-  \item[Amount] This field shows the amount of bazo units send in this transaction.
+  \item[Amount] This field shows the amount of Bazo units send in this transaction.
 \end{description}
 
 \subsection{Data from receiver account}
@@ -411,6 +434,6 @@ Providing specific byte code instructions that put the value of a certain field 
 \end{description}
 
 \section{Fee} \label{fee}
-Running a node in the network carries costs and the node operators want to be compensated. The fee is expressed in the smallest unit of bazo coins available. The cost of execution vary since depending on the complexity of the function the amount of time which the whole network is busy processing differs. Ethereum calculates the cost depending on which instructions (such as \mintinline{yaml}{ADD} known from assembler) are used. In Ethereum and Neo this fee is called gas. Bitcoin calculates the cost depending on the size of the transaction. We combine both concepts with the goal of simplifying the calculation of the execution fee.
+Running a node in the network carries costs and the node operators want to be compensated. The fee is expressed in the smallest unit of Bazo coins available. The cost of execution vary since depending on the complexity of the function the amount of time which the whole network is busy processing differs. Ethereum calculates the cost depending on which instructions (such as \mintinline{yaml}{ADD} known from assembler) are used. In Ethereum and Neo this fee is called gas. Bitcoin calculates the cost depending on the size of the transaction. We combine both concepts with the goal of simplifying the calculation of the execution fee.
 
 The fee is also a way to secure the network. As mentioned before the execution must be deterministic. Using a JUMP instruction (changing the program counter of the execution) a smart contract creator could develop a smart contract function containing an endless-loop, which then he could call, causing the network to jam and not accepting new transactions because the execution doesn't come to an end. With the introduction of gas subtracted with every instruction once no more gas is available the processing of the transaction is aborted.

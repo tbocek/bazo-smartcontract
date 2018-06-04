@@ -125,6 +125,7 @@ Halt                 & HALT              & 0x30            & return from Exec() 
 \subsubsection{Controlflowoperations}
 
 
+
 \subsubsection{Datastructures}
 The datastructures the vm can create are map, array and struct on top of an array. 
 
@@ -175,7 +176,6 @@ Structs could be implemented using a
 >>>>>>> cbc7374cf34bc6af483544da71066ebaa076554c
 
 \subsection{Context}
-
 For the vm execution to have any effect it is necessary to change the state of the miner eventually. The problem with an immediate change of the miner state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with rollback but since this is rather difficult to implement because something keeping track of the changed data, it was decided to provide the state as a copy in a context object. The VM would later on perform the changes to contract data. The changed contract data would later on be written back by the miner after a successfull contract execution
 
 
@@ -206,17 +206,19 @@ The project was implemented with test driven development.
 An instruction in a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was fixed it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository and having run it with a billion random contracts over night makes us confident that every bug was found and mitigated.
 
 \subsection{Error handling}
-Since the VM just processes one operation code after the other and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
+Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
 
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
 %insert number of testcoverage
 
 \section{Contracts}
+In order to compare the Bazo Blockchain's smart contract features with other common smart contract platforms i.e. Ethereum and NEO, different smart contracts have been implemented.
 
 \subsection{Tokenization Contract}
+Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found a wide distribution. New financing opportunities for start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. Basically an investor sends money in the form of the blockchain currency to a smart contract and receives the corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem the company hosting the ICO wants to build. For this reason it was a required that tokenization contracts can be written. Furthermore, tokenization contracts are generally simple because the smart contract does not need to interact with off-chain data. In the very basic implementation, a tokenization contract consists of a map of owners and balances and methods to transfer those tokens from one owner to another.
 
 \subsection{Benchmarking Contract}
-The benchmarking contract has been implemented in solidity, as a golang programm directly and with the opcodes of our VM. 
+The performance of the virtual machine is crucial for the speed of execution and the blockchain in general. For this reason a smart contract has been developed which is suitable for comparing the speed of execution on different implementations and platforms. Taking into accord that blockchains and its use-cases depend heavily on public-key cryptographic it was decided to implement a smart contract which performs modular exponentiation. Modular exponentiation is a one-way function and frequently used in cryptography. Using large numbers as arguments, the execution of this algorithm takes enough time to get comparable results. 
 
-The goal is to compare the overhead
+The benchmarking contract has been implemented in solidity, as a Golang programm directly and with the Bazo Byte code of our VM. The goal is to compare the overhead.

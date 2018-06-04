@@ -1,32 +1,23 @@
 \chapter{Background and Related Work}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-\textbf{Chapter Contents} & 
+
 The section Background introduces the tools and technologies used in the Bazo Blockchain. In the section Related Work the theses of other students who worked on the Bazo Blockchain and some independent projects are described.
-\end{tabular}
 
 \section{Background}
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\textbf{Blockchain} & 
-A blockchain is basically another form of a distributed database. It consists of blocks of data chained together by hash functions. The data inside these blocks are transactions. In order to make the transactions non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the Bazo Blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains \cite{ba_miner} \cite{ba_client}  \\ \\
+\subsection{Blockchain}
+A blockchain is basically another form of a distributed database. It consists of blocks of data chained together by hash functions. The data inside these blocks are transactions. In order to make the transactions non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the Bazo Blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains. \cite{ba_miner} \cite{ba_client} 
 
-\raggedright
-\textbf{Smart Contracts} &
-A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction and is executed by a VM which is part of the miner. \\ \\
+\subsection{Smart Contracts}
+A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction and is executed by a VM which is part of the miner.
 
-\textbf{Transactions} &
-In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As explained in \autoref{sec:transactionTypes}
-there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account. \\ \\
+\subsection{Transactions}
+In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As explained in \autoref{sec:transactionTypes} there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account.
 
-\raggedright
-\textbf{Virtual Machine} &
-A virtual machine is an abstraction layer. A VM abstracts a program or even a whole operating system from the hardware it is actually run on to make it portable. \\ \\
-\end{tabular}
-\pagebreak
+\subsection{Virtual Machine}
+A virtual machine is an abstraction layer. A VM abstracts a program or even a whole operating system from the hardware it is actually run on to make it portable.
 
 \section{Related Work}
-At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain github organization}. contains the software systems as described in Fig. \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Fig. \ref{systemcontextdiagram} shows the Bazo Blockchain and it's most important software systems.  It also describes how the systems interact with each other and with the out world. It contains multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
+At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain github organization} contains the software systems as described in Fig. \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Figure \ref{systemcontextdiagram} shows the Bazo Blockchain and it's most important software systems.  It also describes how the systems interact with each other and with the out world. It contains multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
 
 \begin{figure}[H]
 	\begin{center}
