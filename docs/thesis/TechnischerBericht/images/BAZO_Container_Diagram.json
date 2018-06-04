@@ -1,14 +1,14 @@
 {
   "type": "Container",
-  "scope": "BAZO miner",
+  "scope": "Bazo miner",
   "description": "The container diagram for my software system.",
-  "size": "A5_Landscape",
+  "size": "A4_Portrait",
 
 
   "elements": [
     {
       "type": "Software System",
-      "name": "BAZO miner",
+      "name": "Bazo miner",
       "description": "",
       "tags": "",
       "containers": [
@@ -18,7 +18,7 @@
           "description": "Contains the logic to verify transactions.",
           "technology": "golang",
           "tags": "",
-          "position": "900,95",
+          "position": "45,2700",
           "components": []
         },
         {
@@ -27,7 +27,7 @@
           "description": "Communicates with other miners in a decentralized, unstructured ad hoc peer-to-peer network",
           "technology": "golang",
           "tags": "",
-          "position": "900,1190",
+          "position": "45,1300",
           "components": []
         },
         {
@@ -36,7 +36,7 @@
           "description": "Contains the types used throughout the whole application",
           "technology": "golang",
           "tags": "",
-          "position": "1685,1185",
+          "position": "1615,2000",
           "components": []
         },
         {
@@ -45,7 +45,7 @@
           "description": "Stores transactions",
           "technology": "golang, BoltDB",
           "tags": "",
-          "position": "905,635",
+          "position": "45,2000",
           "components": []
         },
         {
@@ -54,7 +54,7 @@
           "description": "Executes the code of a called smart contract.",
           "technology": "golang",
           "tags": "",
-          "position": "1695,95",
+          "position": "1640,2700",
           "components": []
         }
       ]
@@ -62,9 +62,9 @@
     {
       "type": "Software System",
       "name": "other miner",
-      "description": "Stores all of the core banking information about customers, accounts, transactions, etc.",
+      "description": "",
       "tags": "Internal",
-      "position": "95,630",
+      "position": "1640,500",
       "containers": []
     },
     {
@@ -72,7 +72,7 @@
       "name": "user",
       "description": "A user of the blockchain.",
       "tags": "",
-      "position": "110,1125"
+      "position": "45,300"
     }
   ],
 
@@ -86,6 +86,16 @@
       "tags": ""
     },
     {
+      "source": "miner",
+      "description": "Save processed transaction",
+      "technology": "",
+      "destination": "storage",
+      "tags": "",
+      "vertices": [
+        "655,2590"
+      ]
+    },
+    {
       "source": "peer to peer",
       "description": "Message exchange",
       "technology": "http",
@@ -94,17 +104,20 @@
     },
     {
       "source": "peer to peer",
-      "description": "Stores unprocessed transactions",
+      "description": "Store unprocessed transactions",
       "technology": "",
       "destination": "storage",
       "tags": ""
     },
     {
       "source": "storage",
-      "description": "Miner gets new transactions from unprocessed transactions pool",
+      "description": "Fetch unprocessed transaction",
       "technology": "",
       "destination": "miner",
-      "tags": ""
+      "tags": "",
+      "vertices": [
+        "150,2550"
+      ]
     },
     {
       "source": "user",
@@ -120,11 +133,11 @@
     {
       "type": "element",
       "tag": "Container",
-      "width": "",
-      "height": "",
-      "background": "#438dd5",
+      "width": "700",
+      "height": "450",
+      "background": "#DAE8FC",
       "color": "",
-      "fontSize": "",
+      "fontSize": "40",
       "border": "",
       "opacity": "",
       "shape": ""
@@ -136,7 +149,7 @@
       "height": "",
       "background": "",
       "color": "",
-      "fontSize": "",
+      "fontSize": "40",
       "border": "",
       "opacity": "",
       "shape": "Cylinder"
@@ -144,11 +157,11 @@
     {
       "type": "element",
       "tag": "Element",
-      "width": "",
-      "height": "",
+      "width": "700",
+      "height": "450",
       "background": "",
-      "color": "#ffffff",
-      "fontSize": "",
+      "color": "#000000",
+      "fontSize": "40",
       "border": "",
       "opacity": "",
       "shape": ""
@@ -158,20 +171,32 @@
       "tag": "Person",
       "width": "",
       "height": "",
-      "background": "#08427b",
-      "color": "",
+      "background": "#F5F5F5",
+      "color": "#000000",
       "fontSize": "",
       "border": "",
       "opacity": "",
       "shape": "Person"
     },
     {
+      "type": "relationship",
+      "tag": "Relationship",
+      "position": "",
+      "thickness": "",
+      "width": "",
+      "color": "#000000",
+      "fontSize": "30",
+      "dashed": "",
+      "routing": "",
+      "opacity": ""
+    },
+    {
       "type": "element",
       "tag": "Software System",
       "width": "",
       "height": "",
-      "background": "#1168bd",
-      "color": "",
+      "background": "#F5F5F5",
+      "color": "#000000",
       "fontSize": "",
       "border": "",
       "opacity": "",

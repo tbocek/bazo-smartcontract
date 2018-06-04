@@ -11,11 +11,11 @@ Figure \ref{package overview} shows the structure of the project on package-leve
 	\label{package overview}
 	\end{center}
   \end{figure}
-  
+
 \begin{description}
 	\item[Protocol] This package contains the building blocks for the Bazo blockchain. In particular it contains the structure, encoding, decoding and hashing functions of all transaction types, blocks and accounts. In addition a transaction interface is defined, allowing an abstract treatment of transactions. \cite{ba_miner}
 	\item[Miner] The miner package contains all mining related components. That includes the validation and consolidation of transactions into blocks, the calculation of the consensus mechanism and the building of the merkle tree. In addition to that, blockchain related tasks itself such as rollback operation and state changes are contained in this package. Access to P2P and Storage packages are needed in order to handle transactions over the network and signal storage-related operations. \cite{ba_miner} To execute the virtual machine and access its results, the miner also needs access to the VM package.
-	\item[VM] This package contains the virtual machine itself and all its components, namely the evaluation stack, the call stack, implementations of data structures that can be used by the virtual machine such as array and map and all available opcodes. 
+	\item[VM] This package contains the virtual machine itself and all its components, namely the evaluation stack, the call stack, implementations of data structures that can be used by the virtual machine such as array and map and all available opcodes.
 	\item[P2P] All networking related operations are implemented in the P2P package \cite{ba_miner}. Since for the integration of the virtual machine nothing had to be changed, the content of this package is not discussed any further.
 	\item[Storage] The storage package is concerned with memory-related tasks. The lower-level functionality was implemented with the external BoltDB package. Since entries are encoded before writing to storage and decoded when loaded \cite{ba_miner}, this package could be left unaltered. For that reason, this package is also not described further.
 	\item[BoltDB] This package shows the BoltDB package which is an external dependency. BoltDB is a simple, lightweight key/value base. \cite{ba_miner}
@@ -151,9 +151,29 @@ The two basic datastructures map and array are directly implemented as opcodes
 
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
 
+<<<<<<< HEAD
+\begin{tabular}[t]{ | c | c | c | c | }
+\textbf{opcode} &
+\textbf{Description} &
+\textbf{Input} &
+\textbf{Output} \\ \hline
+
+NEWMAP &
+Creates a new map and pushes it on the stack. &
+- &
+map \\ \hline
+
+MAPCONTAINSKEY &
+Consumes a map and pushes true or false on the stack depending on wether the map contained the key. &
+map &
+bool \\ \hline
+
+\end{tabular}
+=======
 Structs could be implemented using a 
 
 
+>>>>>>> cbc7374cf34bc6af483544da71066ebaa076554c
 
 \subsection{Context}
 For the vm execution to have any effect it is necessary to change the state of the miner eventually. The problem with an immediate change of the miner state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with rollback but since this is rather difficult to implement because something keeping track of the changed data, it was decided to provide the state as a copy in a context object. The VM would later on perform the changes to contract data. The changed contract data would later on be written back by the miner after a successfull contract execution
@@ -180,7 +200,7 @@ Since the VM operates on copies the values will also not be changed by a faulty 
 
 \subsection{Testing}
 \subsubsection{Test Driven Development}
-The project was implemented with test driven development. 
+The project was implemented with test driven development.
 
 \subsubsection{Fuzz Testing}
 An instruction in a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was fixed it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository and having run it with a billion random contracts over night makes us confident that every bug was found and mitigated.
