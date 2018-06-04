@@ -324,9 +324,12 @@ Code snipped \ref{compiledbytecode} shows the resulting byte code instruction se
 \end{figure}
 
 \section{Testing}
-\subsection{Test Driven Development}
+
+\subsection{Unit Testing}
 The project was implemented with test driven development.
 
 \subsection{Fuzz Testing}
-An instruction in a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was fixed it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository and having run it with a billion random contracts over night makes us confident that every bug was found and mitigated.
+An instruction set of a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was found it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository using Travis CI and having run it with a billion random contracts over night makes us confident that every bug that could crash the miner was found and mitigated. 
+
+\subsection{Integration Testing}
 %insert number of testcoverage
