@@ -2,11 +2,11 @@
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 This chapter focuses on explaining why things were implemented in a certain manner. In this chapter the trade-offs and decisions which were made while building the VM are described in a manner that follow up works get a better understanding of why some parts of the VM are implemented in a certain way so that they either are more certain when changing something or to help them reach the same conclusion faster.
 
-\section{Software architecture}
-Figure \ref{package overview} shows the structure of the project on package-level and the dependencies among them. The miner application was built with software engineering principles in mind. Particular attention was paid to modularity. This made it easy to integrate the virtual machine into the existing miner application. Furthermore the following figure shows which packages were added and which where modified to successfully integrate the execution of smart contracts into the Bazo blockchain.
+\section{Software Architecture}
+Figure \ref{package overview} shows the structure of the project on package-level and the dependencies among them. The miner application was built with software engineering principles in mind. Particular attention was paid to modularity. This made it easy to integrate the virtual machine into the existing miner application. Furthermore the following figure shows which packages were added and which where modified to successfully integrate the execution of smart contracts into the Bazo blockchain. As the miner and all other projects are written in Go, the new components are written in Go aswell.
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=0.9\textwidth]{./images/package-diagram}
+	\includegraphics[width=0.8\textwidth]{./images/package-diagram}
 	\caption{UML Package Diagram}
 	\label{package overview}
 	\end{center}
@@ -22,37 +22,36 @@ Figure \ref{package overview} shows the structure of the project on package-leve
 	\item[Parser] The Parser package contains the parser, which consists of a Tokenize and Parse function and tokens. This components are needed to compile \flqq Enhanced Bazo byte code\frqq{ } to a byte code instruction set that can be interpreted by the virtual machine. This package is completely stand-alone and does not have any dependencies. The package is also kept in a separate repository.
 \end{description}
 
-\section{Contract execution}
+\section{Virtual Machine}
 
-\section{VM Package overview}
-As the miner and all other projects are written in golang, for this project also golang is used.
 At the time of writing this thesis the VM consists of the following classes:
 % Insert execution cycle graphic
 
-\section{GAS}
-
-\section{Trace Function}
-
-\section{Stack}
+\subsection{Stack}
 
 % TODO insert crc card for stack
 
-\subsection{Maximum stack size}
+\subsubsection{Maximum stack size}
 Facing the concern of excess memory usage of the contract on the miner, we decided to limit the stack size to 1MB which seems to be well above what the contracts will need. We neglected using the gas amount for max storage determination because it would be just a soft limit
 
-\subsection{Maximum variable size}
+\subsubsection{Maximum variable size}
 Since it is possible to easily craft denial of service attacks for the blockchain if there is no limit on the variable size we decided to set the variable size to a specific fixed amount instead of arbitrary precision.
 
-\subsection{Data structure}
+\subsubsection{Data structure}
 As underlying data structure of "Stack", keeping in mind to keep the code of the vm short and simple, we decided to use an array of big.Int. It was important that the datatype used for the underlying datatype was of arbitrary length because splitting up an element into multiple bytes so that it can be saved when using an array of bytes as underlying data structure would have been a lot more complex and more error-prone. Arbitrary length is implemented for example an array of jagged arrays of bytes. On the vm it was very important that the type used in the vm provided mathematical methods and also that it could store and work with values of up to 256 bit size. Only big.Int fulfilled both requirements and therefore it was choosen for the vm. Thanks to big.Int being of arbitrary length we could then use an array of big.Int as underlying data structure which also simplifies our code since we don't have to cast the values retrieved from the stack before working with them.
 
 We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes.
+% \subsection{Contract Execution}
 
-\section{Virtual machine}
-The virtual machine itself is implemented as a switch case where it takes different bytes and determines what has to be executed on each value.
+\subsection{Virtual machine}
+
+\subsubsection{Exec() function}
+The main part of the virtual machine is the The virtual machine itself is the \mintinline{go}{Exec()} function which contains the execution cycle of the virtual machine as mentioned in section \ref{exec_cycle}. 
+
+
 
 % TODO insert crc card for vm
-\subsection{opCodes}
+\subsubsection{opCodes}
 % Please add the following required packages to your document preamble:
 % \usepackage{booktabs}
 \begin{table}[]
@@ -115,22 +114,18 @@ Halt                 & HALT              & 0x30            & return from Exec() 
 \end{tabular}
 \end{table}
 
-\subsubsection{call stack}
-
 \subsubsection{Arithmetic}
+The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. It is not necessary to take care of casting different int types such as uint32 to uint64 if the result is bigger than the two operands, since that is done by big.Int.
 
 \subsubsection{Bitoperations}
+Two opcodes for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int.
 
+\subsubsection{call stack}
 
 \subsubsection{Controlflowoperations}
 
-
-
 \subsubsection{Datastructures}
 The datastructures the vm can create are map, array and struct on top of an array. 
-
-
-
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{NEWMAP} & 
@@ -147,11 +142,8 @@ The opcode NEWMAP creates a new map and pushes it on the stack.
 
 The two basic datastructures map and array are directly implemented as opcodes
 
-
-
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
 
-<<<<<<< HEAD
 \begin{tabular}[t]{ | c | c | c | c | }
 \textbf{opcode} &
 \textbf{Description} &
@@ -169,11 +161,6 @@ map &
 bool \\ \hline
 
 \end{tabular}
-=======
-Structs could be implemented using a 
-
-
->>>>>>> cbc7374cf34bc6af483544da71066ebaa076554c
 
 \subsection{Context}
 For the vm execution to have any effect it is necessary to change the state of the miner eventually. The problem with an immediate change of the miner state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with rollback but since this is rather difficult to implement because something keeping track of the changed data, it was decided to provide the state as a copy in a context object. The VM would later on perform the changes to contract data. The changed contract data would later on be written back by the miner after a successfull contract execution
@@ -197,11 +184,144 @@ Since the virtual machine just processes one instruction set after another and t
 
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
-\section{Miner integration}
+\section{Miner}
 
 \subsection{Adjustment of Transaction Encoding}
 
 \subsection{Adjustment of opcodes to context and miner}
+
+\section{Parser}
+The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is a very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
+
+\subsection{Tokens class}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Token struct and types} &
+Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can be \mintinline{go}{OPCODE} (Value: 0), \mintinline{go}{INT} (Value: 1), \mintinline{go}{BYTE} (Value: 2), \mintinline{go}{BYTES} (Value: 3), \mintinline{go}{LABEL} (Value: 4) which are all int constants. The value field contains the argument passed to the token. \\ \\
+\end{tabular}
+
+\begin{figure}[thp]%
+    \centering
+   	\begin{minipage}{0.4\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{go}
+		type Token struct {
+			tokenType int
+			value     string
+		}
+		\end{minted}
+	\end{minipage}
+	\caption{Token Struct}
+	\label{tokenstruct}
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Opcodes} &
+The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and also are int constants. \\ \\ 
+\textbf{Map of opcodes} &
+The map of opcodes shows which opcodes have arguments and how many arguments they have, in order to check if only the allowed amount of words is found in a single line of the contract. If more arguments than defined are passed to an opcode token, it comes to an error.
+ \\ \\ 
+
+\end{tabular}
+
+\subsection{Parser class}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Tokenize() function} &
+The function that is run first is the \mintinline{go}{Tokenize()} function. The process of the \mintinline{go}{Tokenize()} function is shown in figure \ref{tokenizefunc}. The source code of the contract written in \flqq Enhanced Bazo Byte Code\frqq{} is passed as a string. The string is converted to a slice of lines. The \mintinline{go}{Tokenize()} function takes every first word in every line and matches it with available token types. Every first word in line must either be a comment, a label, empty or an opcode. The rest of the words in the same line are the parameters of the opcode or an inline comment, marked with a \#. Comments and empty lines are ignored. Labels end with an colon (e.g. addNums:). If the first word is a label it is added to the labelMap, to later replace it with the address. 
+\end{tabular}
+
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=0.5\textwidth]{./images/tokenize-function}
+	\caption{UML Activity Diagram of the Tokenize Function}
+	\label{tokenizefunc}
+	\end{center}
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Token set} &
+Code snippet \ref{tokenset} shows the generated token set to the basic contract shown in figure \ref{basiccontract_design} in the design chapter.
+\end{tabular}
+
+\begin{figure}[thp]%
+    \centering
+   	\begin{minipage}{0.4\textwidth}
+\begin{minted}
+[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+]
+{go}
+{
+[{0 PUSH} {1 55780}],
+[{0 PUSH} {1 5}],
+[{0 CALL} {4 addNums} {2 2}],
+[{0 HALT}],
+[{0 LOAD} {2 0}],
+[{0 LOAD} {2 1}],
+[{0 ADD}],
+[{0 RET}],
+}
+\end{minted}
+\end{minipage}
+\caption{TokenSet of basic contract shown in \ref{basiccontract_design}}
+\label{tokenset}
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Parse() function} &
+The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq. Figure \ref{parsefunc} shows the the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{INT}. If an opcode takes an int value as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes the byte representation of the int requires. \mintinline{go}{BYTE} and \mintinline{go}{BYTES} just append the value to the instruction set. 
+\end{tabular}
+
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=\textwidth]{./images/parse-function}
+	\caption{UML Activity Diagram of the Parse Function}
+	\label{parsefunc}
+	\end{center}
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Instruction set} &
+Code snipped \ref{compiledbytecode} shows the resulting byte code instruction set.
+\end{tabular}
+
+\begin{figure}[thp]%
+    \centering
+   	\begin{minipage}{0.7\textwidth}
+\begin{minted}
+[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+]
+{go}
+{
+  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 49, 28, 0, 28, 1, 4, 24, 
+}
+\end{minted}
+\end{minipage}
+\caption{Basic contract compiled to \flqq Bazo Byte Code\frqq}
+\label{compiledbytecode}
+\end{figure}
 
 \section{Testing}
 \subsection{Test Driven Development}

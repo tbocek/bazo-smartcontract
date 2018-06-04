@@ -1,6 +1,6 @@
 \chapter{Design}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on, how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Not shown in the diagram is the parser which is also documented in this section.
+This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. The following sections also describe how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Not shown in the diagram is the parser which is also documented in this section.
 
 \begin{figure}[H]
 	\begin{center}
@@ -19,7 +19,7 @@ A user again creates a new transaction, see chapter to call a contract. He provi
 \pagebreak
 
 \section{Miner}
-As mentioned before, the miner is responsible for processing and validating transactions. This sections describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes the changes that have to be made to the miner are documented.
+As mentioned before, the miner is responsible for processing and validating transactions. This sections describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes that have to be made to the miner are documented.
 
 \subsection{Transaction Types} \label{transactionTypes}
 The miner comes with different types of transactions. 
@@ -134,7 +134,7 @@ Accounts are the result of processing an account transaction. They are object on
 \textbf{Externally owned accounts} &
 Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transaction from that account. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier. A externally owned account does not have an Issuer, Contract and ContractVariables. \\ \\
 \textbf{Smart contract accounts} &
-Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The issuer shows which externally owned account issued the contract account. A contract account also has both, Contract and ContractVariables field set.
+Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The issuer shows which externally owned account issued the contract account. A contract account has both, Contract and ContractVariables, fields set.
 
 	\begin{description}
   		\item[Contract] This field contains the smart contract. The data type is byte slice, since a contract can have a variable length and contracts get compiled to byte code.
@@ -142,8 +142,8 @@ Smart contracts accounts are created and owned by externally owned accounts. Sma
 	\end{description}
 \end{tabular}
 
-\section{Virtual machine}
-There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. 
+\section{Virtual Machine}
+There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
 
 \subsection{Register based}
 The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
@@ -185,10 +185,10 @@ A stack based virtual machine is based on a LIFO (last in, first out) stack. Ope
   \end{figure}
 
 \subsection{Design decision}
-Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO, on which we have oriented ourselves.
+Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available. 
 
-\subsection{VM Execution cycle}
-This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}.
+\subsection{VM Execution cycle} \label{exec_cycle}
+This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}. The execution cycle can be described as an end-less loop with a switch statement that interprets the instructions one after another and acts accordingly.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -196,10 +196,10 @@ This section describes the \mintinline{go}{Exec()} function shown in figure \ref
 The virtual machine is embedded into the miner. Precondition that the VM execution cycle is started is, that the transaction must be sent to a smart contract account and the transaction data field is not empty. If these preconditions can be fulfilled, the vm execution cycle is started by the miner. \\ \\
 
 \textbf{Starting point} & 
-The starting point for the execution cycle of the virtual machine is a set of instructions and an incrementing counter, called the program counter, which points to the instruction that is executed next. \\ \\
+The starting point for the execution cycle of the virtual machine is a set of instructions, an execution context, which are local state variables and an incrementing counter, called the program counter, which points to the instruction that is executed next. \\ \\
 
 \textbf{Steps} &
-The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs, the execution is halted by an instruction itself or the program counter is out of bounds of the instruction set. All this steps are handled in the \mintinline{go}{Exec()} function. This are the three steps:
+The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs, the execution is halted by an instruction or the program counter is out of bounds of the instruction set. All this steps are handled in the \mintinline{go}{Exec()} function. This are the three steps:
 \begin{description}
   \item[1. Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
     \end{description}
@@ -224,42 +224,10 @@ Changes to the state variables are loaded and persisted explicit. That means, wh
 \end{tabular}
 
 \section{Parser}
-Since writing all contracts directly in byte code can be very complicated and time-consuming, we decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq. 
+Since writing all contracts directly in byte code can be very complicated and time-consuming, we decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. Labels could also be interpreted as jump markers. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
 
-\subsection{Tokenize function}
-\begin{figure}[H]
-	\begin{center}
-	\includegraphics[width=0.55\textwidth]{./images/tokenize-function}
-	\caption{UML Activity Diagram of the Tokenize Function}
-	\label{tokenizefunc}
-	\end{center}
-\end{figure}
-
-The parser can be split into two main functions. The function that is run first is the \mintinline{go}{Tokenize()} function. The process of the \mintinline{go}{Tokenize()} function is shown in figure \ref{tokenizefunc}. The source code of the contract written in \flqq Enhanced Bazo Byte Code\frqq{} is passed as a string. The string is converted to a slice of lines. The \mintinline{go}{Tokenize()} function takes every first word in every line and matches it with available token types. Every first word in line must either be a comment, a label, empty or an opcode. The rest of the words in the same line are the parameters of the opcode or an inline comment, marked with a \#. Comments (first word is \#) and empty lines are ignored. Labels end with an colon (e.g. addNums:). If the first word is a label it is added to the labelMap, to later replace it with the address.
- 
-\begin{figure}[thp]%
-    \centering
-   	\begin{minipage}{0.6\textwidth}
-		\begin{minted}
-		[
-		frame=lines,
-		autogobble,
-		framesep=2mm,		baselinestretch=1.2,
-		fontsize=\footnotesize,
-		linenos
-		]
-		{go}
-		type Token struct {
-			tokenType int
-			value     string
-		}
-		\end{minted}
-	\end{minipage}
-	\caption{Token Struct}
-	\label{tokenstruct}
-\end{figure}
-
-Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can be \mintinline{go}{OPCODE} (Value: 0), \mintinline{go}{INT} (Value: 1), \mintinline{go}{BYTE} (Value: 2), \mintinline{go}{BYTES} (Value: 3), \mintinline{go}{LABEL} (Value: 4) which are all int constants. The value field contains the argument passed to the token.
+\subsection{\flqq Enhanced Bazo Byte Code\frqq{}}
+Listing \ref{basiccontract_design} shows an example of a contract written in \flqq Enhanced Bazo Byte Code\frqq{}. It is possible to have single line comments and inline comments as well, as seen in line 1 and line 5. Comments and empty lines are ignored by the parser. The first word in line is either an opcodes or a label, which ends with a colon. Opcodes are optionally followed by arguments. It is predefined what type of arguments an opcode has. The \mintinline{go}{CALL} opcode in line 4 for instance takes a label and a byte as argument.
 
 \begin{figure}[thp]%
     \centering
@@ -277,7 +245,7 @@ Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can b
 PUSH 55780
 PUSH 5
 CALL addNums 2
-HALT
+HALT # stops execution
 
 addNums:
 LOAD 0
@@ -287,71 +255,11 @@ RET
 \end{minted}
 \end{minipage}
 \caption{Basic contract with function call written in \flqq Enhanced Bazo Byte Code\frqq{}}
-\label{basiccontract}
+\label{basiccontract_design}
 \end{figure}
 
-Code snippet \ref{basiccontract} shows a basic contract written in \flqq Enhanced Bazo Byte Code\frqq{}. Code snippet \ref{tokenset} shows generated the token set to the contract.
-
-\begin{figure}[thp]%
-    \centering
-   	\begin{minipage}{0.6\textwidth}
-\begin{minted}
-[
-	frame=lines,
-	framesep=2mm,
-	baselinestretch=1.2,
-	fontsize=\footnotesize,
-	linenos
-]
-{go}
-{
-[{0 PUSH} {1 55780}],
-[{0 PUSH} {1 5}],
-[{0 CALL} {4 addNums} {2 2}],
-[{0 HALT}],
-[{0 LOAD} {2 0}],
-[{0 LOAD} {2 1}],
-[{0 ADD}],
-[{0 RET}],
-}
-\end{minted}
-\end{minipage}
-\caption{TokenSet of basic contract shown in \ref{basiccontract}}
-\label{tokenset}
-\end{figure}
-
-\subsection{Parse function}
-
-\begin{figure}[H]
-	\begin{center}
-	\includegraphics[width=\textwidth]{./images/parse-function}
-	\caption{UML Activity Diagram of the Parse Function}
-	\label{parsefunc}
-	\end{center}
-\end{figure}
-
-The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq. Figure \ref{parsefunc} shows the the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{INT}. If an opcode takes an int value as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes the byte representation of the int requires. \mintinline{go}{BYTE} and \mintinline{go}{BYTES} just append the value to the instruction set. Code snipped \ref{compiledbytecode} shows the resulting instruction set.
-
-\begin{figure}[thp]%
-    \centering
-   	\begin{minipage}{0.7\textwidth}
-\begin{minted}
-[
-	frame=lines,
-	framesep=2mm,
-	baselinestretch=1.2,
-	fontsize=\footnotesize,
-	linenos
-]
-{go}
-{
-  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 49, 28, 0, 28, 1, 4, 24, 
-}
-\end{minted}
-\end{minipage}
-\caption{Basic contract compiled to \flqq Bazo Byte Code\frqq}
-\label{compiledbytecode}
-\end{figure}
+\subsection{Compile process}
+First the parser splits the contract written in \flqq Enhanced Bazo Byte Code\frqq{}, which is basically only a long string, into tokens. A token consists of a token type and a value. The token type represents a kind of lexical unit e.g. opcode, label or a sequence of input characters. The token types are the symbols that are processed by the parser. \cite{aho_compilers:_2007} To get to the \flqq Bazo Byte Code\frqq{} the resulting set is iterated and the token is replaced by the corresponding byte value.
 
 \section{Smart contracts}
 Smart contracts are programs that are stored on the blockchain. A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed through a transaction (AccTx). Calling a certain function is also made through a transaction (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in a designated data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
