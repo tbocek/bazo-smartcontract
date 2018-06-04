@@ -17,16 +17,15 @@ In the context of data base management systems a transaction is a unit of work p
 A virtual machine is an abstraction layer. A VM abstracts a program or even a whole operating system from the hardware it is actually run on to make it portable.
 
 \section{Related Work}
-At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain github organization} contains the software systems as described in Fig. \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Figure \ref{systemcontextdiagram} shows the Bazo Blockchain and it's most important software systems.  It also describes how the systems interact with each other and with the out world. It contains multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
+At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain github organization} contains the software systems as described in Figure \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Figure \ref{systemcontextdiagram} shows the Bazo Blockchain and its most important software systems.  It also describes how the systems interact with each other and with the out world. It contains multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
 
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=\textwidth]{./images/BAZO_System_Context}
+	\includegraphics[width=0.83\textwidth]{./images/BAZO_System_Context}
 	\caption{Bazo Blockchain system context diagram}
 	\label{systemcontextdiagram}
 	\end{center}
 \end{figure}
-\pagebreak
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Miner} &
@@ -57,7 +56,7 @@ The miner will continuously fetch transactions from the unprocessed transactions
 
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=\textwidth]{./images/BAZO_Container}
+	\includegraphics[width=0.8\textwidth]{./images/BAZO_Container}
 	\caption{Bazo Blockchain container diagram}
 	\label{systemcontainerdiagram}
 	\end{center}
@@ -74,19 +73,18 @@ As the Bazo Blockchain was started in 2017 there were several theses within whic
 	\item [Design and Prototypical Implementation of a Mobile Light Client for the Bazo Blockchain \cite{ba_client}] was written by Marc-Alain Chételat. The blocks of the Bazo Blockchain only contain the transaction headers but stores the transactions separately. During his work he implemented a light client which contains only the transaction headers and their hashes but not the actual transactions. This allows a client to also run on mobile devices. He also 	implemented a multi-signature mechanism which allows to verify transactions within three seconds.  To do this a Bazo signature server is used to check if the accounts balance is high enough to send the transaction. If it does the transaction is signed and therefore verified. 
 \end{description}
 
-\pagebreak
-
 \subsection{Similar existent projects}
 Since the code of NEO and Ethereum is on github and open source, their implementation has been used and sometimes been implemented analogously. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{NEO} &
-NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the Neo platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper} \\ \\
+NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the Neo platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper}
+\end{tabular}
 
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Ethereum} & 
 The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is proof of work but  a proof of stake algorithm is already being developed and likely to go live in 2018. \\ \\
 \end{tabular}
-
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
