@@ -89,10 +89,11 @@ Figure \ref{new_decode} shows the decoding function of AccTx. The \mintinline{go
 \end{figure}
 
 \section{Miner}
-As there have been changes in the protocol and as the virtual machine is executed by the miner changes had to be made. AccTx now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil. 
+\subsection{Constructors}
+AccTxs now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil. 
 
-\subsection{Integration}
-The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the block.go class. Therefore this function is the right place to start the execution of the virtual machine, if the transaction is sent to a smart contract account and the data field is not empty. Figure \ref{addFundsTx} shows the function without parts that are irrelevant for the integration. Before the function checks whether the transaction calls a smart contact, it performs various checks, i.e. if the account exists or if the sender has a balance high enough to transfer the defined amount of Bazo coins. If all this checks are successful the function validates if the transaction is a valid smart contract call. If so, a new context object with the receiver account and the transaction is created as seen in line 8. As next step the virtual machine is initialized with the context object. In line 12 the \mintinline{go}{Exec()} function is called which starts the virtual machine. If the \mintinline{go}{Exec()} function returns with an error the execution of the addFundsTx is aborted and the context changes are not persisted. 
+\subsection{VM entry point}
+The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the block.go class. Therefore this function is the ideal entry point for the virtual machine. Figure \ref{addFundsTx} shows the function without parts that are irrelevant for the integration. Before the function checks whether the transaction calls a smart contact, it performs various checks, i.e. if the account exists or if the sender has a balance high enough to transfer the defined amount of Bazo coins. If all this checks are successful the function validates if the transaction is a valid smart contract call. If so, a new context object with the receiver account and the transaction is created as seen in line 8. As next step the virtual machine is initialized with the context object. In line 12 the \mintinline{go}{Exec()} function is called which starts the virtual machine. If the \mintinline{go}{Exec()} function returns with an error the execution of the addFundsTx is aborted and the context changes are not persisted. After the VM execution, the finalizing steps are carried out such as updating the balances of both accounts and writing the block header to storage.
 
 \begin{figure}[thp]%
     	\centering
@@ -107,8 +108,7 @@ The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the 
 		linenos
 		]{go}
 func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
-	// Various checks
-	...
+	... // Various checks
 	// Check if transaction has data and the receiver account 
 	// has a smart contract
 	if tx.Data != nil && b.StateCopy[tx.To].Contract != nil {
@@ -123,8 +123,7 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 		//Update changes vm has made to the contract variables
 		context.PersistChanges()
 	}
-	// Finalization
-	...
+	... // Finalization
 }
 		\end{minted}
 		\caption{addFundsTx function}
@@ -132,9 +131,9 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 		\end{minipage}
 \end{figure}
 
-\subsection{Adjustment of Transaction Encoding}
+% \subsection{Adjustment of Transaction Encoding}
 
-\subsection{Adjustment of opcodes to context and miner}
+% \subsection{Adjustment of opcodes to context and miner}
 
 \section{Virtual Machine}
 
@@ -160,8 +159,7 @@ We neglected working with pointers because even though there are more elements c
 \subsection{Virtual machine}
 
 \subsubsection{Exec() function}
-The main part of the virtual machine is the The virtual machine itself is the \mintinline{go}{Exec()} function which contains the execution cycle of the virtual machine as mentioned in section \ref{exec_cycle}. 
-
+The main part of the virtual machine itself is the \mintinline{go}{Exec()} function which contains the execution cycle of the virtual machine as mentioned in section \ref{exec_cycle}. 
 
 
 % TODO insert crc card for vm
@@ -231,12 +229,11 @@ Halt                 & HALT              & 0x30            & return from Exec() 
 \subsubsection{Arithmetic}
 The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. It is not necessary to take care of casting different int types such as uint32 to uint64 if the result is bigger than the two operands, since that is done by big.Int.
 
-\subsubsection{Bitoperations}
+\subsubsection{Bit operations}
 Two opcodes for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int.
 
-\subsubsection{call stack}
-
 \subsubsection{Controlflowoperations}
+
 
 \subsubsection{Datastructures}
 The datastructures the vm can create are map, array and struct on top of an array. 
@@ -299,7 +296,7 @@ Since the virtual machine just processes one instruction set after another and t
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
 \section{Parser}
-The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is a very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
+The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
 
 \subsection{Tokens class}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -336,7 +333,7 @@ Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can b
 \textbf{Opcodes} &
 The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and also are int constants. \\ \\ 
 \textbf{Map of opcodes} &
-The map of opcodes shows which opcodes have arguments and how many arguments they have, in order to check if only the allowed amount of words is found in a single line of the contract. If more arguments than defined are passed to an opcode token, it comes to an error.
+The map of opcodes shows which opcodes have arguments and how many arguments they have, in order to check if only the allowed amount of words is found in a single line of the contract. If more arguments than defined are passed to an opcode token, it comes to an illegal word in line exception.
  \\ \\ 
 
 \end{tabular}
@@ -446,12 +443,12 @@ The test coverage before the VM integration was TODO\%. The updated test coverag
 \textbf{VM} &
 The overall statement coverage is 81.7\%. Every component of the vm package has a test coverage over 78.8\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
 \textbf{Parser} &
-TODO \\ \\
+The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 84.2\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
 \end{tabular}
  
 \subsection{Fuzz Testing} \label{fuzz_testing}
 An instruction set of a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was found it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository using Travis CI and having run it with a billion random contracts over night makes us confident that every bug that could crash the miner was found and mitigated. 
 
 \subsection{Integration Testing}
-To test whether the virtual machine could be successfully integrated, an integration test was made. The integration test consists of multiple small unit tests. It was tested whether it is possible to create smart contract accounts, call functions of these smart contracts and whether state variables are persisted over several transactions.
+To test whether the virtual machine could be successfully integrated, an integration test was made. The goal of this test is to show that deploying and calling smart contracts over transactions are possible. The integration test consists of multiple small unit tests. It was tested whether it is possible to create smart contract accounts, call functions of these smart contracts and whether state variables are persisted over several transactions.
 %insert number of testcoverage
