@@ -18,7 +18,7 @@ A user creates a contract via the command line interface client. There he provid
 A user again creates a new transaction, see chapter to call a contract. He provides the necessary parameters and the hash of the function he wants to call in field of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction that the data field is not empty it will find the called contract and execute its code according to the provided parameters in the data field. Now the user can check the updated state on the blockchain. 
 \pagebreak
 
-\section{Miner}
+\section{Miner} \label{design_miner}
 As mentioned before, the miner is responsible for processing and validating transactions. This sections describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes that have to be made to the miner are documented.
 
 \subsection{Transaction Types} \label{transactionTypes}
@@ -62,7 +62,7 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The AccTx is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account.\cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field was added. \\ \\
+The AccTx is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field were added. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -94,9 +94,9 @@ The AccTx is used to create a new account. As for now this type of transaction i
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{ConfigTx} &
-This type of transaction is used to change system parameters such as block size, block interval or minimum fee. This type of transaction is not discussed any further. \\ \\
+This type of transaction is used to change system parameters such as block size, block interval or minimum fee. \cite{ba_miner} This type of transaction is not discussed any further. \\ \\
 \textbf{StakeTx} &
-Since the Bazo Blockchain is in the transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is also not discussed any further.
+Since the Bazo Blockchain is in transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is also not discussed any further.
 \end{tabular}
 
 \subsection{Accounts} \label{accounts}
