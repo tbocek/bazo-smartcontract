@@ -22,6 +22,120 @@ Figure \ref{package overview} shows the structure of the project on package-leve
 	\item[Parser] The Parser package contains the parser, which consists of a Tokenize and Parse function and tokens. This components are needed to compile \flqq Enhanced Bazo byte code\frqq{ } to a byte code instruction set that can be interpreted by the virtual machine. This package is completely stand-alone and does not have any dependencies. The package is also kept in a separate repository.
 \end{description}
 
+\section{Protocol}
+As mentioned in Section \ref{design_miner} the structs of Account, FundsTx and AccTx had to be adapted. The structs originally had a fixed length. The structs are transferred encoded between the individual components, to achieve loose coupling. The original encoding and decoding functions of those structs is based on the fixed length of the struct. Since the added fields are optional and have an arbitrary length, the encoding and decoding functions had to be redesigned. It was decided use the gob package, which is a package from the Go standard library. The gob package manages streams of binary values between an encoder and decoder. A stream of gobs is self-describing. \cite{golang_gob} The main disadvantage is, that these functions no longer are platform independent.
+
+\subsection{Encoding}
+The new encoding function for the AccTx struct is shown in figure \ref{new_encode}. Switching to gob has lead to a better readability and to fewer lines of code. The type information is defined in line 2. The function \mintinline{go}{.Encode()} in line 12 makes sure all type information data is sent before it is needed. \cite{golang_gob} The encoding functions of the other structs, that were redesigned are very similar and therefore not dealt with. 
+
+\begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.7\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]{go}
+		func (tx *AccTx) Encode() (encodedTx []byte) {
+			encodeData := AccTx{
+				tx.Header,
+				tx.Issuer,
+				tx.Fee,
+				tx.PubKey,
+				tx.Sig,
+				tx.Contract,
+				tx.ContractVariables,
+			}
+			buffer := new(bytes.Buffer)
+			gob.NewEncoder(buffer).Encode(encodeData)
+			return buffer.Bytes()
+		}
+		\end{minted}
+		\caption{New gob based encoding function}
+		\label{new_encode}
+		\end{minipage}
+\end{figure}
+
+\subsection{Decoding}
+Figure \ref{new_decode} shows the decoding function of AccTx. The \mintinline{go}{decoder.Decode()} function in line 5 reads the next value from the input stream and stores it in the data represented by the AccTx interface. \cite{golang_gob}
+
+\begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.7\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]{go}
+		func (*AccTx) Decode(encodedTx []byte) *AccTx {
+			var decoded AccTx
+			buffer := bytes.NewBuffer(encodedTx)
+			decoder := gob.NewDecoder(buffer)
+			decoder.Decode(&decoded)
+			return &decoded
+		}
+		\end{minted}
+		\caption{New gob based decoding function}
+		\label{new_decode}
+		\end{minipage}
+\end{figure}
+
+\section{Miner}
+As there have been changes in the protocol and as the virtual machine is executed by the miner changes had to be made. AccTx now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil. 
+
+\subsection{Integration}
+The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the block.go class. Therefore this function is the right place to start the execution of the virtual machine, if the transaction is sent to a smart contract account and the data field is not empty. Figure \ref{addFundsTx} shows the function without parts that are irrelevant for the integration. Before the function checks whether the transaction calls a smart contact, it performs various checks, i.e. if the account exists or if the sender has a balance high enough to transfer the defined amount of Bazo coins. If all this checks are successful the function validates if the transaction is a valid smart contract call. If so, a new context object with the receiver account and the transaction is created as seen in line 8. As next step the virtual machine is initialized with the context object. In line 12 the \mintinline{go}{Exec()} function is called which starts the virtual machine. If the \mintinline{go}{Exec()} function returns with an error the execution of the addFundsTx is aborted and the context changes are not persisted. 
+
+\begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.8\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]{go}
+func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
+	// Various checks
+	...
+	// Check if transaction has data and the receiver account 
+	// has a smart contract
+	if tx.Data != nil && b.StateCopy[tx.To].Contract != nil {
+		context := protocol.NewContext(*b.StateCopy[tx.To], *tx)
+		virtualMachine := vm.NewVM(context)
+
+		// Check if vm execution run without error
+		if !virtualMachine.Exec(false) {
+			return errors.New(virtualMachine.GetErrorMsg())
+		}
+		
+		//Update changes vm has made to the contract variables
+		context.PersistChanges()
+	}
+	// Finalization
+	...
+}
+		\end{minted}
+		\caption{addFundsTx function}
+		\label{addFundsTx}
+		\end{minipage}
+\end{figure}
+
+\subsection{Adjustment of Transaction Encoding}
+
+\subsection{Adjustment of opcodes to context and miner}
+
 \section{Virtual Machine}
 
 At the time of writing this thesis the VM consists of the following classes:
@@ -184,12 +298,6 @@ Since the virtual machine just processes one instruction set after another and t
 
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
-\section{Miner}
-
-\subsection{Adjustment of Transaction Encoding}
-
-\subsection{Adjustment of opcodes to context and miner}
-
 \section{Parser}
 The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is a very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
 
@@ -324,12 +432,26 @@ Code snipped \ref{compiledbytecode} shows the resulting byte code instruction se
 \end{figure}
 
 \section{Testing}
+The virtual machine, the parser and integration were extensively tested from the start. Depending on the type of component and its relations, different testing methods have been applied. Overall a relatively high test coverage could be achieved. In the sections below, the different testing methods for each package are explained.
 
 \subsection{Unit Testing}
-The project was implemented with test driven development.
+All packages have been unit tested. Each modified package is compared with the package before integration to ensure that the test coverage is not negatively affected by the integration.
 
-\subsection{Fuzz Testing}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Protocol} &
+As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was TODO\%. The updated test coverage is TODO\%, which shows, TODO  \\ \\
+\textbf{Miner} &
+The test coverage before the VM integration was TODO\%. The updated test coverage is TODO\%, which shows, TODO  \\ \\
+\textbf{VM} &
+The overall statement coverage is 81.7\%. Every component of the vm package has a test coverage over 78.8\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
+\textbf{Parser} &
+TODO \\ \\
+\end{tabular}
+ 
+\subsection{Fuzz Testing} \label{fuzz_testing}
 An instruction set of a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was found it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository using Travis CI and having run it with a billion random contracts over night makes us confident that every bug that could crash the miner was found and mitigated. 
 
 \subsection{Integration Testing}
+To test whether the virtual machine could be successfully integrated, an integration test was made. The integration test consists of multiple small unit tests. It was tested whether it is possible to create smart contract accounts, call functions of these smart contracts and whether state variables are persisted over several transactions.
 %insert number of testcoverage
