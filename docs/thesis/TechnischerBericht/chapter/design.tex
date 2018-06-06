@@ -1,6 +1,6 @@
 \chapter{Design}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. The following sections also describe how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Not shown in the diagram is the parser which is also documented in this section.
+This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. The following sections also describe how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Also described in this Section is the parser.
 
 \begin{figure}[H]
 	\begin{center}
@@ -19,15 +19,15 @@ A user again creates a new transaction, see chapter to call a contract. He provi
 \pagebreak
 
 \section{Miner} \label{design_miner}
-As mentioned before, the miner is responsible for processing and validating transactions. This sections describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes that have to be made to the miner are documented.
+As mentioned before, the miner is responsible for processing and validating transactions. This section describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes that were made to the miner are documented.
 
 \subsection{Transaction Types} \label{transactionTypes}
-The miner comes with different types of transactions. 
+The miner comes with different transaction types. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{FundsTx} &
-This type of transaction is used to transfer Bazo coins from one account to another.\cite{ba_miner} The Data field was added, since the FundsTx is the ideal type of transaction to call smart contract functions.
+This type of transaction is used to transfer Bazo coins from one account to another and can be used by any externally owned account.\cite{ba_miner} For this reason it was extended with a Data field to enable users to call smart contract functions.
 \\ \\
 \end{tabular}
 
@@ -62,7 +62,7 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The AccTx is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field were added. \\ \\
+The account transaction is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} Nevertheless this transaction type is the perfect foundation to create smart contract accounts. Therefore a contract field and a contract variable field were added. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -94,13 +94,13 @@ The AccTx is used to create a new account. As for now this type of transaction i
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{ConfigTx} &
-This type of transaction is used to change system parameters such as block size, block interval or minimum fee. \cite{ba_miner} This type of transaction is not discussed any further. \\ \\
+This type of transaction is used to change system parameters such as block size, block interval or minimum fee.  For more information about this transaction type, see the thesis of Livio Sgier \cite{ba_miner}. \\ \\
 \textbf{StakeTx} &
-Since the Bazo Blockchain is in transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is also not discussed any further.
+Since the Bazo Blockchain is in transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is continuously being improved. For more information refer to the theses of Simon Bachmann \cite{ba_pos} and Marc-Alain Chételat \cite{ba_client}.
 \end{tabular}
 
 \subsection{Accounts} \label{accounts}
-Accounts are the result of processing an account transaction. They are object on the heap of the miner. The Bazo miner already had the transaction type to create accounts by design. There is only one struct for the the two different types of account. This is the struct for account:
+An account is the result of processing an account transaction. Accounts are objects on the heap of the miner. Figure \ref{struct_account} shows the struct for Account.
 
 \begin{figure}[thp]%
     	\centering
@@ -114,6 +114,8 @@ Accounts are the result of processing an account transaction. They are object on
 		linenos
 		]
 		{go}
+		type ByteArray []byte
+		
 		type Account struct {
 			Address            [64]byte  // 64 Byte
 			Issuer             [32]byte  // 32 Byte
@@ -123,22 +125,24 @@ Accounts are the result of processing an account transaction. They are object on
 			HashedSeed         [32]byte  // 32 Byte
 			StakingBlockHeight uint32    // 4 Byte
 			Contract           []byte
-			ContractVariables  []big.Int 
+			ContractVariables  []ByteArray
 		}
 		\end{minted}
+		\caption{Stack based virtual machine}
+		\label{struct_account}
 		\end{minipage}
 \end{figure}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Externally owned accounts} &
-Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transaction from that account. The creation of externally owned accounts was already given by the previous thesis by Livio Sgier. A externally owned account does not have an Issuer, Contract and ContractVariables. \\ \\
-\textbf{Smart contract accounts} &
-Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The issuer shows which externally owned account issued the contract account. A contract account has both, Contract and ContractVariables, fields set.
+\textbf{Externally Owned Accounts} &
+Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transaction from that account. The creation of externally owned accounts was already given by the previous thesis written by Livio Sgier. An externally owned account does not have an Issuer, Contract and ContractVariables. \\ \\
+\textbf{Smart Contract Accounts} &
+Smart contracts accounts are created and owned by externally owned accounts. Smart contracts accounts have two additional fields, which were added to the account creation transaction. The Issuer shows which externally owned account issued the contract account. A contract account has both, Contract and ContractVariables, fields set.
 
 	\begin{description}
-  		\item[Contract] This field contains the smart contract. The data type is byte slice, since a contract can have a variable length and contracts get compiled to byte code.
-  		\item[ContractVariables] This field contains the state variables that can be altered by contract functions. The data type is a slice of big.Int since a contract can have a variable amount of variables.
+  		\item[Contract] This field contains the smart contract in byte code. The data type is byte slice, since contracts have variable lengths.
+  		\item[ContractVariables] This field contains the state variables that can be altered by contract functions. The data type is a slice of byte slices, since a contract can have a multiple variables.
 	\end{description}
 \end{tabular}
 
