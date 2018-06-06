@@ -93,7 +93,7 @@ Figure \ref{new_decode} shows the decoding function of AccTx. The \mintinline{go
 AccTxs now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil. 
 
 \subsection{VM entry point}
-The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the block.go class. Therefore this function is the ideal entry point for the virtual machine. Figure \ref{addFundsTx} shows the function without parts that are irrelevant for the integration. Before the function checks whether the transaction calls a smart contact, it performs various checks, i.e. if the account exists or if the sender has a balance high enough to transfer the defined amount of Bazo coins. If all this checks are successful the function validates if the transaction is a valid smart contract call. If so, a new context object with the receiver account and the transaction is created as seen in line 8. As next step the virtual machine is initialized with the context object. In line 12 the \mintinline{go}{Exec()} function is called which starts the virtual machine. If the \mintinline{go}{Exec()} function returns with an error the execution of the addFundsTx is aborted and the context changes are not persisted. After the VM execution, the finalizing steps are carried out such as updating the balances of both accounts and writing the block header to storage.
+The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the block.go class. Therefore this function is the ideal entry point for the virtual machine. Figure \ref{addFundsTx} shows the function without parts that are irrelevant for the integration. Before the function checks whether the transaction calls a smart contact, it performs various checks, i.e. if the account exists or if the sender has a balance high enough to transfer the defined amount of Bazo coins. If all this checks are successful the function validates if the transaction is a valid smart contract call. If so, a new context object with the receiver account and the transaction is created as seen in line 8. As next step the virtual machine is initialized with the context object. In line 12 the \mintinline{go}{Exec()} function is called which starts the virtual machine. If the \mintinline{go}{Exec()} function returns with an error the execution of the addFundsTx is aborted and the context changes are not persisted. After the VM execution, the finalizing steps are carried out, such as updating the balances of both accounts and writing the block header to storage.
 
 \begin{figure}[thp]%
     	\centering
@@ -420,7 +420,7 @@ Code snipped \ref{compiledbytecode} shows the resulting byte code instruction se
 ]
 {go}
 {
-  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 49, 28, 0, 28, 1, 4, 24, 
+  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 50, 28, 0, 28, 1, 4, 24, 
 }
 \end{minted}
 \end{minipage}
@@ -437,7 +437,7 @@ All packages have been unit tested. Each modified package is compared with the p
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Protocol} &
-As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was TODO\%. The updated test coverage is TODO\%, which shows, TODO  \\ \\
+As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was 70\%. The updated test coverage is 65\%, which shows, TODO  \\ \\
 \textbf{Miner} &
 The test coverage before the VM integration was TODO\%. The updated test coverage is TODO\%, which shows, TODO  \\ \\
 \textbf{VM} &
