@@ -12,10 +12,32 @@ This chapter outlines the design of the Bazo Virtual Machine and all other compo
 
 \section{From contract creation to the effects of execution}
 \subsection{Contract deployment}
-A user creates a contract via the command line interface client. There he provides the necessary parameters which include the code of the contract and the initial state variables and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
+A user creates a contract via the client. There he provides the necessary parameters which include the code of the contract and the initial state variables and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{The Ideal} &
+The ideal way to deploy a contract would be over an IDE which allows contracts to be written in a high level language and creates the contract account automatically. A good example for this is the IDE Remix which is used for solidity smart contracts. To make it so easy for the end user a lot more work and resources would have to be invested \\ \\
+
+\raggedright
+\textbf{Current Contract Deployment} &
+Currently it is not  possible to deploy a contract over the web api. It is only possible to add a transaction to the unprocessed transactions pool and let the miner mine the block. Also since a smart contract is basically the same as an account, more detail on that later in \ref{accounts}, it is currently only to possible to create a contract with the root key pair. That is also how the integration tests were done. \\ \\
+
+\raggedright
+\textbf{What is lacking} &
+As mentioned before, current contract deployment is a bit rocky. This is because the VM is part of a bigger system the parts of which were implemented by different people in separate works. To make contract deployment easier the features would have to be supported by the other applications as well but this would have exceeded the scope of this work.
+\\ \\
+\end{tabular}
 
 \subsection{Execution of a contract method}
 A user again creates a new transaction, see chapter to call a contract. He provides the necessary parameters and the hash of the function he wants to call in field of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction that the data field is not empty it will find the called contract and execute its code according to the provided parameters in the data field. Now the user can check the updated state on the blockchain. 
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Current Contract Execution} &
+As the features are not yet implemented in the client it is not possible to send a transaction via the web api of the miner yet. A transaction which calls another contract has to be added to the unprocessed transactions pool. The miner takes the transaction out of the pool and validates it. As the data field of the transaction is set, it will setup the vm context and execute the called function in the vm. After a successful execution, the changed contract variables are written back and the user can check the result in the block explorer. 
+\end{tabular}
+
 \pagebreak
 
 \section{Miner} \label{design_miner}
@@ -28,7 +50,7 @@ The miner comes with different types of transactions.
 \raggedright
 \textbf{FundsTx} &
 This type of transaction is used to transfer Bazo coins from one account to another.\cite{ba_miner} The Data field was added, since the FundsTx is the ideal type of transaction to call smart contract functions.
-\\ \\
+\\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
