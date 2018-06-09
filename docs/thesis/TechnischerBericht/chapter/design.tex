@@ -147,11 +147,16 @@ Smart contracts accounts are created and owned by externally owned accounts. Sma
 \end{tabular}
 
 \section{Virtual Machine}
+Since the virtual machine must never crash, it must be fault-tolerant. A long-term goal is to be able to write smart contracts for the Bazo Blockchain with a high level programming language. For this reason, great emphasis has been placed on outputting well readable error messages to simplify further development. Furthermore, attention was paid to make the virtual machine platform-independent. All these criteria were taken into account during the design process.
+
+\subsection{Types of virtual machines}
 There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
 
-\subsection{Register based}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Register based} &
 The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
-
+\end{tabular}
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=0.61\textwidth]{./images/register-example}
@@ -159,10 +164,13 @@ The data structure of where the operands are stored is based on registers of the
 	\label{register vm}
 	\end{center}
 \end{figure}
-  
-\subsection{Stack based}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Stack based} &
 A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
-  \begin{figure}[thp]%
+\end{tabular}
+\begin{figure}[thp]%
     \centering
 	\begin{minipage}{0.4\textwidth}
   \begin{minted}	[
