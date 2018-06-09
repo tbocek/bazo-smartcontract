@@ -1,0 +1,55 @@
+\chapter{Installation Guidelines}
+\section{Miner Application}
+%TODO: write installation guidelines for miner
+\section{Parser Application}
+\subsection{Prerequisites}
+The programming language Go (developed and tested with version >= 1.9) must be installed, the properties \$GOROOT and \$GOPATH must be set. For more information, please check out the official Go documentation.
+\subsection{Getting started}
+\begin{enumerate}
+	\item Download the bazo-parser application
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{bash}
+		go get github.com/bazo-blockchain/bazo-parser
+  		\end{minted}
+	\item Build the application.
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{bash}
+		$GOPATH/src/github.com/bazo-blockchain/bazo-parser
+		go build
+  \end{minted}
+  \item Run the application
+  \begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{bash}
+		./bazo-parser
+  \end{minted}
+  \item	Define the path to the smart contract. After hitting enter, the parser prints the compiled byte code instructions, ready to copy to the virtual machine or the miner.
+  \begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{bash}
+		Define the path to your contract
+		./contracts/addNums.sc
+  \end{minted}
+\end{enumerate}
