@@ -186,6 +186,49 @@ The \mintinline{go}{Exec()} function returns a boolean. If the return value is t
 Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true, this way there is no need to roll back if the contract could not be executed successfully.
 \end{tabular}
 
+\subsection{Trace function}
+The trace function is activated by passing true as a parameter to the \mintinline{go}{Exec()} function. The trace function prints the instruction that is being processed, its parameters, the evaluation stack and the memory usage to the console, which is useful for debugging. Every opcode has a list of parameter types. This list shows, which parameters are taken from the instruction set. Available parameter types are \mintinline{go}{BYTES}, \mintinline{go}{BYTE}, \mintinline{go}{ADDR} and \mintinline{go}{LABEL}. The trace function loops through the parameter types list of the current opcode and treats every opcode as specified using a switch statement. Figure \ref{traceoutput} shows an example trace output.
+\begin{description}
+	\item[BYTES] are variable length, the first byte that follows after the opcode in the instruction set defines how many bytes are pushed. Counting starts at zero, therefore the maximum is 256 bytes.
+	\item[BYTE] reads a single byte.
+	\item[ADDR] reads 32 bytes from the instruction set. This type is used to read addresses.
+	\item[LABEL] reads the next two bytes and threats them as an integer. This type is mainly used for control flow opcodes.
+\end{description}
+
+\begin{figure}[thp]%
+    \centering
+   	\begin{minipage}{0.5\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{bash}
+0000: push   [10] (bytes)  
+	Stack: [[10]] 
+	1 of max. 1000000 Bytes in use 
+...........................................	
+0003: push   [8] (bytes)  
+	Stack: [[8] [10]] 
+	2 of max. 1000000 Bytes in use 
+...........................................		
+0006: call   11 (label) [2] (byte)  
+	Stack: [] 
+	0 of max. 1000000 Bytes in use 
+...........................................		
+0011: load   [0] (byte)  
+	Stack: [[0 10]] 
+	2 of max. 1000000 Bytes in use 
+...
+	\end{minted}
+	\end{minipage}
+	\caption{Trace function output}
+	\label{traceoutput}
+\end{figure}
 
 % TODO insert crc card for vm
 \subsubsection{opCodes}
