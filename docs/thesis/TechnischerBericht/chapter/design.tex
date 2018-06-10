@@ -1,5 +1,9 @@
 \chapter{Design} \label{design_chapter}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
+
+Design: Do or plan (something) with a specific purpose in mind. \cite{design_definition}
+
+
 This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. The following sections also describe how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Also described in this Section is the parser.
 
 \begin{figure}[H]
@@ -10,25 +14,58 @@ This chapter outlines the design of the Bazo Virtual Machine and all other compo
 	\end{center}
 \end{figure}
 
-\section{From contract creation to the effects of execution}
-\subsection{Contract deployment}
-A user creates a contract via the command line interface client. There he provides the necessary parameters which include the code of the contract and the initial state variables and sends the transaction to the miner. The miner then validates the incoming transaction and creates an account according to the provided parameter on his heap memory, see section \ref{accounts} for further information about accounts. It also broadcasts the new transaction to the other miners, which then act accordingly.
+\section{Contract deployment}
 
-\subsection{Execution of a contract method}
-A user again creates a new transaction, see chapter to call a contract. He provides the necessary parameters and the hash of the function he wants to call in field of the new transaction. This new transaction again is transmitted to the miner, as he sees the type of the transaction that the data field is not empty it will find the called contract and execute its code according to the provided parameters in the data field. Now the user can check the updated state on the blockchain. 
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{State of the Art} &
+Other blockchains such as Ethereum allow to create and deploy a contract over an IDE. These contracts can be written in a high level language and they can be deployed automatically. In this work the foundation for smart contract deployment and execution has been laid out and designed accordingly. To make it as easy for the end user as mentioned above, a lot more work and resources would have to be invested. \\ \\
+
+\raggedright
+\textbf{Current Contract Deployment} &
+Currently contracts are account transactions and as Bazo is permissioned, have to be created with the root key pair. These transactions are added to the unprocessed account transactions pool in the storage of the miner directly. When creating the account transaction, the contract and the initial values of the contract have to be provided. The miner then validates the transaction and creates a contract account. The integration tests of the deployment and execution of smart contracts have been setup in this manner.  \\ \\
+
+\raggedright
+\textbf{Restrictions} &
+This means that yet only developers can create new contracts. \\ \\
+
+\raggedright
+\textbf{Rationale} &
+To make contract creation available for account owners, it would have to be possible to create a contract account with any valid key pair of a Bazo account. Also the peer 2 peer package would have to support the features implemented during this work.
+Both tasks by themselves would have exceeded the scope of this thesis. \\ \\
+\end{tabular}
+
+\section{Execution of a contract method}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{State of the Art} &
+In other blockchains such as Ethereum, smart contracts can be called via the wallet or the web api. The results can be checked via api, wallet or block explorer. \\ \\
+\raggedright
+\textbf{Current Contract Execution} &
+In Bazo a transaction which calls a contract has to be added to the unprocessed transactions pool. The miner takes the transaction out of the pool and validates it. As the data field of the transaction is set, it will setup the vm context and execute the called function in the vm. After a successful execution, the changed contract variables are written back \\ \\
+
+\raggedright
+\textbf{Restrictions} &
+As the features are not yet implemented in the client it is not possible to send this kind of transaction via the web api of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
+
+\raggedright
+\textbf{Rationale} &
+Implementing the features in the other applications as well would have exceeded the scope of this work. \\ \\
+\end{tabular}
+
 \pagebreak
 
-\section{Miner} \label{design_miner}
+\section{VM Integration} \label{design_miner}
 As mentioned before, the miner is responsible for processing and validating transactions. This section describes the requirements and restrictions the integration of the virtual machine is based on. Furthermore, the changes that were made to the miner are documented.
 
 \subsection{Transaction Types} \label{transactionTypes}
-The miner comes with different transaction types. 
+The miner comes with different transaction types.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{FundsTx} &
 This type of transaction is used to transfer Bazo coins from one account to another and can be used by any externally owned account.\cite{ba_miner} For this reason it was extended with a Data field to enable users to call smart contract functions.
-\\ \\
+\\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -72,7 +109,7 @@ The account transaction is used to create a new account. As for now this type of
 		[
 		frame=lines,
 		autogobble,
-		framesep=2mm,		
+		framesep=2mm,
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
 		linenos
@@ -115,7 +152,7 @@ An account is the result of processing an account transaction. Accounts are obje
 		]
 		{go}
 		type ByteArray []byte
-		
+
 		type Account struct {
 			Address            [64]byte  // 64 Byte
 			Issuer             [32]byte  // 32 Byte
@@ -146,8 +183,44 @@ Smart contracts accounts are created and owned by externally owned accounts. Sma
 	\end{description}
 \end{tabular}
 
+
 \section{Virtual Machine}
-Since the virtual machine must never crash, it must be fault-tolerant. A long-term goal is to be able to write smart contracts for the Bazo Blockchain with a high level programming language. For this reason, great emphasis has been placed on outputting well readable error messages to simplify further development. Furthermore, attention was paid to make the virtual machine platform-independent. All these criteria were taken into account during the design process.
+When building the VM the most important design aspects
+
+\subsection{Fault Tolerance}
+As the VM just executes the instructions it receives it could easily enter an error state and panic. Already from at the begin of the work it was clear that it is critical to let the VM fail contract execution gracefully without terminating the whole miner. As a result many guards in front of functions which could panic have been placed and which return error values. The error values of the functions are then pushed on top of the VM stack if the error occurs. To test this a fuzz test has been create which executes random instructions on the VM and reports if the VM panics. 
+\subsection{Maximize Human Participation in Resolving Contract Errors}
+While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing a error message which contains the failure and the kind of opcode that failed. How this looks is shown in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack, when making the code of a test fail.
+
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=\textwidth]{./images/push-test-failure}
+	\caption{Example of an error message.}
+	\label{pushtestfailure}
+	\end{center}
+\end{figure}
+
+\subsection{Consistecy}
+Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
+
+\subsection{Guidelines}
+As the Bazo VM continues to be improved or extended by other works it was paid careful attention to make the software readable, testable, changeable and extendable. 
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Readability} &
+In order to make the code readable code reviews and refactorings according to the results of the review have been made. \\ \\
+
+\raggedright
+\textbf{Testability} &
+Generally the code has been written using test driven development, which required writing testable code. In later stages of the project this was hugely useful and made necessary refactorings easier. \\ \\
+ 
+\raggedright
+\textbf{Extendability and Changeablity} &
+The code should be structured and decoupled enough to make necessary changes or extensions to opcodes relatively easy for follow up works. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
+
+\end{tabular}
+
 
 \subsection{Types of virtual machines}
 There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
@@ -197,7 +270,7 @@ A stack based virtual machine is based on a LIFO (last in, first out) stack. Ope
   \end{figure}
 
 \subsection{Design decision}
-Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available. 
+Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available.
 
 \section{Parser}
 Since writing all contracts directly in byte code can be very complicated and time-consuming, we decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. Labels could also be interpreted as jump markers. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
@@ -245,7 +318,7 @@ Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or
 
 \subsubsection{Sample smart contact in Solidity}
 %\begin{lstlisting}[caption={Solidity contract},captionpos=b,label={lst:dialogex}]
-	
+
 %\end{lstlisting}
 \begin{figure}[thp]%
     \centering
@@ -331,7 +404,7 @@ SSTORE myData   # overwrites the variable in ContractVariables
 HALT
 
 :sub            # sub function
-...	
+...
 \end{minted}
 \end{minipage}
 \end{figure}
