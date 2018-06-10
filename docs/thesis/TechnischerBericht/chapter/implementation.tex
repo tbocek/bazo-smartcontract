@@ -320,6 +320,19 @@ Since the virtual machine just processes one instruction set after another and t
 
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
+\subsection{Gas calculation}
+As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. 
+%TODO Begründen wieso 64?
+
+\begin{figure}[thp]%
+    	\centering
+		$
+		gasCost\ = \left( \frac { { length }_{ element } }{ 64 } +{ 1 } \right) \times gasFactor
+		$
+		\caption{Gas price equation}
+		\label{gas_factor_calc}
+\end{figure}
+
 \section{Parser}
 The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
 
