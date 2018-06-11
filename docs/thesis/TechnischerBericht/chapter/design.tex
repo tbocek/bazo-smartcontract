@@ -9,16 +9,13 @@ This chapter therefore outlines the most important purposes the Bazo Virtual Mac
 \section{Virtual Machine}
 When building the VM the most important design aspects
 
-\subsection{Fault Tolerance}
-As the VM just executes the instructions it receives it could easily enter an error state and panic. Already from at the begin of the work it was clear that it is critical to let the VM fail contract execution gracefully without terminating the whole miner. As a result many guards in front of functions which could panic have been placed and which return error values. The error values of the functions are then pushed on top of the VM stack if the error occurs. To test this a fuzz test has been create which executes random instructions on the VM and reports if the VM panics. 
-\subsection{Maximize Human Participation in Resolving Contract Errors}
-While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing a error message which contains the failure and the kind of opcode that failed. How this looks is shown in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack, when making the code of a test fail.
+\pagebreak
 
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=\textwidth]{./images/push-test-failure}
-	\caption{Example of an error message.}
-	\label{pushtestfailure}
+	\includegraphics[width=\textwidth]{./images/execution-cycle}
+	\caption{Virtual machine execution cycle}
+	\label{vmexecutioncycle}
 	\end{center}
 \end{figure}
 
@@ -37,8 +34,71 @@ Generally the code has been written using test driven development, which require
 \raggedright
 \textbf{Extendability and Changeablity} &
 The code should be structured and decoupled enough to make necessary changes or extensions to opcodes relatively easy for follow up works. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
-
 \end{tabular}
+
+\subsection{Fault Tolerance}
+As the VM just executes the instructions it receives it could easily enter an error state and panic. Already from at the begin of the work it was clear that it is critical to let the VM fail contract execution gracefully without terminating the whole miner. As a result many guards in front of functions which could panic have been placed and which return error values. The error values of the functions are then pushed on top of the VM stack if the error occurs. To test this a fuzz test has been create which executes random instructions on the VM and reports if the VM panics. 
+
+\subsection{Maximize Human Participation in Resolving Contract Errors}
+While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing a error message which contains the failure and the kind of opcode that failed. How this looks is shown in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack, when making the code of a test fail.
+
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=\textwidth]{./images/push-test-failure}
+	\caption{Example of an error message.}
+	\label{pushtestfailure}
+	\end{center}
+\end{figure}
+
+\subsection{Types of virtual machines}
+There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Register based} &
+The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
+\end{tabular}
+\begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=0.61\textwidth]{./images/register-example}
+	\caption{Register based virtual machine}
+	\label{register vm}
+	\end{center}
+\end{figure}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Stack based} &
+A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
+\end{tabular}
+\begin{figure}[thp]%
+    \centering
+	\begin{minipage}{0.4\textwidth}
+  \begin{minted}	[
+	frame=lines,
+	framesep=2mm,
+	baselinestretch=1.2,
+	fontsize=\footnotesize,
+	linenos
+	]
+	{tasm}
+	POP
+	POP
+	ADD
+	PUSH
+  \end{minted}
+  \end{minipage}
+  \end{figure}
+  \begin{figure}[H]
+	\begin{center}
+	\includegraphics[width=0.6\textwidth]{./images/stack-example}
+	\caption{Stack based virtual machine}
+	\label{stack vm}
+	\end{center}
+  \end{figure}
+
+\subsection{Design decision}
+Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available.
 
 \section{Contract deployment}
 
@@ -209,99 +269,8 @@ Smart contracts accounts are created and owned by externally owned accounts. Sma
 	\end{description}
 \end{tabular}
 
-<<<<<<< HEAD
 \subsection{Consistecy}
 Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
-=======
-
-\section{Virtual Machine}
-When building the VM the most important design aspects
->>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
-
-\pagebreak
-
-\begin{figure}[H]
-	\begin{center}
-	\includegraphics[width=\textwidth]{./images/execution-cycle}
-	\caption{Virtual machine execution cycle}
-	\label{vmexecutioncycle}
-	\end{center}
-\end{figure}
-
-<<<<<<< HEAD
-=======
-\subsection{Consistecy}
-Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
-
-\subsection{Guidelines}
-As the Bazo VM continues to be improved or extended by other works it was paid careful attention to make the software readable, testable, changeable and extendable. 
-
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-\textbf{Readability} &
-In order to make the code readable code reviews and refactorings according to the results of the review have been made. \\ \\
-
-\raggedright
-\textbf{Testability} &
-Generally the code has been written using test driven development, which required writing testable code. In later stages of the project this was hugely useful and made necessary refactorings easier. \\ \\
- 
-\raggedright
-\textbf{Extendability and Changeablity} &
-The code should be structured and decoupled enough to make necessary changes or extensions to opcodes relatively easy for follow up works. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
-
-\end{tabular}
-
-
-\subsection{Types of virtual machines}
->>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
-There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
-
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-\textbf{Register based} &
-The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
-\end{tabular}
-\begin{figure}[H]
-	\begin{center}
-	\includegraphics[width=0.61\textwidth]{./images/register-example}
-	\caption{Register based virtual machine}
-	\label{register vm}
-	\end{center}
-\end{figure}
-
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-\textbf{Stack based} &
-A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
-\end{tabular}
-\begin{figure}[thp]%
-    \centering
-	\begin{minipage}{0.4\textwidth}
-  \begin{minted}	[
-	frame=lines,
-	framesep=2mm,
-	baselinestretch=1.2,
-	fontsize=\footnotesize,
-	linenos
-	]
-	{tasm}
-	POP
-	POP
-	ADD
-	PUSH
-  \end{minted}
-  \end{minipage}
-  \end{figure}
-  \begin{figure}[H]
-	\begin{center}
-	\includegraphics[width=0.6\textwidth]{./images/stack-example}
-	\caption{Stack based virtual machine}
-	\label{stack vm}
-	\end{center}
-  \end{figure}
-
-\subsection{Design decision}
-Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available.
 
 \section{Parser}
 Since writing all contracts directly in byte code can be very complicated and time-consuming, we decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. Labels could also be interpreted as jump markers. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
