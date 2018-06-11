@@ -7,6 +7,59 @@ To compare the smart contract features of the Bazo Blockchain  with other common
 \subsection{Tokenization Contract}
 Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found a wide distribution. New financing opportunities for start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. Basically an investor sends money in the form of the blockchain currency to a smart contract and receives the corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem the company hosting the ICO wants to build. \cite{ico_pwc} For this reason it was a decided to write a tokenization contract. Furthermore, tokenization contracts are generally simple because the smart contract does not need to interact with off-chain data. In the very basic implementation, a tokenization contract consists of a map of owners addresses and balances and methods to transfer those tokens from one owner to another.
 
+ \begin{minted}	[
+frame=lines,
+framesep=2mm,
+baselinestretch=1.2,
+fontsize=\footnotesize,
+linenos
+]
+{tasm}
+CALLDATA
+# ------- ABI -------------------------
+DUP
+PUSH 1
+EQ
+CALLIF mint 3
+HALT
+
+# ------ Contract ---------------------
+mint:
+LOAD 1 # load value
+LOAD 0 # load key
+SLOAD 1 # load address of minter
+CALLER
+EQ
+CALLIF adjustBalance 2
+RET
+
+adjustBalance:
+LOAD 1 # load value
+LOAD 0 # load key
+DUP
+SLOAD 2 # load map
+MAPHASKEY
+CALLIF addKeyIfNotExists 2
+LOAD 1 # load value
+LOAD 0 # load key
+SLOAD 2 # load map
+MAPPUSH
+SSTORE 2 # store the map
+HALT
+
+addKeyIfNotExists:
+LOAD 1 # load key
+SLOAD 2 # load map
+MAPGETVAL
+LOAD 0 # load value
+ADD
+LOAD 1 # load key
+SLOAD 2  # load map
+MAPSETVAL
+SSTORE 2 # store the map
+HALT
+\end{minted}
+
 \subsection{Benchmarking Contract}
 The performance of the virtual machine is crucial for the speed of execution and the blockchain in general. For this reason a smart contract has been developed which is suitable for comparing the speed of execution on different implementations and platforms. Taking into accord that blockchains and its use-cases depend heavily on public-key cryptographic, it was decided to implement a smart contract which performs modular exponentiation. Modular exponentiation is a one-way function and frequently used in cryptography. Using large numbers as arguments, the execution of this algorithm takes enough time to get comparable results. The benchmarking contract has been implemented in solidity, as a Go program and in Bazo Byte code. The main goal is to compare the overhead.
 
