@@ -1,18 +1,44 @@
 \chapter{Design} \label{design_chapter}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
+The word design is defined as:
 
-Design: Do or plan (something) with a specific purpose in mind. \cite{design_definition}
+Do or plan (something) with a specific purpose in mind. \cite{design_definition}
 
+This chapter therefore outlines the most important purposes the Bazo Virtual Machine and the parser are built for. It also describes the goals, requirements and restrictions of the integration of the VM into the miner and the orientation taken while building the foundation for the creation, deployment and execution of smart contracts.
 
-This chapter outlines the design of the Bazo Virtual Machine and all other components on given requirements and restrictions based on the previous work this project is based on. The following sections also describe how smart contracts are written, deployed and called in Solidity and in Bazo byte code instructions and what changes had to be made to the miner. Furthermore trade-offs regarding different virtual machine implementations are discussed. Figure \ref{vmexecutioncycle} shows all components of the virtual machine in one single diagram. All components and entities are described in detail in the following sections. Also described in this Section is the parser.
+\section{Virtual Machine}
+When building the VM the most important design aspects
+
+\subsection{Fault Tolerance}
+As the VM just executes the instructions it receives it could easily enter an error state and panic. Already from at the begin of the work it was clear that it is critical to let the VM fail contract execution gracefully without terminating the whole miner. As a result many guards in front of functions which could panic have been placed and which return error values. The error values of the functions are then pushed on top of the VM stack if the error occurs. To test this a fuzz test has been create which executes random instructions on the VM and reports if the VM panics. 
+\subsection{Maximize Human Participation in Resolving Contract Errors}
+While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing a error message which contains the failure and the kind of opcode that failed. How this looks is shown in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack, when making the code of a test fail.
 
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=\textwidth]{./images/execution-cycle}
-	\caption{Virtual machine execution cycle}
-	\label{vmexecutioncycle}
+	\includegraphics[width=\textwidth]{./images/push-test-failure}
+	\caption{Example of an error message.}
+	\label{pushtestfailure}
 	\end{center}
 \end{figure}
+
+\subsection{Guidelines}
+As the Bazo VM continues to be improved or extended by other works it was paid careful attention to make the software readable, testable, changeable and extendable. 
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Readability} &
+In order to make the code readable code reviews and refactorings according to the results of the review have been made. \\ \\
+
+\raggedright
+\textbf{Testability} &
+Generally the code has been written using test driven development, which required writing testable code. In later stages of the project this was hugely useful and made necessary refactorings easier. \\ \\
+ 
+\raggedright
+\textbf{Extendability and Changeablity} &
+The code should be structured and decoupled enough to make necessary changes or extensions to opcodes relatively easy for follow up works. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
+
+\end{tabular}
 
 \section{Contract deployment}
 
@@ -183,23 +209,27 @@ Smart contracts accounts are created and owned by externally owned accounts. Sma
 	\end{description}
 \end{tabular}
 
+<<<<<<< HEAD
+\subsection{Consistecy}
+Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
+=======
 
 \section{Virtual Machine}
 When building the VM the most important design aspects
+>>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 
-\subsection{Fault Tolerance}
-As the VM just executes the instructions it receives it could easily enter an error state and panic. Already from at the begin of the work it was clear that it is critical to let the VM fail contract execution gracefully without terminating the whole miner. As a result many guards in front of functions which could panic have been placed and which return error values. The error values of the functions are then pushed on top of the VM stack if the error occurs. To test this a fuzz test has been create which executes random instructions on the VM and reports if the VM panics. 
-\subsection{Maximize Human Participation in Resolving Contract Errors}
-While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing a error message which contains the failure and the kind of opcode that failed. How this looks is shown in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack, when making the code of a test fail.
+\pagebreak
 
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=\textwidth]{./images/push-test-failure}
-	\caption{Example of an error message.}
-	\label{pushtestfailure}
+	\includegraphics[width=\textwidth]{./images/execution-cycle}
+	\caption{Virtual machine execution cycle}
+	\label{vmexecutioncycle}
 	\end{center}
 \end{figure}
 
+<<<<<<< HEAD
+=======
 \subsection{Consistecy}
 Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
 
@@ -223,6 +253,7 @@ The code should be structured and decoupled enough to make necessary changes or 
 
 
 \subsection{Types of virtual machines}
+>>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}

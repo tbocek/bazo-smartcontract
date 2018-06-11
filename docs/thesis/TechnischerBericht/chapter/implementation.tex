@@ -115,7 +115,7 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 		context := protocol.NewContext(*b.StateCopy[tx.To], *tx)
 		virtualMachine := vm.NewVM(context)
 
-		// Check if vm execution run without error
+		// Check if vm execution run without error
 		if !virtualMachine.Exec(false) {
 			return errors.New(virtualMachine.GetErrorMsg())
 		}
@@ -247,6 +247,12 @@ Control flow opcodes are used to change the  the program counter and therefore c
 \textbf{Data Structures} & 
 The datastructures the vm can create are map, array and struct on top of an array. 
 
+<<<<<<< HEAD
+The two basic datastructures map and array are directly implemented as opcodes
+
+describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
+
+=======
 \begin{description}
 	\item[NEWMAP] The opcode NEWMAP creates a new map and pushes it on the stack. 
 	\item[MAPPUSH]
@@ -278,22 +284,48 @@ bool \\ \hline
 
 \end{tabular}
 
+>>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 \subsection{Context}
-For the vm execution to have any effect it is necessary to change the state of the miner eventually. The problem with an immediate change of the miner state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with rollback but since this is rather difficult to implement because something keeping track of the changed data, it was decided to provide the state as a copy in a context object. The VM would later on perform the changes to contract data. The changed contract data would later on be written back by the miner after a successfull contract execution
+For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted.
 
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Consistency} &
+One problem with an immediate change of the miner state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with a rollback but this was neglected since this is more complicated to implement than letting the VM work on copies. Therefore it was decided to provide the VM with copies of the state variables. \\ \\
 
-This was implemented using an interface because all the methods the VM can use are easily readable in the interface 
+\raggedright
+\textbf{Decoupling} &
+In order to reduce the coupling of the miner it was decided to provide the access to the state variables via a context object which implements the necessary getters and setters. The context object contains the logic needed to create copies and to avoid encapsulation breaches. The context object is setup by the miner, the reference to it is then passed to the VM and the changes are written back after a successful execution of the contract by the miner again. \\ \\
 
-which made it possible to create a special context mock type for testing and one for the actual miner implementation. This was and is useful when having to redefine methods, it also makes it more clear to what the vm actually has acces via reading the context interface. 
+\raggedright
+\textbf{Readability} &
+To clearly describe the operations used by the VM to set or get state variables in an as readable way as possible in the code and to restrain the VM from using all available methods defined on the context object, an interface was created which the VM uses and the context implements. If necessary this would also allow for easier testing since this makes the mocking and overwriting of specific methods of the context possible. \\ \\ 
+\end{tabular}
 
-
-Since the state of the vm is not persisted 
-
-The context describes all variables outside the 
-
-\subsection{Sideffects on data}
-
-Since the VM operates on copies the values will also not be changed by a faulty contract.
+\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{go}
+		type Context interface {
+			GetContract() []byte
+			GetContractVariable(index int) ([]byte, error)
+			SetContractVariable(index int, value []byte) error
+			GetAddress() [64]byte
+			GetIssuer() [32]byte
+			GetBalance() uint64
+			GetSender() [32]byte
+			GetAmount() uint64
+			GetTransactionData() []byte
+			GetFee() uint64
+			GetSig1() [64]byte
+		}
+		\end{minted}
 
 \subsection{Error handling}
 Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
@@ -349,10 +381,10 @@ Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can b
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Opcodes} &
-The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and also are int constants. \\ \\ 
+The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and also are int constants. \\ \\ 
 \textbf{Map of opcodes} &
 The map of opcodes shows which opcodes have arguments and how many arguments they have, in order to check if only the allowed amount of words is found in a single line of the contract. If more arguments than defined are passed to an opcode token, it comes to an illegal word in line exception.
- \\ \\ 
+ \\ \\ 
 
 \end{tabular}
 
