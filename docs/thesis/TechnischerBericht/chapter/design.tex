@@ -1,4 +1,4 @@
-\chapter{Design}
+\chapter{Design} \label{design_chapter}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 The word design is defined as:
 
@@ -209,8 +209,14 @@ Smart contracts accounts are created and owned by externally owned accounts. Sma
 	\end{description}
 \end{tabular}
 
+<<<<<<< HEAD
 \subsection{Consistecy}
 Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
+=======
+
+\section{Virtual Machine}
+When building the VM the most important design aspects
+>>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 
 \pagebreak
 
@@ -222,11 +228,39 @@ Since the blockchain is a distributed database and the VM is allowed to change t
 	\end{center}
 \end{figure}
 
+<<<<<<< HEAD
+=======
+\subsection{Consistecy}
+Since the blockchain is a distributed database and the VM is allowed to change the data of the database eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after potential failure of the VM, the context in which the VM is exectued is created by the miner and passed to the VM. Especially important hereby is letting the vm only work on copies and letting the VM only work on immutable values in order to avoid an encapsulation breach where the VM adjusts a reference value used by the actual miner. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values
+
+\subsection{Guidelines}
+As the Bazo VM continues to be improved or extended by other works it was paid careful attention to make the software readable, testable, changeable and extendable. 
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Readability} &
+In order to make the code readable code reviews and refactorings according to the results of the review have been made. \\ \\
+
+\raggedright
+\textbf{Testability} &
+Generally the code has been written using test driven development, which required writing testable code. In later stages of the project this was hugely useful and made necessary refactorings easier. \\ \\
+ 
+\raggedright
+\textbf{Extendability and Changeablity} &
+The code should be structured and decoupled enough to make necessary changes or extensions to opcodes relatively easy for follow up works. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
+
+\end{tabular}
+
+
+\subsection{Types of virtual machines}
+>>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
 
-\subsection{Register based}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Register based} &
 The data structure of where the operands are stored is based on registers of the CPU, therefore the instructions need to contain the addresses (registers) of the operands. This leads to longer instructions. Figure \ref{register vm} shows how adding two number works on a register based virtual machine. \cite{stackvsregistervm} The instruction is \mintinline{tasm}{ADD R1 R3 R2}.
-
+\end{tabular}
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=0.61\textwidth]{./images/register-example}
@@ -235,9 +269,12 @@ The data structure of where the operands are stored is based on registers of the
 	\end{center}
 \end{figure}
 
-\subsection{Stack based}
-A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are:
-  \begin{figure}[thp]%
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Stack based} &
+A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
+\end{tabular}
+\begin{figure}[thp]%
     \centering
 	\begin{minipage}{0.4\textwidth}
   \begin{minted}	[

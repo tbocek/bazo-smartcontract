@@ -61,7 +61,43 @@ HALT
 \end{minted}
 
 \subsection{Benchmarking Contract}
-The performance of the virtual machine is crucial for the speed of execution and the blockchain in general. For this reason a smart contract has been developed which is suitable for comparing the speed of execution on different implementations and platforms. Taking into accord that blockchains and its use-cases depend heavily on public-key cryptographic, it was decided to implement a smart contract which performs modular exponentiation. Modular exponentiation is a one-way function and frequently used in cryptography. Using large numbers as arguments, the execution of this algorithm takes enough time to get comparable results. The benchmarking contract has been implemented in solidity, as a Go program and in Bazo Byte code. The main goal is to compare the overhead.
+The performance of the virtual machine is crucial for the speed of execution and the blockchain in general. For this reason a smart contract has been developed which is suitable for comparing the speed of execution on different implementations and platforms. Taking into accord that blockchains and its use-cases depend heavily on public-key cryptographic, it was decided to implement a smart contract which performs modular exponentiation. Modular exponentiation is a one-way function and frequently used in cryptography. Figure \ref{mod_exp_direct} shows the straightforward method to calculate \textit{c}. 
+
+\begin{figure}[thp]%
+    	\centering
+		$
+		c\quad \equiv \quad { b }^{ e }\quad mod\quad m
+		$
+		\caption{Modular exponentiation straightforward method}
+		\label{mod_exp_direct}
+\end{figure}
+
+Considering \textit{b} is at least 256 bits for strong cryptography, this method is not very efficient. Therefore, a more memory efficient method has been implemented, which is shown in figure \ref{modularPow_pseudocode}. The benchmarking contract has been implemented in solidity, as a Go program and in Bazo Byte code. The main goal is to compare the overhead.
+
+\begin{figure}[thp]%
+    	\centering
+		\begin{minipage}{0.7\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]{python}
+function modular_pow(base, exponent, modulus)
+    if modulus = 1 then return 0 
+    c := 1
+    for e_prime = 0 to exponent-1
+        c := (c * base) mod modulus
+    return c
+		\end{minted}
+		\caption{Memory efficient method to compute modular exponentiation}
+		\label{modularPow_pseudocode}
+		\end{minipage}
+\end{figure}
+
 
 \section{Results}
 % todo

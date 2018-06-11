@@ -173,7 +173,7 @@ The instruction cycle can be divided into three steps which are repeated over an
 \begin{description}
   \item[1. Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
   \item[2. Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the execute function. Within this section of the function, the costs for the instruction are deducted. Section \ref{fee} describes why a fee is needed and how it is calculated.
-    \item[3. Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcodes cheat sheet}.
+    \item[3. Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcode_table}.
     \end{description}    
 \end{tabular}
 
@@ -186,87 +186,105 @@ The \mintinline{go}{Exec()} function returns a boolean. If the return value is t
 Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true, this way there is no need to roll back if the contract could not be executed successfully.
 \end{tabular}
 
+\subsection{Trace function}
+The trace function is activated by passing true as a parameter to the \mintinline{go}{Exec()} function. The trace function prints the instruction that is being processed, its parameters, the evaluation stack and the memory usage to the console, which is useful for debugging. Every opcode has a list of parameter types. This list shows, which parameters are taken from the instruction set. Available parameter types are \mintinline{go}{BYTES}, \mintinline{go}{BYTE}, \mintinline{go}{ADDR} and \mintinline{go}{LABEL}. The trace function loops through the parameter types list of the current opcode and treats every opcode as specified using a switch statement. Figure \ref{traceoutput} shows an example trace output.
+\begin{description}
+	\item[BYTES] are variable length, the first byte that follows after the opcode in the instruction set defines how many bytes are pushed. Counting starts at zero, therefore the maximum is 256 bytes.
+	\item[BYTE] reads a single byte.
+	\item[ADDR] reads 32 bytes from the instruction set. This type is used to read addresses.
+	\item[LABEL] reads the next two bytes and threats them as an integer. This type is mainly used for control flow opcodes.
+\end{description}
+
+\begin{figure}[thp]%
+    \centering
+   	\begin{minipage}{0.5\textwidth}
+		\begin{minted}
+		[
+		frame=lines,
+		autogobble,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		linenos
+		]
+		{bash}
+0000: push   [10] (bytes)  
+	Stack: [[10]] 
+	1 of max. 1000000 Bytes in use 
+...........................................	
+0003: push   [8] (bytes)  
+	Stack: [[8] [10]] 
+	2 of max. 1000000 Bytes in use 
+...........................................		
+0006: call   11 (label) [2] (byte)  
+	Stack: [] 
+	0 of max. 1000000 Bytes in use 
+...........................................		
+0011: load   [0] (byte)  
+	Stack: [[0 10]] 
+	2 of max. 1000000 Bytes in use 
+...
+	\end{minted}
+	\end{minipage}
+	\caption{Trace function output}
+	\label{traceoutput}
+\end{figure}
 
 % TODO insert crc card for vm
-\subsubsection{opCodes}
-% Please add the following required packages to your document preamble:
-% \usepackage{booktabs}
-\begin{table}[]
-\centering
-\caption{List of opCodes available}
-\label{opcodes cheat sheet}
-\begin{tabular}{@{}llll@{}}
-\toprule
-\textbf{Instruction} & \textbf{Mnemonic} & \textbf{opCode} & \textbf{Description}                                     \\ \midrule
-Push Bytes           & PUSH              & 0x00            & stack $\leftarrow$ bytes                                            \\
-Duplicate            & DUP               & 0x01            & stack $\leftarrow$ peek1                           \\
-Roll                 & ROLL              & 0x02            & removes element at index and push to ToS           \\
-Pop                  & POP               & 0x03            & pops ToS                                                 \\
-Add                  & ADD               & 0x04            & stack $\leftarrow$ pop1 \+ pop2                                      \\
-Subtract             & SUB               & 0x05            & stack $\leftarrow$ pop1 \- pop2                                      \\
-Multiply             & MULT              & 0x06            & stack $\leftarrow$ pop1 \* pop2                                      \\
-Divide               & DIV               & 0x07            & stack $\leftarrow$ pop1 \/ pop2                                      \\
-Modulo               & MOD               & 0x08            & stack $\leftarrow$ pop1 \% pop2                                     \\
-Negate               & NEG               & 0x09            & stack $\leftarrow$ todo                                             \\
-Equals               & EQ                & 0x0a            & stack $\leftarrow$ 1 if pop1 == pop2, 0 otherwise                   \\
-Not equal            & NEQ               & 0x0b            & stack $\leftarrow$ 1 if pop1 != pop2, 0 otherwise                   \\
-Lower than           & LT                & 0x0c            & stack $\leftarrow$ 1 if pop1 \textless{} pop2, 0 otherwise            \\
-Greater than         & GT                & 0x0d            & stack $\leftarrow$ 1 if pop1 \textgreater{} pop2, 0 otherwise         \\
-Lower than/equals    & LTE               & 0x0e            & stack $\leftarrow$ 1 if pop1 \textless{}= pop2, 0 otherwise         \\
-Greater than/equals  & GTE               & 0x0f            & stack $\leftarrow$ 1 if pop1 \textgreater{}= pop2, 0 otherwise      \\
-Shift left           & SHIFTL            & 0x10            & stack $\leftarrow$ pop 1 \textless{}\textless nrOfShifts            \\
-Shift right          & SHIFTR            & 0x11            & stack $\leftarrow$ pop 1 \textgreater{}\textgreater nrOfShifts      \\
-No operation         & NOP               & 0x12            & does nothing                                             \\
-Jump                 & JMP               & 0x13            & jump to address                                          \\
-Jump if true         & JMPIF             & 0x14            & jumps to address if pop1 == 1                            \\
-Call                 & CALL              & 0x15            & call a function                                          \\
-Call if true         & CALLIF            & 0x16            & calls a function if pop1 == 1                            \\
-Call external        & CALLEXT           & 0x17            & calls function from external smart contract              \\
-Return               & RET               & 0x18            & returns from function                                    \\
-Size of ToS          & SIZE              & 0x19            & stack $\leftarrow$ size(pop1)                                       \\
-Store                & STORE             & 0x1a            & stores pop1 in callStack                                 \\
-State Store          & SSTORE            & 0x1b            & stores pop1 in contractVariables                         \\
-Load                 & LOAD              & 0x1c            & stack $\leftarrow$ var from callStack
-    \\
-State Load           & SLOAD             & 0x1d            & stack $\leftarrow$ receiver var from contractVariables \\
-Address              & ADDRESS           & 0x1e            & stack $\leftarrow$ receiver account address                         \\
-Balance              & BALANCE           & 0x1f            & stack $\leftarrow$ receiver account balance                         \\
-Caller               & CALLER            & 0x20            & stack $\leftarrow$ contract caller                                  \\
-Call value           & CALLVAL           & 0x21            & stack $\leftarrow$ transaction amount in bazo coins                 \\
-Call data            & CALLDATA          & 0x22            & stack $\leftarrow$ transaction data                                 \\
-New map              & NEWMAP            & 0x23            & stack $\leftarrow$ new map                                          \\
-Map push             & MAPPUSH           & 0x24            & stack $\leftarrow$ add entry to map                                 \\
-Map get value        & MAPGETVAL         & 0x25            & todo                                                     \\
-Map set value        & MAPSETVAL         & 0x26            & todo                                                     \\
-Map remove           & MAPREMOVE         & 0x27            & todo                                                     \\
-New array            & NEWARR            & 0x28            & stack $\leftarrow$ new array                                        \\
-Array append         & ARRAPPEND         & 0x29            & todo                                                     \\
-Array insert         & ARRINSERT         & 0x2a            & todo                                                     \\
-Array remove         & ARRREMOVE         & 0x2b            & todo                                                     \\
-Array index at       & ARRAT             & 0x2c            & todo                                                     \\
-SHA3 Hashing         & SHA3              & 0x2d            & stack $\leftarrow$ SHA3\_HASH(pop 1)                                \\
-Check signature      & CHECKSIG          & 0x2e            & todo                                                     \\
-Halt with error      & ERRHALT           & 0x2f            & return from Exec() function with false                   \\
-Halt                 & HALT              & 0x30            & return from Exec() function with true                    \\ \bottomrule
-\end{tabular}
-\end{table}
+\subsection{Opcodes}
 
-\subsubsection{Arithmetic}
-The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. It is not necessary to take care of casting different int types such as uint32 to uint64 if the result is bigger than the two operands, since that is done by big.Int.
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Arithmetic} & 
+The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. It is not necessary to take care of casting different int types such as uint32 to uint64 if the result is bigger than the two operands, since that is done by big.Int. \\ \\
 
-\subsubsection{Bit operations}
-Two opcodes for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int.
+\textbf{Bit Operations} & 
+Two opcodes for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int. \\ \\
 
-\subsubsection{Controlflowoperations}
+\textbf{Control Flow Operations} & 
+Control flow opcodes are used to change the  the program counter and therefore changing the sequence of execution. \\ \\
 
-
-\subsubsection{Datastructures}
+\textbf{Data Structures} & 
 The datastructures the vm can create are map, array and struct on top of an array. 
 
+<<<<<<< HEAD
 The two basic datastructures map and array are directly implemented as opcodes
 
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
 
+=======
+\begin{description}
+	\item[NEWMAP] The opcode NEWMAP creates a new map and pushes it on the stack. 
+	\item[MAPPUSH]
+	\item[MAPGETVAL]
+\end{description}
+
+The two basic datastructures map and array are directly implemented as opcodes.
+
+describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
+
+\begin{tabular}[t]{ | c | c | c | c | }
+\textbf{opcode} &
+\textbf{Description} &
+\textbf{Input} &
+\textbf{Output} \\ \hline
+
+NEWMAP &
+Creates a new map and pushes it on the stack. &
+- &
+map \\ \hline
+
+MAPCONTAINSKEY &
+Consumes a map and pushes true or false on the stack depending on wether the map contained the key. &
+map &
+bool \\ \hline
+
+\end{tabular}
+ \\ \\
+
+\end{tabular}
+
+>>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 \subsection{Context}
 For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted.
 
@@ -313,6 +331,19 @@ To clearly describe the operations used by the VM to set or get state variables 
 Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
 
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
+
+\subsection{Gas calculation}
+As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. 
+%TODO Begründen wieso 64?
+
+\begin{figure}[thp]%
+    	\centering
+		$
+		gasCost\ = \left( \frac { { length }_{ element } }{ 64 } +{ 1 } \right) \times gasFactor
+		$
+		\caption{Gas price equation}
+		\label{gas_factor_calc}
+\end{figure}
 
 \section{Parser}
 The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
