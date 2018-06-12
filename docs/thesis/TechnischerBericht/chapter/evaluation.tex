@@ -1,11 +1,16 @@
 \chapter{Evaluation}
+This chapter covers the evaluation of the work by describing the implementation of a smaller tokenization contract in order to show an example of the possible functionality and by providing the implementation of a modular exponentiation contract. The modular exponent contract is set in comparison with a golang native implementation in order to show the overhead created by the execution of the logic on the Bazo VM. 
+
+
+
+
 This Chapter covers the evaluation of the Bazo Blockchain as platform for decentralized application with its competitors. The success of a blockchain is mainly influenced by two factors. One of the factors is capabilities and the other factor is performance. 
 
 \section{Contracts}
 To compare the smart contract features of the Bazo Blockchain  with other common smart contract platforms, two different smart contracts have been implemented. The goal of the first smart contract is to show the capabilities of the Bazo Blockchain. The second smart contract measures the performance of execution.
 
-\subsection{Tokenization Contract}
-Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found a wide distribution. New financing opportunities for start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. Basically an investor sends money in the form of the blockchain currency to a smart contract and receives the corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem the company hosting the ICO wants to build. \cite{ico_pwc} For this reason it was a decided to write a tokenization contract. Furthermore, tokenization contracts are generally simple because the smart contract does not need to interact with off-chain data. In the very basic implementation, a tokenization contract consists of a map of owners addresses and balances and methods to transfer those tokens from one owner to another.
+\section{Tokenization Contract}
+Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found wide application. New possibilities for funding start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. The tokens of an ICO can be bought by sending money in the form of the blockchain currency to a smart contract. The investor then receives corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem of the company hosting the ICO. \cite{ico_pwc} Since tokenization contracts have become so widely used and because they are generally simple, since they do not need to interact with off-chain data, it was decided to write a tokenization contract. In the very basic implementation, a tokenization contract consists of a map of account addresses and balances and methods to transfer those tokens from one account to another.
 
  \begin{minted}	[
 frame=lines,
