@@ -268,7 +268,7 @@ The two basic datastructures map and array are directly implemented as opcodes
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
 \end{tabular}
 \subsection{Context}
-For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted.
+For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted. Figure \ref{context_interface} shows the interface for context.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -284,7 +284,10 @@ In order to reduce the coupling of the miner it was decided to provide the acces
 To clearly describe the operations used by the VM to set or get state variables in an as readable way as possible in the code and to restrain the VM from using all available methods defined on the context object, an interface was created which the VM uses and the context implements. If necessary this would also allow for easier testing since this makes the mocking and overwriting of specific methods of the context possible. \\ \\ 
 \end{tabular}
 
-\begin{minted}
+\begin{figure}[thp]%
+    \centering
+    \begin{minipage}{0.8\textwidth}
+	\begin{minted}
 		[
 		frame=lines,
 		autogobble,
@@ -307,7 +310,11 @@ To clearly describe the operations used by the VM to set or get state variables 
 			GetFee() uint64
 			GetSig1() [64]byte
 		}
-		\end{minted}
+	\end{minted}
+	\end{minipage}
+	\caption{Context interface}
+	\label{context_interface}
+\end{figure}
 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -342,13 +349,13 @@ Since the virtual machine just processes one instruction set after another and t
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
 \subsection{Gas calculation}
-As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. 
+As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
 %TODO Begründen wieso 64?
 
 \begin{figure}[thp]%
     	\centering
 		$
-		gasCost\ = \left( \frac { { length }_{ element } }{ 64 } +{ 1 } \right) \times gasFactor
+		gasCost=\left( \frac { { length }_{ element }+63 }{ 64 }  \right) \times gasFactor
 		$
 		\caption{Gas price equation}
 		\label{gas_factor_calc}
@@ -496,13 +503,13 @@ All packages have been unit tested. Each modified package is compared with the p
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Protocol} &
-As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was 70\%. The updated test coverage is 65\%, which shows, TODO  \\ \\
+As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was 70\%. The updated test coverage is 68\%. The reason for a lower coverage is that the vm\_context.go class has been added, which has many getters and setters that do not need to be tested. \\ \\
 \textbf{Miner} &
-The test coverage before the VM integration was TODO\%. The updated test coverage is TODO\%, which shows, TODO  \\ \\
+The test coverage before the VM integration was 65\%. The updated test coverage is 65\%, which shows that the integration has not negatively affected the coverage. \\ \\
 \textbf{VM} &
-The overall statement coverage is 81.7\%. Every component of the vm package has a test coverage over 78.8\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
+The overall statement coverage is 81\%. Every component of the vm package has a test coverage over 79\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
 \textbf{Parser} &
-The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 84.2\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
+The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 84\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
 \end{tabular}
  
 \subsection{Fuzz Testing} \label{fuzz_testing}

@@ -19,7 +19,7 @@ baselinestretch=1.2,
 fontsize=\footnotesize,
 linenos
 ]
-{tasm}
+{yaml}
 CALLDATA
 # ------- ABI -------------------------
 DUP
@@ -77,7 +77,7 @@ The performance of the virtual machine is crucial for the speed of execution and
 		\label{mod_exp_direct}
 \end{figure}
 
-Considering \textit{b} is at least 256 bits for strong cryptography, this method is not very efficient. Therefore, a more memory efficient method has been implemented, which is shown in figure \ref{modularPow_pseudocode}. The benchmarking contract has been implemented in solidity, as a Go program and in Bazo Byte code. The main goal is to compare the overhead.
+Considering \textit{b} is at least 256 bits for strong cryptography, this method is not very efficient. Therefore, a more memory efficient method has been implemented, which is shown in figure \ref{modularPow_pseudocode}. The benchmarking function has been implemented as a Go program and as a contract in \flqq Bazo Byte Code\frqq. The main goal is to compare the overhead.
 
 \begin{figure}[thp]%
     	\centering
@@ -108,15 +108,49 @@ function modular_pow(base, exponent, modulus)
 % TODO add results of tokenization contract
 
 \subsection{Benchmarks}
-The Go testing package contains a subset of functions to measure the performance of Go code. A benchmark function runs the code \textit{b.N} times. \textit{b.N} is adjusted during execution, until the the benchmark function can be timed reliably. \cite{golang_testing}
+The Go testing package contains a subset of functions to measure the performance of Go code. A benchmark function runs the code \textit{b.N} times. \textit{b.N} is adjusted during execution, until the the benchmark function can be timed reliably. \cite{golang_testing} Three benchmark functions for both implementations have been implemented, whose only difference is the length of \textit{b}. The length of \textit{b} is 32 bytes in the first benchmark function, which is the minimum length for strong cryptography. In the second benchmark function the length of \textit{b} is 128 bytes and in the last, \textit{b} has a length of 255 bytes, which is the maximum length the virtual machine can process. The values of \textit{b}, \textit{e} and \textit{m} are random generated every run. The Following benchmarking measurements that have been analyzed. 
 
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Nanoseconds per operation} &
+Figure \ref{nperop} shows how many nano seconds the operation took. Operation describes the code that was run, in this case the Go program and the benchmarking contract. The benchmarking contract took 9.41 times more nano seconds than the Go program in the first benchmark function with \textit{b = 32 bytes}. In the second function with \textit{b = 128 bytes}, the factor was 7.24. In the last function with \textit{b = 255 bytes} this factor went down to 5.89. The conclusion is, that the longer \textit{b} is, the better the performance of the benchmarking contract gets, compared to the program written in Go. \\ \\
+\end{tabular}
 
+\begin{figure}[H]
+	\begin{center}
+	\fbox{\includegraphics[width=0.6\textwidth]{./images/Benchmarking_Table_-_nsop}}
+	\caption{Nanoseconds per operation diagram}
+	\label{nperop}
+	\end{center}
+\end{figure}
 
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Bytes per operation} &
+Figure \ref{bperop} shows how many bytes per operation have been allocated. The factor between the Go program and the benchmarking contract was stable during benchmark functions. The benchmarking contract needs about 10 times more bytes. This result was expected, since the benchmarking contract needs to duplicate and roll values often, to permute a loop. \\ \\
+\end{tabular}
 
+\begin{figure}[H]
+	\begin{center}
+	\fbox{\includegraphics[width=0.6\textwidth]{./images/Benchmarking_Table_-_bop}}
+	\caption{Bytes per operation diagram}
+	\label{bperop}
+	\end{center}
+\end{figure}
 
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Allocations per operation} &
+Figure \ref{aperop} shows how many bytes per operation have been allocated. The factor between the Go program and the benchmarking contract was stable in all benchmarks. The benchmarking contract needs about 10 times more bytes. This result was expected, for the same reason mentioned above. \\ \\
+\end{tabular}
 
-
-
+\begin{figure}[H]
+	\begin{center}
+	\fbox{\includegraphics[width=0.6\textwidth]{./images/Benchmarking_Table_-_aop}}
+	\caption{Allocation per operation diagram}
+	\label{aperop}
+	\end{center}
+\end{figure}
 
 
 
