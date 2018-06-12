@@ -286,7 +286,7 @@ bool \\ \hline
 
 >>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 \subsection{Context}
-For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted.
+For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted. Figure \ref{context_interface} shows the interface for context.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -302,7 +302,10 @@ In order to reduce the coupling of the miner it was decided to provide the acces
 To clearly describe the operations used by the VM to set or get state variables in an as readable way as possible in the code and to restrain the VM from using all available methods defined on the context object, an interface was created which the VM uses and the context implements. If necessary this would also allow for easier testing since this makes the mocking and overwriting of specific methods of the context possible. \\ \\ 
 \end{tabular}
 
-\begin{minted}
+\begin{figure}[thp]%
+    \centering
+    \begin{minipage}{0.8\textwidth}
+	\begin{minted}
 		[
 		frame=lines,
 		autogobble,
@@ -325,7 +328,11 @@ To clearly describe the operations used by the VM to set or get state variables 
 			GetFee() uint64
 			GetSig1() [64]byte
 		}
-		\end{minted}
+	\end{minted}
+	\end{minipage}
+	\caption{Context interface}
+	\label{context_interface}
+\end{figure}
 
 \subsection{Error handling}
 Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
@@ -333,13 +340,13 @@ Since the virtual machine just processes one instruction set after another and t
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
 
 \subsection{Gas calculation}
-As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. 
+As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
 %TODO Begründen wieso 64?
 
 \begin{figure}[thp]%
     	\centering
 		$
-		gasCost\ = \left( \frac { { length }_{ element } }{ 64 } +{ 1 } \right) \times gasFactor
+		gasCost=\left( \frac { { length }_{ element }+63 }{ 64 }  \right) \times gasFactor
 		$
 		\caption{Gas price equation}
 		\label{gas_factor_calc}
