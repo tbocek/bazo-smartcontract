@@ -487,13 +487,13 @@ All packages have been unit tested. Each modified package is compared with the p
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Protocol} &
-As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was 70\%. The updated test coverage is 65\%, which shows, TODO  \\ \\
+As described in the sections before, not many changes have been made to the Protocol package. The test coverage before the VM integration was 70\%. The updated test coverage is 68\%. The reason for a lower coverage is that the vm\_context.go class has been added, which has many getters and setters that do not need to be tested. \\ \\
 \textbf{Miner} &
-The test coverage before the VM integration was TODO\%. The updated test coverage is TODO\%, which shows, TODO  \\ \\
+The test coverage before the VM integration was 65\%. The updated test coverage is 65\%, which shows that the integration has not negatively affected the coverage. \\ \\
 \textbf{VM} &
-The overall statement coverage is 81.7\%. Every component of the vm package has a test coverage over 78.8\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
+The overall statement coverage is 81\%. Every component of the vm package has a test coverage over 79\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
 \textbf{Parser} &
-The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 84.2\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
+The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 84\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
 \end{tabular}
  
 \subsection{Fuzz Testing} \label{fuzz_testing}
