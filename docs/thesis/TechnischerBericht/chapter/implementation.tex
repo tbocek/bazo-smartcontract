@@ -231,60 +231,42 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 \end{figure}
 
 % TODO insert crc card for vm
-\subsection{Opcodes}
-
+\section{Opcodes}
+\subsection{Arithmetic}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Arithmetic} & 
-The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. It is not necessary to take care of casting different int types such as uint32 to uint64 if the result is bigger than the two operands, since that is done by big.Int. \\ \\
+\textbf{Implementation} & 
+The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. \\ \\
 
+\raggedright
+\textbf{Element Size} & 
+ It is not necessary to take care about the length of the elements, since big.Int allows for elements of arbitrary size. \\ \\
+
+\raggedright
+\textbf{Sign} & 
+Important to note is that these operations are always signed. Therefore when pushing a number the sign has to be provided in the first byte by setting it to zero or one. If this is not done an error can occur or worse won't occur because the number starts with one and is used to describe the sign of the number. \\ \\
+
+\textbf{Rationale for big.Int} & 
+\\
+\end{tabular}
+\subsection{Bit Operations}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
 \textbf{Bit Operations} & 
 Two opcodes for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int. \\ \\
 
+\raggedright
 \textbf{Control Flow Operations} & 
 Control flow opcodes are used to change the  the program counter and therefore changing the sequence of execution. \\ \\
 
+\raggedright
 \textbf{Data Structures} & 
 The datastructures the vm can create are map, array and struct on top of an array. 
 
-<<<<<<< HEAD
 The two basic datastructures map and array are directly implemented as opcodes
 
 describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
-
-=======
-\begin{description}
-	\item[NEWMAP] The opcode NEWMAP creates a new map and pushes it on the stack. 
-	\item[MAPPUSH]
-	\item[MAPGETVAL]
-\end{description}
-
-The two basic datastructures map and array are directly implemented as opcodes.
-
-describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
-
-\begin{tabular}[t]{ | c | c | c | c | }
-\textbf{opcode} &
-\textbf{Description} &
-\textbf{Input} &
-\textbf{Output} \\ \hline
-
-NEWMAP &
-Creates a new map and pushes it on the stack. &
-- &
-map \\ \hline
-
-MAPCONTAINSKEY &
-Consumes a map and pushes true or false on the stack depending on wether the map contained the key. &
-map &
-bool \\ \hline
-
 \end{tabular}
- \\ \\
-
-\end{tabular}
-
->>>>>>> 5e3d7450bae761828671fb2b91c461f83a26d586
 \subsection{Context}
 For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted.
 
@@ -326,6 +308,33 @@ To clearly describe the operations used by the VM to set or get state variables 
 			GetSig1() [64]byte
 		}
 		\end{minted}
+
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Data from a Transaction} &
+\begin{description}
+  \item[Sender/Address] The sender field shows the transactions sender public address.
+  \item[Fee] The maximum price the transaction can cost.
+  \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
+  \item[Amount] This field shows the amount of Bazo units send in this transaction.
+\end{description} \\ \\
+
+\raggedright
+\textbf{Data from the Receiver Account} &
+\begin{description}
+  \item[Issuer/Owner] This field contains the public address of the account owner.
+  \item[Balance] This field contains the amount of coins this account owns.
+  \item[Contract] This field is the smart contract itself and contains the byte code. The datatype is \mintinline{yaml}{[]byte}, so it can easily be packed into a transaction field.
+  \item[ContractVariables] This field contains the state variables that are changed by executing transactions.
+\end{description} \\ \\
+
+\raggedright
+\textbf{Data from the Miner} &
+\begin{description}
+  \item[Block header] This field is needed for block number/hash
+\end{description} \\ \\
+\end{tabular}
 
 \subsection{Error handling}
 Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
