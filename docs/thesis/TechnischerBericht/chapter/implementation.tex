@@ -236,36 +236,67 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Implementation} & 
-The arithmetic opcodes are based on the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. \\ \\
+The arithmetic opcodes use the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. \\ \\
 
 \raggedright
 \textbf{Element Size} & 
- It is not necessary to take care about the length of the elements, since big.Int allows for elements of arbitrary size. \\ \\
+It is not necessary to take care about the length of the elements, since big.Int allows for elements of arbitrary size. \\ \\
 
 \raggedright
 \textbf{Sign} & 
 Important to note is that these operations are always signed. Therefore when pushing a number the sign has to be provided in the first byte by setting it to zero or one. If this is not done an error can occur or worse won't occur because the number starts with one and is used to describe the sign of the number. \\ \\
 
+\raggedright
 \textbf{Rationale for big.Int} & 
-\\
+Concerning the implementation of arithmetic opcodes for the VM
+facing the need to provide operations for large elements it was decided to use big.Int and neglected using Int64 in order to achieve the possibility to work with numbers bigger than 256 Byte accepting the downside of adjusting gas calculation to take element size into account. \\
 \end{tabular}
 \subsection{Bit Operations}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Bit Operations} & 
-Two opcodes for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int. \\ \\
+\textbf{Implementation} & 
+Bit operations are the two opcodes SHIFTR and SHIFTL for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int. \\ \\
 
+\raggedright
+\textbf{Unsigned} & 
+Important to note is that these operations are primarily thought to be used for bytes. They do not parse the leading byte in order to set the sign in big.Int. This means that when this operations are used on signed numbers the result could be that the signing byte becomes greater than zero or one and the number therefore is set into an invalid state. To avoid this the opcode has to be changed or reimplemented depending on the use case. \\ \\
+
+\raggedright
+\textbf{Rationale} & 
+Concerning the implementation of opcodes for bit operations facing the need to provide operations for large elements it was decided to use the operations provided by big.Int instead implementing the operations by ourselves to achieve the possibility to work with numbers bigger than 256 Byte. It was also decided to make the operations unsigned because they are primarily thought of as bit operations. The downsides of having to adjust gas calculation to take element size into account. If these operations are primarily used for numbers the implementation can be changed in a minute. \\ \\
+\end{tabular}
+
+\subsection{Bool Operations}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Implementation} & 
+\\ \\
+\raggedright
+\textbf{Implementation} & 
+\\ \\
+
+\end{tabular}
+\subsection{Control Flow Operations}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Control Flow Operations} & 
 Control flow opcodes are used to change the  the program counter and therefore changing the sequence of execution. \\ \\
+\end{tabular}
+
+\subsection{Data Structures}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Overview} & 
+The two basic data structures map and array are directly implemented as opcodes. Structs could be created on top of an array. For each data structure instructions are available to add, remove, set and retrieve values.\\ \\
 
 \raggedright
-\textbf{Data Structures} & 
-The datastructures the vm can create are map, array and struct on top of an array. 
-
-The two basic datastructures map and array are directly implemented as opcodes
-
-describe the implementation of map, array and how one could create a struct. Do it the same as the other opcodes.
+\textbf{Implementation} & 
+Both data structures are implemented on top of a byte slice with the required methods.
+ \\ \\
+ 
+\raggedright
+\textbf{Rationale} & 
+Concerning the implementation of the data structures facing the needs of being able to serialize it into a byte slice in order to push it on the stack, reducing the overhead as much as possible and keeping the implementation simple and the contents of the structure viewable in the trace function for debugging, it was decided to implement the data structures on top of byte slice. Therefore neglecting the possibility of using the golang implementation. The reasons for this decision are that the array or map would have to be marshaled and unmarshaled by each opcode in order to pop the data structure from the stack perform the operation and push it back. Also, a slice of bytes could not be used as an index for a map since it is not comparable. The heightened possibility of errors in the implementation is accepted since the blockchain is a research blockchain although measures have been taken to provide as much correctness as possible.  \\ \\
 \end{tabular}
 \subsection{Context}
 For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted. Figure \ref{context_interface} shows the interface for context.
