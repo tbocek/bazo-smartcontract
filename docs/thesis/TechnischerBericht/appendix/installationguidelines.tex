@@ -1,10 +1,128 @@
 \chapter{Installation Guidelines}
 \section{Miner Application}
-%TODO: write installation guidelines for miner
+\subsection{Prerequisites}
+The programming language Go (developed and tested with version >= 1.9) must be installed, the properties \$GOROOT and \$GOPATH must be set. For more information, please check out the official documentation.
+
+Before the bazo-miner can be started, two public-private key-pairs are required. The key-pairs can be generated with the bazo-keypairgen application. Run the following instructions in your terminal.
+
+\begin{enumerate}
+	\item Download the bazo-keypairgen application.
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		autogobble,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		]
+		{bash}
+		go get github.com/bazo-blockchain/bazo-keypairgen
+  		\end{minted}
+	\item Build the application.
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+		$GOPATH/src/github.com/bazo-blockchain/bazo-keypairgen
+		go build
+  		\end{minted}
+  	\item Run the application to generate the \textit{validator} public-private keypair. The validator is the keyfile\'s name containing the validator\'s public key.
+  	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+		./bazo-keypairgen validator.txt
+  		\end{minted}
+  	\item Run the application to generate the \textit{multisig} public-private keypair. The multisig is the keyfile\'s name containing the multi-signature server\'s public key.
+  	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+		./bazo-keypairgen multisig.txt
+  		\end{minted}
+\end{enumerate}
+
+\subsection{Getting Started}
+\begin{enumerate}
+	\item Download the bazo-miner application.
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+		go get github.com/bazo-blockchain/bazo-miner
+  		\end{minted}
+	\item Copy both previously generated files \textit{validator.txt} and \textit{multisig.txt} into the root folder of the bazo-miner folder.
+	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+$GOPATH/src/github.com/bazo-blockchain/bazo-keypairgen
+cp validator.txt $GOPATH/src/github.com/bazo-blockchain/bazo-miner/validator.txt 
+cp multisig.txt $GOPATH/src/github.com/bazo-blockchain/bazo-miner/multisig.txt 
+  		\end{minted}
+  	\item Open the storage configuration file \textit{storage/configs.go} in an editor of your choice.
+  	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		autogobble,
+		fontsize=\footnotesize,
+		]
+		{bash}
+$GOPATH/src/github.com/bazo-blockchain/bazo-keypairgen
+cp validator.txt $GOPATH/src/github.com/bazo-blockchain/bazo-miner/validator.txt 
+cp multisig.txt $GOPATH/src/github.com/bazo-blockchain/bazo-miner/multisig.txt 
+  		\end{minted}
+  		Replace the value of \textit{INITROOTPUBKEY1} with the first line of \textit{validator.txt}. Replace the value of \textit{INITROOTPUBKEY2} with the second line of \textit{validator.txt}.
+  	\item Build the application.
+  	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+		$GOPATH/src/github.com/bazo-blockchain/bazo-miner
+		go build
+  		\end{minted}
+  	\item Run the application.
+  	\begin{minted}[
+		frame=lines,
+		framesep=2mm,
+		baselinestretch=1.2,
+		fontsize=\footnotesize,
+		autogobble
+		]
+		{bash}
+		./bazo-miner "database_file.db" ":8000" "validator.txt" "seedfile.txt" "multisig.txt"
+  		\end{minted}
+  		The ipport number must be prefixed with ":". If the miner is intended to run locally, the localhost ip address has to be passed with the ipport. Otherwise the miner tries to connect to the network. Note that "database\_file.db" and "seedfile.txt" are created if they do not exist.
+\end{enumerate}
+
 \section{Parser Application}
 \subsection{Prerequisites}
 The programming language Go (developed and tested with version >= 1.9) must be installed, the properties \$GOROOT and \$GOPATH must be set. For more information, please check out the official Go documentation.
-\subsection{Getting started}
+\subsection{Getting Started}
 \begin{enumerate}
 	\item Download the bazo-parser application
 	\begin{minted}[
@@ -12,7 +130,7 @@ The programming language Go (developed and tested with version >= 1.9) must be i
 		framesep=2mm,
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
-		linenos
+		autogobble
 		]
 		{bash}
 		go get github.com/bazo-blockchain/bazo-parser
@@ -23,7 +141,7 @@ The programming language Go (developed and tested with version >= 1.9) must be i
 		framesep=2mm,
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
-		linenos
+		autogobble
 		]
 		{bash}
 		$GOPATH/src/github.com/bazo-blockchain/bazo-parser
@@ -35,7 +153,7 @@ The programming language Go (developed and tested with version >= 1.9) must be i
 		framesep=2mm,
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
-		linenos
+		autogobble
 		]
 		{bash}
 		./bazo-parser
@@ -46,7 +164,7 @@ The programming language Go (developed and tested with version >= 1.9) must be i
 		framesep=2mm,
 		baselinestretch=1.2,
 		fontsize=\footnotesize,
-		linenos
+		autogobble
 		]
 		{bash}
 		Define the path to your contract
