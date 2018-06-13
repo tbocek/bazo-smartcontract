@@ -184,7 +184,7 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The account transaction is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of the files in the miner, it would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contracts needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The fields required are contract which stores the code of the contract and contract variables which contains the state variables. \\ \\
+The account transaction is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of the files in the miner, it would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The fields required are contract which stores the code of the contract and contract variables which contains the state variables. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -261,7 +261,7 @@ An account is the result of processing an account transaction. Account specifica
 \textbf{Externally Owned Accounts} &
 Externally owned accounts are accounts that are owned by the person who has access to the combination of the public and private key. Having both, the person is able to execute transactions from the account. Externally owned accounts do not have an Issuer, a Contract or ContractVariables. \\ \\
 \textbf{Smart Contract Accounts} &
-Smart contracts accounts are created and owned by externally owned accounts. The field Issuer is set and shows which externally owned account issued the account transaction of the contract account. A smart contract account contains its code in the contract field and if necessary contains its state in contract variables. Contract variables can be altered through contract functions.
+Smart contract accounts are created and owned by externally owned accounts. The field Issuer is set and shows which externally owned account issued the account transaction of the contract account. A smart contract account contains its code in the contract field and if necessary contains its state in contract variables. Contract variables can be altered through contract functions.
 \end{tabular}
 
 \subsection{Execution Context}
@@ -420,7 +420,7 @@ Running a node in the network carries costs and the node operators want to be co
 
 \raggedright
 \textbf{Security Aspects of the Fee} &
-Moreover the fee can be seen as a way to secure the network. As mentioned before, the execution of a contract must halt eventually. Since it is possible to create loop it is possible to create contracts which stay in an endless loop causing the network to get stuck and not accepting new transactions because the execution doesn't come to an end. Subtracting gas with the processing of every instruction the processing of the transaction comes to an end eventually because no more gas is available. \\ \\
+Moreover, the fee can be seen as a way to secure the network. As mentioned before, the execution of a contract must halt eventually. Since the virtual machine is Turing complete, it is possible to create contracts, which stay in an endless loop causing the network to get stuck and not accepting new transactions. Subtracting gas with the processing of every instruction the processing of the transaction comes to an end eventually because no more gas is available. \\ \\
 
 \raggedright
 \textbf{Fees in other Blockchains} &
