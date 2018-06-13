@@ -22,11 +22,11 @@ With the new solution the financial service provider would only take on the role
 
 \raggedright
 \textbf{Evolution of Bazo} & 
-Although the research project with the financial service provider continues, the requirements of this thesis are independant from the requirements of the financial service provider. The project is continuously extended by Prof. Dr. Thomas Bocek. In the spirit of the name Bazo which means base in Esperanto, Thomas has the vision for Bazo to \flqq Become a blockchain ten times better than Ethereum\frqq, whereas Ethereum is a platform or foundation for decentralized applications. \\ \\
+Although the research project with the financial service provider continues, the requirements of this thesis are independent from the requirements of the financial service provider. In the spirit of the name Bazo, which means base in Esperanto, the vision for Bazo is to become a foundation for decentralized applications. \\ \\
 
 \raggedright
 \textbf{Scope of Work} & 
-As smart contracts are an important part of the foundation on which such distributed applications are built on, this thesis provides the environment on which smart contracts can be run on by building a virtual machine and integrating it into the miner. \\ \\
+As smart contracts are an important part of the foundation on which such distributed applications are built on, this thesis provides the environment on which smart contracts can be run on by building a virtual machine (VM) and integrating it into the miner. \\ \\
 \end{tabular}
 \pagebreak
 
@@ -35,7 +35,7 @@ As smart contracts are an important part of the foundation on which such distrib
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Context} & 
-As a basic blockchain solves the problem of keeping track on who owns what and making transactions of such goods, there is still a huge chance for automation and reliability. In this stage the blockchain is basically just a ledger but with the integration of smart contracts, one transaction can trigger a multitude of different actions which otherwise had to be executed manually. Triggering the execution of a smart contract is much faster and more reliable than a human reacting to a received transaction towards one account. The limitation here is of course that there has to be a set of transactions whichs can be dealt with in the same manner to make automation work but this is usually the case. \\ \\
+As a blockchain in its simplest form solves the problem of keeping track on who owns what and making transactions of such goods, there is still a huge chance for automation and reliability. In this stage the blockchain is basically just a ledger but with the integration of smart contracts, one transaction can trigger a multitude of different actions which otherwise had to be executed manually. Triggering the execution of a smart contract is much faster and more reliable than a human reacting to a received transaction towards one account. The limitation here is of course that there has to be a set of transactions whichs can be dealt with in the same manner to make automation work but this is usually the case. \\ \\
 
 \textbf{Chance} & 
 As transaction speed and cost approach nearly zero compared to traditional payment systems like paying a bill at the post office, it is more and more feasible to make even very small transactions. This could be used to pay content creators like journalists, artists or musicians fairer by using smart contracts creating a small transaction each time a video or article is viewed. This is just an example and having provided the base, of course many other things can be built upon such a system.\\ \\
@@ -49,4 +49,4 @@ In the context of automation, speed and transparency, smart contracts provide a 
 \end{tabular}
 
 \section{Description of work}
-As mentioned before this thesis is concerned with the integration of smartcontracts into the Bazo Blockchain. The goal of contract integration contained multiple subgoals. First a Virtual Machine had to be built which is able to execute the code later stored on the blockchain. The second subgoal was to implement the vm into the miner of the Bazo Blockchain because contract execution should be part of transaction verfication.
+This thesis is concerned with the integration of smart contracts into the Bazo Blockchain. The goal of contract integration contained multiple subgoals. First a virtual machine had to be built which is able to execute the code later stored on the blockchain. The second subgoal was to implement the VM into the miner of the Bazo Blockchain because contract execution should be part of transaction verfication.
