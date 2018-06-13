@@ -1,15 +1,8 @@
 \chapter{Evaluation}
 This chapter covers the evaluation of the work by describing the implementation of a smaller tokenization contract in order to show an example of the possible functionality and by providing the implementation of a modular exponentiation contract. The modular exponent contract is set in comparison with a golang native implementation in order to show the overhead created by the execution of the logic on the Bazo VM. 
 
-
-
-
-This Chapter covers the evaluation of the Bazo Blockchain as platform for decentralized application with its competitors. The success of a blockchain is mainly influenced by two factors. One of the factors is capabilities and the other factor is performance. 
-
-\section{Contracts}
-To compare the smart contract features of the Bazo Blockchain  with other common smart contract platforms, two different smart contracts have been implemented. The goal of the first smart contract is to show the capabilities of the Bazo Blockchain. The second smart contract measures the performance of execution.
-
 \section{Tokenization Contract}
+\label{tokencontract}
 Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found wide application. New possibilities for funding start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. The tokens of an ICO can be bought by sending money in the form of the blockchain currency to a smart contract. The investor then receives corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem of the company hosting the ICO. \cite{ico_pwc} Since tokenization contracts have become so widely used and because they are generally simple, since they do not need to interact with off-chain data, it was decided to write a tokenization contract. In the very basic implementation, a tokenization contract consists of a map of account addresses and balances and methods to transfer those tokens from one account to another.
 
  \begin{minted}	[
@@ -65,7 +58,10 @@ SSTORE 2 # store the map
 HALT
 \end{minted}
 
-\subsection{Benchmarking Contract}
+\subsection{Results}
+As a result, a contract was created which allows to store addresses together with balances. Only the account address which is recorded as minter is allowed to change balances. The balance can be reduced by sending negative values or increased by sending positive values. If the map does not yet contain an address, it is added automatically. 
+
+\section{Benchmarking Contract}
 The performance of the virtual machine is crucial for the speed of execution and the blockchain in general. For this reason a smart contract has been developed which is suitable for comparing the speed of execution on different implementations and platforms. Taking into accord that blockchains and its use-cases depend heavily on public-key cryptographic, it was decided to implement a smart contract which performs modular exponentiation. Modular exponentiation is a one-way function and frequently used in cryptography. Figure \ref{mod_exp_direct} shows the straightforward method to calculate \textit{c}. 
 
 \begin{figure}[thp]%
@@ -103,11 +99,7 @@ function modular_pow(base, exponent, modulus)
 		\end{minipage}
 \end{figure}
 
-\section{Results}
-\subsection{Tokenization}
-% TODO add results of tokenization contract
-
-\subsection{Benchmarks}
+\subsection{Results}
 The Go testing package contains a subset of functions to measure the performance of Go code. A benchmark function runs the code \textit{b.N} times. \textit{b.N} is adjusted during execution, until the the benchmark function can be timed reliably. \cite{golang_testing} Three benchmark functions for both implementations have been implemented, whose only difference is the length of \textit{b}. The length of \textit{b} is 32 bytes in the first benchmark function, which is the minimum length for strong cryptography. In the second benchmark function the length of \textit{b} is 128 bytes and in the last, \textit{b} has a length of 255 bytes, which is the maximum length the virtual machine can process. The values of \textit{b}, \textit{e} and \textit{m} are random generated every run. The Following benchmarking measurements that have been analyzed. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}

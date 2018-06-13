@@ -1,24 +1,25 @@
-\chapter{Future Work and Conclusion}
+\chapter{Conclusion}
 \label{futureworkandconclusions}
+As mentioned in Chapter \ref{descriptionofwork} this thesis consisted of the sub goals of building and integrating a virtual machine. These goals have been achieved and tested with integration tests such as the tokenization contract described in Chapter \ref{tokencontract}. The features of the blockchain implemented in this work could now be extended.
+
+\section{Future Work}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Compiler} & 
-Whilst it is already possible to write contracts using the operation codes of the vm, this is very hard to read for humans. To make the writing of contracts easier a compiler which processes a better understandable language for humans and translates it into the codes of the vm would be useful. \\ \\
+Whilst it is already possible to write contracts using the opcodes of the VM, this is very hard to read for humans. To make the writing of contracts easier a compiler which processes a better understandable language for humans and translates it into the codes of the VM would be useful. \\ \\
 
 \textbf{IDE} & 
-There should also be an envirionment in which contracts can be written in the highlevel language and tested or even directly deployed. \\ \\
+There should also be an environment in which contracts can be written in the high level language and tested or even directly deployed. \\ \\
 
 \raggedright
-\textbf{of gas and currency} & 
-This is useful because if the price of the currency rises, contract execution prices should not rise with it. \\ \\
+\textbf{Separation of Gas and Currency} & 
+The execution of a contract costs a certain amount of coins. This is called gas. When blockchains gain popularity the price of the coin in fiat currency usually rises. Since the gas price stays the same but the coin becomes more valuable the actual execution cost of a contract rises too. A solution to this problem is providing a separate currency for the gas. \\ \\
 
 \raggedright
-\textbf{Contract pays the fee} & 
-Calling a contract and executing a fuction on it should be paid by the contract instead of the caller. \\ \\
+\textbf{Contract Pays the Fee} & 
+Calling a contract and executing a function on it should be paid by the contract instead of the caller. \\ \\
 
 \raggedright
-\textbf{Platform independent encoding} &
-The mechanism with which transactions are encoded and send or received from the miner should be platform independant.\\ \\ 
+\textbf{Platform Independent Encoding} &
+The mechanism with which transactions are encoded to be sent or received from the miner should be platform independent. Currently the encoding of transactions is implemented in a Go dependent encoding mechanism. This is currently no problem since all software systems are implemented in Go and actually faster but it also restricts future projects to use Go as well. \\ \\ 
 \end{tabular}
-\section{Conclusions}
-Evaluation of the results of a contract and its equivalents run on differnt platforms.

@@ -137,26 +137,22 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 
 \section{Virtual Machine}
 
-At the time of writing this thesis the VM consists of the following classes:
-% Insert execution cycle graphic
 
 \subsection{Stack}
 
 % TODO insert crc card for stack
 
-\subsubsection{Maximum stack size}
-Facing the concern of excess memory usage of the contract on the miner, we decided to limit the stack size to 1MB which seems to be well above what the contracts will need. We neglected using the gas amount for max storage determination because it would be just a soft limit
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Maximum Stack Size} & 
+Facing the concern of excess memory usage of the contract on the miner, we decided to limit the stack size to 1MB which seems to be well above what the contracts will need. We neglected using the gas amount for max storage determination because it would be just a soft limit. \\ \\
 
-\subsubsection{Maximum variable size}
-Since it is possible to easily craft denial of service attacks for the blockchain if there is no limit on the variable size we decided to set the variable size to a specific fixed amount instead of arbitrary precision.
-
-\subsubsection{Data structure}
+\textbf{Data Structure} & 
 As underlying data structure of "Stack", keeping in mind to keep the code of the vm short and simple, we decided to use an array of big.Int. It was important that the datatype used for the underlying datatype was of arbitrary length because splitting up an element into multiple bytes so that it can be saved when using an array of bytes as underlying data structure would have been a lot more complex and more error-prone. Arbitrary length is implemented for example an array of jagged arrays of bytes. On the vm it was very important that the type used in the vm provided mathematical methods and also that it could store and work with values of up to 256 bit size. Only big.Int fulfilled both requirements and therefore it was choosen for the vm. Thanks to big.Int being of arbitrary length we could then use an array of big.Int as underlying data structure which also simplifies our code since we don't have to cast the values retrieved from the stack before working with them.
 
-We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes.
-% \subsection{Contract Execution}
+We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes. \\ \\
+\end{tabular}
 
-\subsection{Virtual machine}
 \subsection{VM instruction cycle} \label{exec_cycle}
 This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}. The instructio cycle can be described as an end-less loop with a switch statement that interprets the instructions one after another and acts accordingly.
 
@@ -165,6 +161,7 @@ This section describes the \mintinline{go}{Exec()} function shown in figure \ref
 \textbf{Precondition} & 
 The virtual machine is embedded into the miner. Precondition that the VM instruction cycle is started is, that the transaction must be sent to a smart contract account and the transaction data field is not empty. If these preconditions can be fulfilled, the VM instruction cycle is started by the miner. \\ \\
 
+\raggedright
 \textbf{Starting point} & 
 The starting point for the execution cycle of the virtual machine is a set of instructions, an execution context, which are local state variables and an incrementing counter, called the program counter, which points to the instruction that is executed next. \\ \\
 
@@ -185,6 +182,26 @@ The \mintinline{go}{Exec()} function returns a boolean. If the return value is t
 \textbf{Persisting state variables} &
 Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true, this way there is no need to roll back if the contract could not be executed successfully.
 \end{tabular}
+
+
+\subsection{Error handling}
+Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
+
+Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
+
+\subsection{Gas calculation}
+As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
+%TODO Begründen wieso 64?
+
+\begin{figure}[thp]%
+    	\centering
+		$
+		gasCost=\left( \frac { { length }_{ element }+63 }{ 64 }  \right) \times gasFactor
+		$
+		\caption{Gas price equation}
+		\label{gas_factor_calc}
+\end{figure}
+
 
 \subsection{Trace function}
 The trace function is activated by passing true as a parameter to the \mintinline{go}{Exec()} function. The trace function prints the instruction that is being processed, its parameters, the evaluation stack and the memory usage to the console, which is useful for debugging. Every opcode has a list of parameter types. This list shows, which parameters are taken from the instruction set. Available parameter types are \mintinline{go}{BYTES}, \mintinline{go}{BYTE}, \mintinline{go}{ADDR} and \mintinline{go}{LABEL}. The trace function loops through the parameter types list of the current opcode and treats every opcode as specified using a switch statement. Figure \ref{traceoutput} shows an example trace output.
@@ -232,7 +249,9 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 
 % TODO insert crc card for vm
 \section{Opcodes}
+In this section the implementation of the opcodes of the VM, the most important aspects when working with them and the rationale behind their implementation is described
 \subsection{Arithmetic}
+\label{arithmetic}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Implementation} & 
@@ -251,7 +270,7 @@ Important to note is that these operations are always signed. Therefore when pus
 Concerning the implementation of arithmetic opcodes for the VM
 facing the need to provide operations for large elements it was decided to use big.Int and neglected using Int64 in order to achieve the possibility to work with numbers bigger than 256 Byte accepting the downside of adjusting gas calculation to take element size into account. \\
 \end{tabular}
-\subsection{Bit Operations}
+\subsection{Comparision Operators}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Implementation} & 
@@ -270,10 +289,15 @@ Concerning the implementation of opcodes for bit operations facing the need to p
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Implementation} & 
-\\ \\
+To the category of bool operations belong EQ, NEQ, LT, GT, LTE and GTE. All of these opcodes use the the operations provided by big.Int and all of them work with signed numbers. Only EQ and NEQ work with bytes. \\ \\
 \raggedright
-\textbf{Implementation} & 
-\\ \\
+\textbf{EQ and NEQ} & 
+While writing the integration tests it turned out that the opcodes EQ and NEQ are oftentimes used for the comparison between function hashes in the ABI. Since function hashes are not signed numbers but just bytes it was decided to make these operations unsigned because the parsing of the singing byte would destroy the byte representation. As a result, signed numbers and bytes can be compared. \\ \\
+
+\raggedright
+\textbf{Rationale} & 
+As mentioned before the most prominent use case for EQ and NEQ is the comparison of function hashes. Therefore they are unsigned. For the other opcodes an order has to exist and therefore the first byte of the elements is parsed to set the sign of the big.Ints on which the operation is performed on.
+See Chapter \ref{arithmetic} for the rationale of arbitrary element size. \\ \\
 
 \end{tabular}
 \subsection{Control Flow Operations}
@@ -298,8 +322,8 @@ Both data structures are implemented on top of a byte slice with the required me
 \textbf{Rationale} & 
 Concerning the implementation of the data structures facing the needs of being able to serialize it into a byte slice in order to push it on the stack, reducing the overhead as much as possible and keeping the implementation simple and the contents of the structure viewable in the trace function for debugging, it was decided to implement the data structures on top of byte slice. Therefore neglecting the possibility of using the golang implementation. The reasons for this decision are that the array or map would have to be marshaled and unmarshaled by each opcode in order to pop the data structure from the stack perform the operation and push it back. Also, a slice of bytes could not be used as an index for a map since it is not comparable. The heightened possibility of errors in the implementation is accepted since the blockchain is a research blockchain although measures have been taken to provide as much correctness as possible.  \\ \\
 \end{tabular}
-\subsection{Context}
-For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes a contract execution makes are persisted. Figure \ref{context_interface} shows the interface for context.
+\section{Context}
+For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes of a contract execution are persisted. Figure \ref{context_interface} shows the interface for the VM context and it is followed by explanations to the data.  
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -348,49 +372,21 @@ To clearly describe the operations used by the VM to set or get state variables 
 \end{figure}
 
 
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-\textbf{Data from a Transaction} &
+\subsection{Data from a Transaction}
 \begin{description}
   \item[Sender/Address] The sender field shows the transactions sender public address.
   \item[Fee] The maximum price the transaction can cost.
   \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
   \item[Amount] This field shows the amount of Bazo units send in this transaction.
-\end{description} \\ \\
+\end{description} 
 
-\raggedright
-\textbf{Data from the Receiver Account} &
+\subsection{Data from the Receiver Account}
 \begin{description}
   \item[Issuer/Owner] This field contains the public address of the account owner.
   \item[Balance] This field contains the amount of coins this account owns.
   \item[Contract] This field is the smart contract itself and contains the byte code. The datatype is \mintinline{yaml}{[]byte}, so it can easily be packed into a transaction field.
   \item[ContractVariables] This field contains the state variables that are changed by executing transactions.
-\end{description} \\ \\
-
-\raggedright
-\textbf{Data from the Miner} &
-\begin{description}
-  \item[Block header] This field is needed for block number/hash
-\end{description} \\ \\
-\end{tabular}
-
-\subsection{Error handling}
-Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes it is easily possible to write byte code which is not possible for the vm to execute, for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
-
-Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occoured is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
-
-\subsection{Gas calculation}
-As mentioned in the chapter \ref{design_chapter} the goal is calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
-%TODO Begründen wieso 64?
-
-\begin{figure}[thp]%
-    	\centering
-		$
-		gasCost=\left( \frac { { length }_{ element }+63 }{ 64 }  \right) \times gasFactor
-		$
-		\caption{Gas price equation}
-		\label{gas_factor_calc}
-\end{figure}
+\end{description}
 
 \section{Parser}
 The language the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code, which is why the parser is very basic. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments, and the token types. The second class is parser.go, which can be split into two main functions. 
