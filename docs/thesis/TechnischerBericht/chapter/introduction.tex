@@ -2,31 +2,31 @@
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
-%\raggedright 
+%\raggedright
 %\textbf{About the thesis} &
 %This bachelor thesis was written by Ennio Meier and Marco Steiner and completed at the University of Applied Science Rapperswil in the spring semester 2018. The work was supervised by Prof. Dr. Thomas Bocek. It describes the integration of Smart Contracts into the Bazo Blockchain. \\ \\
 
 \raggedright
-\textbf{The Bazo Blockchain} & 
+\textbf{The Bazo Blockchain} &
 The Bazo Blockchain was started as a research project at the University of Zürich in cooperation with a Financial Service Provider. The first goal of Bazo as a research project, was to provide consumer bonus coins based on blockchain technology for the financial service provider. \\ \\
 
 \raggedright
-\textbf{Benefits of a Blockchain Based Solution} & 
+\textbf{Benefits of a Blockchain Based Solution} &
 The most important benefit of a blockchain based solution is the reduction of administrative work for the financial service provider and the businesses taking part in the coin redemption program. This is because a business contract between financial service provider and business has to be created for every product or service before a consumer can buy them with the bonus points.  \\ \\
 
 \textbf{Intentions} &
 Since the consumer bonus coins become coins of a cryptocurrency the intention is to get businesses and customers to exchange goods directly with bonus coins without the financial service provider as a third party. As mentioned above this is not yet the case, the customers can redeem their coins only via the financial service provider who previously created contracts with the businesses to provide their services for the customers. \\ \\
 
-\textbf{Vision} & 
+\textbf{Vision} &
 With the new solution the financial service provider would only take on the role as exchange point of Bazo coins against fiat currency. Businesses and customers could use the consumer bonus coins in the same way as an actual currency \\ \\
 
 \raggedright
-\textbf{Evolution of Bazo} & 
-Although the research project with the financial service provider continues, the requirements of this thesis are independant from the requirements of the financial service provider. The project is continuously extended by Prof. Dr. Thomas Bocek. In the spirit of the name Bazo which means base in Esperanto, Thomas has the vision for Bazo to \flqq Become a blockchain ten times better than Ethereum\frqq, whereas Ethereum is a platform or foundation for decentralized applications. \\ \\
+\textbf{Evolution of Bazo} &
+Although the research project with the financial service provider continues, the requirements of this thesis are independent from the requirements of the financial service provider. In the spirit of the name Bazo, which means base in Esperanto, the vision for Bazo is to become a foundation for decentralized applications. \\ \\
 
 \raggedright
-\textbf{Scope of Work} & 
-As smart contracts are an important part of the foundation on which such distributed applications are built on, this thesis provides the environment on which smart contracts can be run on by building a virtual machine and integrating it into the miner. \\ \\
+\textbf{Scope of Work} &
+As smart contracts are an important part of the foundation on which such distributed applications are built on, this thesis provides the environment on which smart contracts can be run on by building a virtual machine (VM) and integrating it into the miner. \\ \\
 \end{tabular}
 \pagebreak
 
@@ -34,20 +34,20 @@ As smart contracts are an important part of the foundation on which such distrib
 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\textbf{Context} & 
-As a basic blockchain solves the problem of keeping track on who owns what and making transactions of such goods, there is still a huge chance for automation and reliability. In this stage the blockchain is basically just a ledger but with the integration of smart contracts, one transaction can trigger a multitude of different actions which otherwise had to be executed manually. Triggering the execution of a smart contract is much faster and more reliable than a human reacting to a received transaction towards one account. The limitation here is of course that there has to be a set of transactions whichs can be dealt with in the same manner to make automation work but this is usually the case. \\ \\
+\textbf{Context} &
+As a blockchain in its simplest form solves the problem of keeping track on who owns what and making transactions of such goods, there is still a huge chance for automation and reliability. In this stage the blockchain is basically just a ledger but with the integration of smart contracts, one transaction can trigger a multitude of different actions which otherwise had to be executed manually. Triggering the execution of a smart contract is much faster and more reliable than a human reacting to a received transaction towards one account. The limitation here is of course that there has to be a set of transactions whichs can be dealt with in the same manner to make automation work but this is usually the case. \\ \\
 
-\textbf{Chance} & 
+\textbf{Chance} &
 As transaction speed and cost approach nearly zero compared to traditional payment systems like paying a bill at the post office, it is more and more feasible to make even very small transactions. This could be used to pay content creators like journalists, artists or musicians fairer by using smart contracts creating a small transaction each time a video or article is viewed. This is just an example and having provided the base, of course many other things can be built upon such a system.\\ \\
 
-\textbf{Solution} & 
+\textbf{Solution} &
 Since the participants of the blockchain are free to exchange coins for goods or services, a smart contract facilitates these value transactions as it states in a programming language according to what terms a party is ready to do business with other parties and also makes such transactions faster as there is no involvement of humans in order to verify or execute the transaction. One can be sure that a valid call of the contract results in its execution according to the terms described in it. \\ \\
 
-\textbf{Summary} & 
+\textbf{Summary} &
 In the context of automation, speed and transparency, smart contracts provide a huge benefit to the blockchain.
 
 \end{tabular}
 
 \section{Description of work}
 \label{descriptionofwork}
-As mentioned before this thesis is concerned with the integration of smartcontracts into the Bazo Blockchain. The goal of contract integration contained multiple subgoals. First a Virtual Machine had to be built which is able to execute the code later stored on the blockchain. The second subgoal was to implement the vm into the miner of the Bazo Blockchain because contract execution should be part of transaction verfication.
+This thesis is concerned with the integration of smart contracts into the Bazo Blockchain. The goal of contract integration contained multiple subgoals. First a virtual machine had to be built which is able to execute the code later stored on the blockchain. The second subgoal was to implement the VM into the miner of the Bazo Blockchain because contract execution should be part of transaction verfication.

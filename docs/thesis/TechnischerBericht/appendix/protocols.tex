@@ -1,0 +1,875 @@
+\chapter{Protocols}
+\section{KW22:}
+\subsection{Agenda}
+\begin{itemize}
+\item
+  Are the requirements of the financial service provider full filled or
+  is there still stuff to do?
+\item
+  Review system context diagram (what to do with the client?)
+\item
+  IFS or INS logo? and can it be used?
+\item
+  Checkout future work
+\item
+  Abstract
+\item
+  Problem definition
+\item
+  Poster
+\item
+  We'd like to take the testing over the web api out of scope in order
+  to refactor and write on the thesis.
+\item
+  Which formats of the thesis are required? Print and pdf or only pdf?
+\item
+  Show tokenization contract.
+\item
+  marginalia
+\item
+  Can we send you chapters to read trough, not for error checking but
+  formulation, style etc.
+\item
+  Merging Branches
+\end{itemize}
+
+\subsection{Notes}
+\begin{itemize}
+\item
+  The requirements of the financial service provider are independant
+\item
+  reviewed diagram
+\item
+  Logo is IFS
+\item
+  Future work is ok
+\item
+  The English abstract is important, we'll send it later to read
+\item
+  Email for problem definition (Aufgabenstellung) is sent
+\item
+  Taking the testing of the web api out of scope is ok
+\item
+  Just a pdf would be good.
+\item
+  Marginalia are ok
+\item
+  Marc is still working for the financial service provider to finish the
+  work so this should be ok to contact him over slack.
+\end{itemize}
+
+\section{KW21:}
+\subsection{Agenda}
+\begin{itemize}
+\item
+  Show integration tests
+\item
+  Integration of miner/client
+\item
+  Parser
+\item
+  Thesis
+\end{itemize}
+
+\subsection{Notes}
+\begin{itemize}
+\item
+  Combining the client and the miner is more complicated than thought
+  since both are cli tools. Thomas has a deeper look on how to combine
+  them
+\item
+  Parser moved to own repo, adding a main file and turning it into a cli
+  tool makes sense.
+\item
+  Thesis:
+  \begin{itemize}
+  \item
+    Add gas price to opCode table
+  \item
+    Self-contained is more important than quantity of text
+  \item
+    Having a functionable product is most important
+  \item
+    Use package for code not image
+  \item
+    Suggest date for final presentation (27.6 is when the other group
+    presents) → Tell Thomas if that's a suitable date for us.
+  \end{itemize}
+\end{itemize}
+
+\section{KW20:}
+\subsection{Agenda}
+\begin{itemize}
+\item
+  What do we get Back from Transactions
+  \begin{itemize}
+  \item
+    Errors
+  \item
+    When Getting parameters like balance etc.
+  \item
+    How to return something? *~Adjustments made to the Miner
+  \item
+    Encode/Decode, adapt changes to all encode/decode functions
+    (eventually with a performance loss)?
+  \end{itemize}
+\item
+  Adjustments of the Client
+\item
+  New Repository for Parser
+\item
+  Thesis Background and related work
+
+  \begin{itemize}
+  \item
+    What to take into Design, how to structure design
+  \end{itemize}
+\end{itemize}
+
+\subsection{Notes}
+\begin{itemize}
+\item
+  Future work
+
+  \begin{itemize}
+  \item
+    replace GOB encoding by platform independant encoding and change
+    Encode/Decode function of every component.
+  \item
+    decouple fee from currency, so price of gas per coin can be set, in
+    case the currency gains a lot in value
+  \end{itemize}
+\item
+  Implement transaction recipe to check afterwords if transaction was
+  successful (edit: 13.06. is already implemented)
+\item
+  Testing: test if state can be altered successfully, make second
+  transaction to change the state again.
+\item
+  Merge client and miner, ask other organisation members beforehand
+\item
+  Use gob only for our components, since it is platform dependant
+\item
+  Make new repo for parser
+\item
+  Thesis:
+
+  \begin{itemize}
+  \item
+    No summary needed, combine future work and conclusion
+  \item
+    Benchmarking direclty with go implementation, Ethereum and Neo
+  \end{itemize}
+\end{itemize}
+
+\section{KW19}
+\textit{Intermediate Presentation}
+
+\section{KW18: spontaneous Meeting 03,05,2018}
+\subsection{Agenda}
+\begin{itemize}
+\item
+  Vm integration proposal
+
+  \begin{itemize}
+  \item
+    Extend accounttx.go and fundstx.go with additional fiels
+  \item
+    Adjustment of encode and decode methods
+  \item
+    Executing smart contracts (VM.exec()) in the addFundsTx method of
+    miner/block.go
+  \end{itemize}
+\end{itemize}
+
+\subsection{Notes}
+\begin{itemize}
+\item
+  Integration procedure should be okay
+\item
+  Maybe implement a feature which executes the vm on the client
+  firsthand and if that result executed on the copies is ok then
+  actually create the transaction.
+\item
+  Making contracts able to call further contracts.
+\end{itemize}
+
+\section{KW17}
+\textit{No meeting}
+
+\section{KW16: Meeting 19,04,2018}
+\subsection{Agenda}
+\begin{itemize}
+\item
+  Datastructures
+
+  \begin{itemize}
+  \item
+    Functions
+  \item
+    Internals
+  \end{itemize}
+\item
+  Zwischenpräsentation
+
+  \begin{itemize}
+  \item
+    Which questions does Thomas want to have answered
+  \end{itemize}
+\item
+  Syntax of simplified byte code
+\item
+  Parser
+\item
+  Miner integration
+\item
+  ABI
+\item
+  Small smart contracts
+\end{itemize}
+
+\subsection{Notes}
+
+\begin{itemize}
+\item
+  Datastructures\\
+  \textbf{Array:}
+
+  \begin{itemize}
+  \item
+    Based on go array struct
+  \item
+    Loop for index access
+  \item
+    Bytearray is converted to BigInt and appended with length of
+    bytearray
+  \item
+    Array entry has size, data
+  \item
+    uint16 size
+  \end{itemize}
+
+  \textbf{Map:}
+
+  \begin{itemize}
+  \item
+    Analogous to array
+  \item
+    Entry has key length, key, element size and element
+  \end{itemize}
+
+  \textbf{Struct:}
+
+  \begin{itemize}
+  \item
+    Array can be used to represent structs
+  \end{itemize}
+\item
+  ABI: switch case would be more efficient but if else is much easier to
+  implement and analogous to Ethereum.
+\item
+  Zwischenpräsentation:~Show how a simple contract (addition of two
+  numbers) execution works in detail from begin to end.
+\item
+  Integration meeting at Bahnhofstrasse 3
+\item
+  Implement smart contract variables (data) to be written back atomar
+  with the HALT opCode to be able to reset changes.
+\end{itemize}
+
+\subsection{Todos}
+
+\begin{itemize}
+\item
+  Contracts to define:
+
+  \begin{itemize}
+  \item
+    Concurrency Contracts
+  \item
+    Benchmark Tests
+  \end{itemize}
+\item
+  Refactoring
+\item
+  OpCodes for context data (get the sender address on top of stack,...)
+\item
+  Extend CALLEXT~opCode to send amount of bazo coins
+\item
+  Gas calculation should take size of elements on stack into account
+\end{itemize}
+
+\section{KW15: Meeting 12,04,2018}
+\subsection{Agenda}
+
+\begin{itemize}
+\item
+  Changes made to the code
+
+  \begin{itemize}
+  \item
+    Datastructures.
+  \item
+    Fuzzing
+  \end{itemize}
+\item
+  Discuss idea how to implement struct
+\item
+  Outline ok?
+\end{itemize}
+
+\subsection{Notes}
+
+\begin{itemize}
+\item
+  Map has variable key and value length
+
+  \begin{itemize}
+  \item
+    Datastructures are not solved with serialization
+  \item
+    Uses byte data structure
+  \item
+    Not solved with adding memory
+  \end{itemize}
+\item
+  Size of stack elements that are manipulated has to be taken into
+  account when calculating gas cost
+\item
+  Outline okay
+\end{itemize}
+
+\subsection{Todos}
+
+\begin{itemize}
+\item
+  Finish implementation of data structures
+\item
+  Benchmark with large numbers and compare to Ethereum, NEO
+
+  \begin{itemize}
+  \item
+    Modular exponentiation
+  \end{itemize}
+\item
+  Take size of elements into account when calculating gas cost
+\item
+  Add evaluation chapter to thesis
+\item
+  Make proposition for Zwischenpräsentation
+\end{itemize}
+
+\section{KW14: Meeting 05,04,2018}
+
+\subsection{Agenda}
+
+\begin{itemize}
+\item
+  Changes made to the code
+
+  \begin{itemize}
+  \item
+    Show negate operation.
+  \end{itemize}
+\item
+  Data structure to store contract variables - discussion
+\item
+  Thesis
+\item
+  Contact data of mchetelat
+\item
+  What is meant by integratable into the miner
+\item
+  Fuzz-Testing
+\item
+  How to handle panic if PUSH 2 but only one byte parameter?
+\item
+  Storage: Key/Value, Hash as Key or enumerate? Or simply Slice of
+  big.Ints? Or even BoltDB?
+\end{itemize}
+
+\subsection{Notes}
+\begin{itemize}
+\item
+  The miner shouldn't crash if arbitrary operations are executed. Fuzz
+  Testing
+\item
+  Arrange meetings and conversations with mchetelat
+\item
+  When the current tasks are finished the miner can be integrated.
+\item
+  Thesis ok for now
+\item
+  Use slice of Big.Ints for storage
+\end{itemize}
+
+\subsection{Todos}
+This weeks tasks are under projects in the github repository
+
+\section{KW13: Meeting 26,03,2018}
+
+\subsection{Agenda}
+
+\begin{itemize}
+\item
+  Review changes made since last meeting
+
+  \begin{itemize}
+  \item
+    General vm structure
+
+    \begin{itemize}
+    \item
+      byteArray, int64 based calculation
+    \item
+      callStack
+    \item
+      Memory
+    \item
+      trace function
+    \item
+      opCode Bitshift R/L
+    \end{itemize}
+  \item
+    Execution Context
+  \item
+    Gas implementation
+
+    \begin{itemize}
+    \item
+      Subtract every loop and subtract more on SSTORE~and SLOAD?
+    \end{itemize}
+  \item
+    Errorhandling should not interrupt VM
+
+    \begin{itemize}
+    \item
+      Handle every error in VM~and jump to HALT/additional THROW~opCode?
+    \end{itemize}
+  \end{itemize}
+\item
+  How to insert data from account into context?
+\item
+  Automatically compile ABI?
+\item
+  Write parser to match address to labels? (CALL addition 2, instead of
+  CALL~13 (address where function starts) 2)
+\item
+  Load manually in function or automatically according to passed nargs?
+\item
+  Does passing context make sense?
+
+  \begin{itemize}
+  \item
+    Or better Context as VM Field?
+  \end{itemize}
+\item
+  Stack references instead of instance?
+\item
+  Better way to structure packages?
+\item
+  Roll~Function understanding
+\item
+  Zwischenpräsentation?
+\end{itemize}
+
+\subsection{Notes}
+
+\begin{itemize}
+\item
+  Change uint64 based operations to Big.Int would be better.
+\item
+  Think about why callStack is necessary and what advantages it brings
+  compared with only evaluation stack based implementation.
+
+  \begin{itemize}
+  \item
+    Call Stack enables recursion
+  \item
+    Return address could also be pushed on the stack
+  \end{itemize}
+\item
+  Memory (MLOAD and MSTORE) is unnecessary. Everything should be done on
+  the evaluation stack and with opCode DUP, ROLL
+\item
+  Because all Storage operations have to be reversed if not enough gas
+  is available, writing to storage (SSTORE) happens at the end of
+  contract execution and only if there is enough gas left.
+\item
+  Every operation costs the same and is generally cheap. SLOAD is more
+  expensive (about factor 100), SSTORE is a lot more expensive (about
+  factor 10'000), inspired by Ethereum Yellow Paper
+\item
+  Error-/Exceptionhandling:~If an error occurs the VM~must catch it,
+  halt the transaction with error code and be able to accept the next
+  transaction without restarting. \texttt{Exec()} returns bool to show
+  if transaction was successful.
+
+  \begin{itemize}
+  \item
+    Check err object in Exec Function, if Error, go to Error~Halt
+  \end{itemize}
+\item
+  Context should be a VM~struct field instead of being passed to Exec
+  function
+\item
+  Stack implementation should be changed from instance based to
+  reference based to achieve higher performance. It is important that
+  before accepting a new transaction the VM~must be reseted.
+\item
+  Ignore how to access account data for now and work with mock and dummy data
+\end{itemize}
+
+\subsection{Todos}
+\begin{table}[H]
+\centering
+\begin{tabular} {L{1cm} L{3cm} L{6cm} L{1.5cm} R{1.5cm} R{1cm}}
+\toprule
+\textbf{\#} & \textbf{Notes}        & \textbf{Action}                                                                           & \textbf{Assigned to} & \textbf{Deadline} \\ \midrule
+1           & Gas Counter           & Implement gas counter to work as specified in notes                                       & Marco                & KW14              \\
+2           & Error handling        & Implement error handling as specified in notes                                            & Ennio                & KW14              \\
+3           & opCodes               & Implement ROLL, DUP and opCode to call external functions                                 & Ennio                & KW14              \\
+4           & Reference based Stack & Move from instance based stack to reference based                                         & Marco                & KW14              \\
+5           & uint64 to Big.Int     & Move from uint64 based int operations to Big.Int                                          & Marco                & KW14              \\
+6           & Context as Field      & Context as Field instead of parameter of Exec                                             & Marco                & KW14              \\
+7           & Memory, callStack     & Replace memory with dup, roll opcodes, think if callStack has any advantages and document & Ennio                & KW14              \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{KW12}
+\textit{No meeting}
+
+\section{KW11: 15.03.2017}
+\subsection{Agenda}
+
+\begin{itemize}
+\item
+  General structure
+\item
+  How to access variables from outside contract?~(i.e. msg.sender, Read
+  from DB into stack, modify Peek to pass index parameter?)
+\item
+  Size of Data Field in Smart Contract (extends Account)
+\item
+  What does account size mean?
+\item
+  Do the methods in the contract have to be polymorphic?
+\item
+  How are accounts stored? They only seem to be instantiated after a
+  transation into the memory and a map holds a pointer to the account
+  object but they are never persisted.
+\item
+  Is it possible to call the function with an index to the byte code at
+  which the function starts?
+\item
+  How should we implement the ABI? Map with function name and
+  instruction index.
+\end{itemize}
+
+\subsection{Notes}
+
+\begin{itemize}
+\item
+  General structure
+
+  \begin{itemize}
+  \item
+    Input data is function hash and parameters
+  \item
+    Block header field is needed for block number/hash
+  \end{itemize}
+\item
+  State changes are transmitted from memory to storage at the end of the
+  contract execution
+\item
+  Smart contract functions should be callable from other smart
+  contracts: opCode CALL, implementation not high priority
+\item
+  Using hashes of function signature to identify functions would allow
+  polymorphism and method overriding.~Another approach is enumerating
+  the functions or the function signature as string.
+\item
+  Everything is done on the memory, writing to storage happens manually
+  at the end of the smart contract execution.
+\item
+  Datatypes:
+
+  \begin{itemize}
+  \item
+    either int265 (simple to implement)~or different int sizes (32, 64,
+    256Bit), which is harder to implement but leads to less memory
+    utilisation.
+  \item
+    Float should not be implemented, because calculating leads to a loss
+    in precision.
+  \item
+    Datatypes should not be stored on stack, Pop
+  \end{itemize}
+\item
+  OpCode SLOAD, SSTORE, MLOAD, MSTORE~should use enumeration as key
+  instead of string.
+\item
+  Reduce Stack to only one Pop function which returns
+  \texttt{{[}{]}byte}, conversion from \texttt{{[}{]}byte} to int/string
+  is done in the \texttt{Exec()} function.
+\item
+  Account Transaction size must be changed from static size to dynamic
+  size.
+\item
+  Store SHA3 hash as \texttt{{[}{]}byte} instead of string
+\item
+  Rethink how to convert bytecode to {[}{]}instruction~(Instruction
+  interpreter)
+\item
+  Length of argument should be included in opCodes (PUSHI/PUSHS)
+\item
+  Gas usage for storage operations higher, other operations cost all the
+  same
+\item
+  VM exception handling: If exception occurs, the VM~halts
+  (opCode:~HALT) transaction and the next is executed.
+\end{itemize}
+
+\subsection{Todos}
+\begin{table}[H]
+\centering
+\begin{tabular}{L{1cm} L{3cm} L{6cm} L{1.5cm} R{1.5cm} R{1cm}}
+\toprule
+\# & Notes                                               & Action                                                                                                                    & Assigned to & Deadline \\ \midrule
+1  & Instruction interpreter                             & Build function to convert from Bytecode to {[}{]}instructions and vice versa                                              & Ennio       & KW12     \\
+2  & opCodes                                             & Define opCodes for memory and storage, think about RET (with return value, without return value to jump out of function?) & Ennio       & KW12     \\
+3  & ABI                                                 & Implement ABI directly as switch case at the beginning of smart contract                                                  & Marco       & KW12     \\
+4  & Shift Left/Right and Roll (yenga function) on stack & Implement functions on Stack and opCodes                                                                                  & Marco       & KW12     \\
+5  & Define limits                                       & Define limits for PC and stack size                                                                                       & Both        & KW13     \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{KW10: Meeting 08.03.2018}
+\subsection{Agenda}
+\begin{itemize}
+\item
+  Present VM, critics to VM
+\item
+  Specify Datatypes more precise? (i.e. uint32 instead of int?)
+\item
+  How to proceed? Finish VM or make changes to blockchain first and test
+  very basic smart contract execution?
+\item
+  How to call smart contract function?
+\item
+  How to access variables from outside contract? (i.e. msg.sender, Read
+  from DB into stack, modify Peek to pass index parameter?)
+\item
+  Name of thesis? (Smart contracts on bazo blockchain)
+\item
+  Request bazo-blockchain travis access, to add CI
+\end{itemize}
+
+\subsection{Decisions}
+\begin{itemize}
+\item
+  Present VM, critics to VM
+\item
+  Specify Datatypes more precise?
+
+  \begin{itemize}
+  \item
+    Use jagged byte array.
+  \end{itemize}
+\item
+  How to proceed?
+
+  \begin{itemize}
+  \item
+    Specify simple smart contract in solidity and adapt VM to execute
+    equivalent version of the contract.
+  \item
+    Specify new opCodes: Hash algorithm (same as miner), opcode to
+    handle state
+  \item
+    Include state and improve VM datatypes
+  \item
+    State itself is saved in account (Use JSON for first version)
+  \end{itemize}
+\item
+  How to call smart contract function?
+
+  \begin{itemize}
+  \item
+    Solidity uses function hashes -\textgreater{} We could implement it
+    using Call to index of the start program index of the function.
+  \end{itemize}
+\item
+  Name of thesis?
+
+  \begin{itemize}
+  \item
+    Smart Contracts for the Bazo Blockchain
+  \end{itemize}
+\end{itemize}
+
+\section{KW09: Meeting 01.03.2018}
+
+\subsection{Agenda}
+
+\begin{itemize}
+\item
+  How do you want to use Smart Contracts?
+\item
+  How should the Gas be calculated?
+\item
+  Explanation or Documentation of the miner on the BAZO organisation
+\item
+  How to get from High Level Code to "Opt Codes" (Interpreter?) check if
+  understood correctly.
+\item
+  Which changes have to be made at the Blockchain (another transaction
+  type in client)
+\item
+  Use Neo VM or directly create and implement own VM.
+\item
+  Factors for Language, what makes a good language for you?
+\item
+  Project plan
+\item
+  Risks
+\end{itemize}
+
+\subsection{Decisions}
+
+\begin{itemize}
+\item
+  Discussions rather over instant messaging, important things which have
+  to be acted on over email.
+\item
+  Implement two kinds of accounts, similar to Ethereum. Externally Owned
+  accounts and Smart Contract accounts. Smart contract accounts are
+  owned and triggered by externally owned accounts.
+\item
+  Focus on smart contracts using on-chain data only.
+\item
+  Using 32 bit as minimal makes sense (OpCodes).
+\item
+  TxFunds probably must be extended with an additional data field which
+  contains OpCodes.
+\item
+  Factors languages for smart contracts should meet:
+
+  \begin{itemize}
+  \item
+    Strong typed
+  \item
+    Not too permissive
+  \item
+    Possibility:~write own language
+  \end{itemize}
+\item
+  Generally to keep in mind during this project:~Keep it Simple!
+\item
+  Idea to consider:~smart contract pays the fee instead of the executer
+\item
+  How to proceed: Start defining OpCodes and writing the interpreter in
+  Go (MVP).
+\end{itemize}
+
+\subsection{Todos}
+\begin{table}[H]
+\centering
+\begin{tabular}{L{1cm} L{3cm} L{6cm} L{1.5cm} R{1.5cm} R{1cm}}
+\toprule
+\# & Notes               & Action                                                                             & Assigned to & Deadline \\ \midrule
+1  & Github organization & Thomas invites us to the Bazo Blockchain Github organization.                      & Thomas      & KW10     \\
+2  & Miner parameters    & Thomas inquires why the parameter are needed                                       & Thomas      & KW10     \\
+3  & Logo                & Ennio sends Thomas the logo as svg                                                 & Ennio       & KW10     \\
+4  & Time management     & Last two week team works full-time on project, therefore move back code freeze MS. & Team        & KW10     \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{KW08: Kickoff Meeting 22.02.2018}
+\subsection{Agenda}
+
+\begin{itemize}
+\item
+  Definition of Scope
+\item
+  Project management
+
+  \begin{itemize}
+  \item
+    VCS
+  \item
+    Meetings
+  \item
+    Protocols
+  \item
+    Issue tracking
+  \end{itemize}
+\item
+  Documents to hand in
+\item
+  Preparation
+
+  \begin{itemize}
+  \item
+    Blockchain technology (generic and bazo)
+  \item
+    Golang
+  \item
+    EVM, LLVM
+  \end{itemize}
+\end{itemize}
+
+\subsection{Decisions}
+\begin{itemize}
+\item
+  Definition of Scope\\
+  Team needs to read into the matter first, in order to specify the
+  scope of this project. Goal is to add the capability of executing
+  smart contracts to the bazo blockchain, either by using an existing VM
+  or by building an interpreter (LLVM).
+\item
+  Project management\\
+  Is mainly decided by the dev-team. As VCS we use github, protocols are
+  written in the wiki, issue tracking is done with github wiki. Time
+  tracking is done in an external excel file.
+\item
+  Documents to hand in
+
+  \begin{itemize}
+  \item
+    Project plan by next week, needs to contain deadlines, infos about
+    weekly meetings, scope of the project.
+  \item
+    Outline by the middle of the project, shows the structure of the
+    document
+  \item
+    Draft by 2/3 of the project
+  \end{itemize}
+\item
+  Licenses
+
+  \begin{itemize}
+  \item
+    License of the source code is Apache 2.0
+  \item
+    License of the thesis is Creative Commons
+  \end{itemize}
+\item
+  Testing
+
+  \begin{itemize}
+  \item
+    Test-driven design should be used
+  \end{itemize}
+\end{itemize}
+
+\subsection{Todos}
+\begin{table}[H]
+\centering
+\begin{tabular}{L{1cm} L{3cm} L{6cm} L{1.5cm} L{1.5cm}}
+\toprule
+\# & Notes               & Action                                            & Assigned to & Deadline \\ \midrule
+1 & Project plan & Write the project plan as described above.                & Both & KW09    \\
+2 & Learn        & Get familiar with smart contracts, ethereum, LLVM, golang & Both & KW09/10 \\ \bottomrule
+\end{tabular}
+\end{table}
