@@ -395,7 +395,7 @@ The language the parser processes cannot be described as a high-level programmin
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Token struct and types} &
-Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can be \mintinline{go}{OPCODE} (Value: 0), \mintinline{go}{INT} (Value: 1), \mintinline{go}{BYTE} (Value: 2), \mintinline{go}{BYTES} (Value: 3), \mintinline{go}{LABEL} (Value: 4) which are all int constants. The value field contains the argument passed to the token. \\ \\
+Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can be \mintinline{go}{OPCODE} (Value: 0), \mintinline{go}{BYTES} (Value: 1), \mintinline{go}{BYTE} (Value: 2), \mintinline{go}{ADDR} (Value: 3), \mintinline{go}{LABEL} (Value: 4) which are all int constants. The value field contains the argument passed to the token. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -483,7 +483,7 @@ Code snippet \ref{tokenset} shows the generated token set to the basic contract 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Parse() function} &
-The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq. Figure \ref{parsefunc} shows the the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{INT}. If an opcode takes an int value as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes the byte representation of the int requires. \mintinline{go}{BYTE} and \mintinline{go}{BYTES} just append the value to the instruction set. 
+The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq. Figure \ref{parsefunc} shows the the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{BYTES}. If an opcode takes \mintinline{go}{BYTES} as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes. \mintinline{go}{BYTE} and  appends a single byte value to the instruction set. \mintinline{go}{ADDR} appends 32 bytes to the instruction set.
 \end{tabular}
 
 \begin{figure}[H]
@@ -536,7 +536,7 @@ The test coverage before the VM integration was 65\%. The updated test coverage 
 \textbf{VM} &
 The overall statement coverage is 81\%. Every component of the vm package has a test coverage over 79\%. The main component is the vm.go class. For every opcode at least one unit test has been made. Arithmetic opcodes are based on the big.Int implementation, which has been considered tested. This test coverage is influenced by the fuzz test described in Section \ref{fuzz_testing}. \\ \\
 \textbf{Parser} &
-The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 84\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
+The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 82\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
 \end{tabular}
  
 \subsection{Fuzz Testing} \label{fuzz_testing}
