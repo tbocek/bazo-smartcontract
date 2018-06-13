@@ -5,7 +5,7 @@ The section Background introduces the tools and technologies used in the Bazo Bl
 
 \section{Background}
 \subsection{Blockchain}
-A blockchain is basically another form of a distributed database. It consists of blocks of data chained together by hash functions. The data inside these blocks are transactions. In order to make the transactions non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the Bazo Blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains. \cite{ba_miner} \cite{ba_client} 
+A blockchain is basically a distributed database. It consists of blocks of data chained together by hash functions. The data inside these blocks are transactions. In order to make the transactions non-repudiable digital signatures are used. The transactions are validated by a miner. The miner validates the signatures and checks if the assets transmitted by the transaction, usually tokens or coins representing a real monetary value, actually exists on the account of the other person. Since the Bazo Blockchain is account based, it also updates the balance of the account according to the transmitted value. Previous theses in the context of Bazo dive deeper into cryptocurrencies and blockchains. \cite{ba_miner} \cite{ba_client} 
 
 \subsection{Smart Contracts}
 A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction and is executed by a VM which is part of the miner.
@@ -17,7 +17,7 @@ In the context of data base management systems a transaction is a unit of work p
 A virtual machine is an abstraction layer. A VM abstracts a program or even a whole operating system from the hardware it is actually run on to make it portable.
 
 \section{Related Work}
-At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain github organization} contains the software systems as described in Figure \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Figure \ref{systemcontextdiagram} shows the Bazo Blockchain and its most important software systems.  It also describes how the systems interact with each other and with the out world. It contains multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
+At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}{Bazo Blockchain Github organization} contains the software systems as described in Figure \ref{systemcontextdiagram}. There are also some smaller tools which are not further described. Figure \ref{systemcontextdiagram} shows the Bazo Blockchain and its most important software systems.  It also describes how the systems interact with each other and with the out world. It shows multiple miner instances to represent the blockchain and to describe how the miners interact with eachother.
 
 \begin{figure}[H]
 	\begin{center}
@@ -29,14 +29,14 @@ At the time of writing the thesis, the \href{https://github.com/bazo-blockchain}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Miner} &
-The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date, executes smart contracts via the VM and contacts other miners about new transactions or blocks. \\ \\
+The miner is at the heart of the blockchain. It validates transactions, keeps the ledger up to date, executes smart contracts via the VM and broadcasts new transactions or blocks to other miners. \\ \\
  
 \raggedright
 \textbf{Wallet} &
 The wallet allows user to operate on the blockchain. It also stores the public/private key pair. \cite{ba_wallet} \\ \\
  
 \textbf{Client} &
-The client is used for external communication with the miner. to create and send new transactions. \\ \\
+The client is used to communicate with the miner by creating and sending new transactions. \\ \\
 
 \raggedright
 \textbf{Block Explorer} & 
@@ -44,13 +44,13 @@ The block explorer is used to view transactions. It basically visualizes the blo
 
 \raggedright
 \textbf{Miscellaneous} & 
-There are also some further small useful tools, like keypairgen but they are not further discussed here. The organization on github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}. \\ \\
+There are also some further small useful tools, like keypairgen but they are not further discussed here. The organization on Github is accessible under the following link: \href{https://github.com/bazo-blockchain}{https://github.com/bazo-blockchain}. \\ \\
 \end{tabular}
 
 \subsection{How Bazo Works - an Overview}
-In Fig. \ref{systemcontainerdiagram} one of the miners is expanded which makes it possible to see its packages and their relationships with other components. 
+In Figure \ref{systemcontainerdiagram} one of the miners is expanded which makes it possible to see its packages and their relationships with other components. 
 
-As shown in Fig. \ref{systemcontainerdiagram} the transactions sent by the user over the web api are received and processed by the peer to peer package. If it receives a new transaction it will add it to the unprocessed transaction pool via the storage package. 
+As shown in Figure \ref{systemcontainerdiagram} the transactions sent by the user over the Web API are received and processed by the peer to peer package. If it receives a new transaction it will add it to the unprocessed transaction pool via the storage package. 
 
 The miner will continuously fetch transactions from the unprocessed transactions pool, verify their signature and their validity, add the transaction hash to the current block and save the transaction in the processed transaction pool. If the transaction calls a contract, the miner will call the VM and it will execute the called contract function. After that the miner will change its state according to the results of the VM.
 
@@ -65,25 +65,26 @@ The miner will continuously fetch transactions from the unprocessed transactions
 
 \subsection{Previous work}
 As the Bazo Blockchain was started in 2017 there were several theses within which different aspects of the blockchain have been implemented. 
+
 \begin{description}
 	\item [Bazo – A Cryptocurrency from Scratch \cite{ba_miner}] was written by Livio Sgier. He implemented the miner during this work. He partitioned the software into the peer 2 peer, storage, miner and protocol \gls{component}.
 	\item [A Progressive Web App (PWA)-based Mobile Wallet for Bazo \cite{ba_wallet}] was written by Jan von der Assen. His work was a proof of concept for a portable wallet which allows for mobile payments in a sandbox environment. In Figure \ref{systemcontextdiagram} the result of his work is represented as the wallet software system.
 	\item [A Blockchain Explorer for Bazo \cite{ba_explorer}] was written by Luc Boillat. The Bazo Blockchain Explorer allows users of the blockchain to inspect blockchain data through a graphical user interface, requiring no installation to use, since the application is available on the internet as a web app. \cite{ba_explorer}
 	\item [Proof of Stake for Bazo \cite{ba_pos}] was written by Simon Bachmann. Simon Bachmann studied multiple algorithms and implementations for PoS and chose the best for the later implementation of PoS which was also part of the work.
-	\item [Design and Prototypical Implementation of a Mobile Light Client for the Bazo Blockchain \cite{ba_client}] was written by Marc-Alain Chételat. The blocks of the Bazo Blockchain only contain the transaction headers but stores the transactions separately. During his work he implemented a light client which contains only the transaction headers and their hashes but not the actual transactions. This allows a client to also run on mobile devices. He also 	implemented a multi-signature mechanism which allows to verify transactions within three seconds.  To do this a Bazo signature server is used to check if the accounts balance is high enough to send the transaction. If it does the transaction is signed and therefore verified. 
+	\item [Design and Prototypical Implementation of a Mobile Light Client for the Bazo Blockchain \cite{ba_client}] was written by Marc-Alain Chételat. The blocks of the Bazo Blockchain only contain the transaction headers but stores the transactions separately. During his work he implemented a light client which contains only the transaction headers and their hashes but not the actual transactions. This allows a client to also run on mobile devices. He also 	implemented a multi-signature mechanism which allows to verify transactions within three seconds.  To do this a Bazo signature server is used to check if the accounts balance is high enough to send the transaction. If it does, the transaction is signed and therefore verified. 
 \end{description}
 
 \subsection{Similar existent projects}
-Since the code of NEO and Ethereum is on github and open source, their implementation has been used and sometimes been implemented analogously. 
+Since the code of NEO and Ethereum is on Github and open source, their implementation has been studied and sometimes been implemented analogously. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{NEO} &
-NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the Neo platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper}
+NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the NEO platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper}
 \end{tabular}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Ethereum} & 
-The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is proof of work but  a proof of stake algorithm is already being developed and likely to go live in 2018. \\ \\
+The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is Proof of Work but  a Proof of Stake algorithm is already being developed and likely to go live in 2018. \\ \\
 \end{tabular}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}

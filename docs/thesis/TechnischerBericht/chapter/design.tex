@@ -68,27 +68,27 @@ Despite the register based virtual machine having advantages such as more possib
 \end{tabular}
 
 \subsection{Guidelines}
-As the Bazo VM continues to be improved or extended by other works it was paid careful attention to make the software readable, testable, changeable and extendable. 
+As the Bazo VM continues to be improved or extended by other students, it was paid careful attention to make the software readable, testable, changeable and extendable. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Readability} &
-In order to make the code readable, code reviews with refactorings according to the results of the code review were made. \\ \\
+In order to make the code readable code reviews were performed that led to refactorings. \\ \\
 
 \raggedright
 \textbf{Testability} &
-Generally the code has been written using test driven development, which required writing testable code. In later stages of the project the tests became very useful and made necessary refactorings easier. \\ \\
+The code has been written using test driven development, which required writing testable code. In later stages of the project the tests became very useful and made necessary refactorings easier. \\ \\
  
 \raggedright
-\textbf{Extendability and Changeablity} &
-The code should be structured and decoupled enough to make necessary changes or extensions to the VM easy for follow up works. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
+\textbf{Extendability and Changeability} &
+The code should be structured and decoupled enough to make necessary changes or extensions to the VM easy for following projects. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
 \end{tabular}
 
 \subsection{Fault Tolerance}
 As the VM just executes the instructions it receives without checking, it could easily enter an error state and panic. Already at the begin of the project it was clear that it is critical that the VM can only be allowed to fail contract execution gracefully without terminating the whole miner. As a result, many guards in front of operations which could panic have been placed. As the error handling of Go works over separate return values they have been added to the functions and if an error value was set by a function because an error occurred, it is pushed on top of the VM stack. To test the graceful failing of the VM, a fuzz test has been created which executes random instructions on the VM and reports if the VM panics. 
 
 \subsection{Maximize Human Participation in Resolving Contract Errors}
-While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing an error message which contains a string which describes what failed and the kind of opcode that failed. How this looks is shown in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack when making the code of a test fail.
+While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing an error message which contains a string which describes what failed and the type of opcode that failed. An example for this is provided in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack when making the code of a test fail.
 
 \begin{figure}[H]
 	\begin{center}
@@ -107,7 +107,7 @@ Other blockchains such as Ethereum allow to create and deploy a contract over an
 
 \raggedright
 \textbf{Current Contract Deployment} &
-Currently contracts are account transactions and as Bazo is permissioned, have to be created with the root key pair. These transactions are added to the unprocessed account transactions pool in the storage of the miner directly. When creating the account transaction, the contract and the initial values of the contract have to be provided. The miner then validates the transaction and creates a contract account. The integration tests of the deployment and execution of smart contracts have been setup in this manner.  \\ \\
+Currently, contracts are account transactions and as Bazo is permissioned, have to be created with the root key pair. These transactions are added to the unprocessed transactions pool of the miner. When creating the account transaction, the contract and the initial values of the contract have to be provided. The miner then validates the transaction and creates a contract account. \\ \\
 
 \raggedright
 \textbf{Restrictions} &
@@ -115,7 +115,7 @@ This means that yet only developers can create new contracts. \\ \\
 
 \raggedright
 \textbf{Rationale} &
-To make contract creation available for account owners, it would have to be possible to create a contract account with any valid key pair of a Bazo account. Also the peer 2 peer package would have to support the features implemented during this work.
+To make contract creation available for account owners, it needs to be possible to create a contract account with any valid key pair of a Bazo account. Also the peer 2 peer package would have to support the features implemented during this work.
 Both tasks by themselves would have exceeded the scope of this thesis. \\ \\
 \end{tabular}
 
@@ -123,14 +123,14 @@ Both tasks by themselves would have exceeded the scope of this thesis. \\ \\
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{State of the Art} &
-In other blockchains such as Ethereum, smart contracts can be called via the wallet or the web api. The results can be checked via api, wallet or block explorer. \\ \\
+In other blockchains such as Ethereum, smart contracts can be called via the wallet or the Web API. The results can be checked via API, wallet or block explorer. \\ \\
 \raggedright
 \textbf{Current Contract Execution} &
-In Bazo a transaction which calls a contract has to be added to the unprocessed transactions pool. The miner takes the transaction out of the pool and validates it. As the data field of the transaction is set, it will setup the vm context and execute the called function in the vm. After a successful execution, the changed contract variables are written back \\ \\
+In Bazo a transaction which calls a contract has to be added to the unprocessed transactions pool. The miner takes the transaction out of the pool and validates it. If the data field of the transaction is set, the miner will setup the vm context and execute the called function in the VM. After a successful execution, the changed contract variables are written back. \\ \\
 
 \raggedright
 \textbf{Restrictions} &
-As the features are not yet implemented in the client it is not possible to send this kind of transaction via the web api of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
+As the features are not yet implemented in the client it is not possible to send this kind of transaction via the Web API of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
 
 \raggedright
 \textbf{Rationale} &
@@ -268,11 +268,11 @@ Smart contracts accounts are created and owned by externally owned accounts. The
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Consistency} &
-Since the blockchain is a distributed database and the VM needs to change the data of the blockchain eventually, consistency was a very important aspect of the design of its integration. In order to keep the data of the miner consistent even after a potential failure of the VM the context in which the VM is executed is created by the miner and passed to the VM. This is referred to as execution context. \\ \\ %Especially important hereby is letting the VM only work on copies in order to avoid encapsulation breaches where the VM adjusts a reference values used by the miner directly. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values.
+Since the blockchain is a distributed database and the VM needs to change the data of the blockchain eventually, consistency was a very important aspect of its integration. In order to keep the data of the miner consistent even after a potential failure of the VM the context in which the VM is executed is created by the miner and passed to the VM. This is referred to as execution context. \\ \\ %Especially important hereby is letting the VM only work on copies in order to avoid encapsulation breaches where the VM adjusts a reference values used by the miner directly. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values.
 
 \raggedright
 \textbf{Content of the Context} &
-With data coming from the transaction, the account and the miner the Execution Context is composed. The Execution Context contains all the data needed to start the execution of the contract. Every field is needed and/or can be used by the virtual machine.  \\ \\ 
+With data coming from the transaction, the account and the miner the Execution Context is composed. The Execution Context contains all the data needed to start the execution of the contract. Every field is needed and/or can be used by the virtual machine. \\ \\ 
 
 \raggedright
 \textbf{Access to the Data} &
