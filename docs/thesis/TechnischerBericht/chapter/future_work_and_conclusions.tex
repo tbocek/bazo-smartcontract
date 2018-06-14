@@ -4,30 +4,30 @@
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Summary} & 
-This thesis consisted of the sub goals of building and integrating a virtual machine into the Bazo Blockchain, to make the execution of smart contracts possible. The exact details to realise these requirements were not known at the beginning and were elaborated and defined by the analysis of other smart contract platforms such as Ethereum or Neo and blockchains in general. An important conclusion from this analysis was, that it is very important to ensure the VM is fault-tolerant and does not crash when a malicious contract is executed. It was also considered that follow-up work could build upon our work. For this reason, the VM has been implemented in a manner that new opcodes can be defined easily. For opcodes there are predefined types to arguments from the instruction set. In addition, care was taken to describe the error messages as helpful as possible. \\ \\
+This thesis consisted of the sub goals of building and integrating a virtual machine into the Bazo Blockchain, to make the execution of smart contracts possible. The exact details needed to realize these requirements were not known at the beginning and were defined by the analysis of other smart contract platforms such as Ethereum or NEO and blockchains in general. An important conclusion from this analysis was, that it is very important to ensure the VM is fault tolerant and does not crash when a malicious contract is executed. The possibility of extensions by follow-up works was kept in mind. For this reason, the VM has been implemented in a manner that new opcodes can be defined easily. In addition, care was taken to describe the error messages as helpful as possible. \\ \\
 
 \raggedright
 \textbf{Unique Features} & 
-When calculating the gas costs a different approach was chosen, which is not used by another blockchain, as both the instruction and the size of the elements are taken into account. Furthermore, our VM differs from others because it can calculate with numbers of any size, which is a prerequisite for cryptographic functions. The only limitation here is that the current maximum pushable element cannot be larger than 256 bytes. \\ \\
+When calculating the gas costs a different approach was chosen, which is not used by any another blockchain, as both the instruction and the size of the elements are taken into account. Furthermore, our VM differs from others because it can work with elements of arbitrary size, which is helpful for many cryptographic functions. The only limitation here is that the current maximal pushable element cannot be larger than 256 bytes. \\ \\
 
 \raggedright
 \textbf{Parser} &
-The parser was originally not part of the scope. The decision to implement this simple parser was made when larger contracts had to be implemented, which contained many control flow opcodes and therefore addresses often had to be counted. This parser could serve as a basis for further work. \\ \\
+The parser was originally not part of the scope. The decision to implement this simple parser was made when larger contracts had to be implemented, which contained many control flow opcodes and therefore addresses often had to be counted. This parser could serve as a basis for future works. \\ \\
 
 \raggedright
 \textbf{Concluding statements } &
-The goals of this thesis could have been achieved and were extensively tested. This work laid the foundation for Bazo as a platform for decentralized applications. However, in order to keep up with existing smart contract platforms, performance improvements and an increase in usability for creating and calling contracts would be necessary. The features of the blockchain implemented in this work could now be extended. \\ \\
+The goals of this thesis could be achieved. The achievement of these goals was successfully proven by extensive testing. This work laid the foundation for Bazo as a platform for decentralized applications. However, in order to keep up with existing smart contract platforms, performance improvements and an increase in usability for creating and calling contracts would be necessary. \\ \\
 \end{tabular}
 
 \section{Future Work}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Compiler} & 
-Whilst it is already possible to write contracts using the opcodes of the VM, this is very hard to read for humans. To make the writing of contracts easier a compiler which processes a better understandable language for humans and translates it into the codes of the VM would be useful. \\ \\
+Whilst it is already possible to write contracts using the opcodes of the VM or \frqq Enhanced Bazo Byte Code\flqq{}. This is very hard to read for humans. To make the writing of contracts easier, a compiler which processes a higher-level language and translates it into the \frqq Bazo Byte Code\flqq{} would be useful. \\ \\
 
 \raggedright
 \textbf{IDE} & 
-There should also be an environment in which contracts can be written in the high level language and tested or even directly deployed. \\ \\
+There should also be an environment in which contracts can be written, tested and directly deployed. \\ \\
 
 \raggedright
 \textbf{Separation of Gas and Currency} & 
@@ -35,9 +35,9 @@ The execution of a contract costs a certain amount of coins. This is called gas.
 
 \raggedright
 \textbf{Contract Pays the Fee} & 
-Calling a contract and executing a function on it should be paid by the contract instead of the caller. \\ \\
+Another feature would be the ability call a contract and execute a function where the fee is paid by the contract instead of the caller. So there is no need for the user to own Bazo coins in order to interact with the blockchain. \\ \\
 
 \raggedright
 \textbf{Platform Independent Encoding} &
-The mechanism with which transactions are encoded to be sent or received from the miner should be platform independent. Currently the encoding of transactions is implemented in a Go dependent encoding mechanism. This is currently no problem since all software systems are implemented in Go and actually faster but it also restricts future projects to use Go as well. \\ \\ 
+The mechanism which is used to encode and decode transactions should be platform independent. Currently the encoding of transactions is implemented in a Go dependent encoding mechanism. This is currently no problem since all software systems are implemented in Go and actually faster, but it also restricts future projects to the use of Go as well. \\ \\ 
 \end{tabular}
