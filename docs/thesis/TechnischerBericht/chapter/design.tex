@@ -1,7 +1,7 @@
 \chapter{Design} \label{design_chapter}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 As the term software design is generally defined in a broad way to also be suitable for lager systems first an elaboration on how the term design is used in this thesis. The word design itself is defined as: Do or plan (something) with a specific purpose in mind. \cite{design_definition} 
-In previous theses on Bazo, the chapter design also provides an overview over the software. Therefore, it was decided to provide an overview over the implementation of the  Bazo VM and the parser and to outline the most important purposes they are built for. This chapter also describes the goals, requirements, restrictions and an overview of the integration of the VM into the miner. Furthermore the orientation taken while building the foundation for the creation, deployment and execution of smart contracts is explained.
+In previous theses on Bazo, the chapter design also provides an overview over the software. Therefore, it was decided to provide an overview over the implementation of the  Bazo VM and the parser and to outline the most important purposes they are built for. This chapter also describes the goals, requirements, restrictions and an overview of the integration of the VM into the miner. Furthermore, the orientation taken while building the foundation for the creation, deployment and execution of smart contracts is explained.
 
 \section{Virtual Machine}
 Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the VM executes a smart contract. Afterwards different types of VMs are explained and the most important guidelines and goals that were kept in mind throughout the building of the VM are described.
@@ -84,19 +84,15 @@ The code has been written using test driven development, which required writing 
 The code should be structured and decoupled enough to make necessary changes or extensions to the VM easy for following projects. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
 \end{tabular}
 
-\subsection{Fault Tolerance}
-As the VM just executes the instructions it receives without any checks, it could easily enter an error state and panic. From the beginning of the project it was clear that it is important to ensure that the VM could only fail gracefully without terminating the miner. As a result, many guards in front of operations which could panic have been placed. As the error handling of Go works over separate return values they have been added to the functions and if an an error occurs, it is pushed on top of the VM stack.
+\subsection{Notable Design Aspects}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Fault Tolerance} &
+As the VM just executes the instructions it receives without any checks, it could enter an error state and panic. It must not be possible to crash the miner with a malicious or erroneous contract. \\ \\
 
-\subsection{Maximize Human Participation in Resolving Contract Errors}
-While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing an error message which contains a string which describes what failed and the type of opcode that failed. An example for this is provided in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack when making the code of a test fail.
-
-\begin{figure}[H]
-	\begin{center}
-	\includegraphics[width=\textwidth]{./images/push-test-failure}
-	\caption{Example of an error message.}
-	\label{pushtestfailure}
-	\end{center}
-\end{figure}
+\textbf{Informative Error Messages} &
+Throughout the implementation of the VM it was paid attention to write informative error messages, since that simplifies the development of a compiler, which is known to be a follow-up project. Furthermore, the debugging of smart contracts should be easy and streamlined as possible. \\ \\
+\end{tabular}
 
 \section{Contract deployment}
 
@@ -148,7 +144,7 @@ In previous works concerning the miner, different transaction types were impleme
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{FundsTx} &
-This type of transaction is used to transfer Bazo coins from one account to another and can be used by any externally owned account.\cite{ba_miner} For this reason it was extended with a Data field to enable users to call smart contract functions.
+This type of transaction is used to transfer Bazo coins from one account to another and can be used by any externally owned account.\cite{ba_miner} For this reason it was extended with a \textit{Data} field to enable users to call smart contract functions.
 \\ \\
 \end{tabular}
 
@@ -184,7 +180,7 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are contract which stores the code of the contract and contract variables which contains the state variables. \\ \\
+The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are \textit{Contract} which stores the code of the contract and \textit{ContractVariables} which contains the state variables. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -272,7 +268,7 @@ Since the blockchain is a distributed database and the VM needs to change the da
 
 \raggedright
 \textbf{Content of the Context} &
-The execution context is composed With data coming from the transaction and the account. The execution context contains all the data needed to start the execution of the contract. \\ \\ 
+The execution context is composed with data coming from the transaction and the account. The execution context contains all the data needed to start the execution of the contract. \\ \\ 
 
 \raggedright
 \textbf{Access to the Data} &
@@ -321,7 +317,7 @@ First the parser splits the contract written in \flqq Enhanced Bazo Byte Code\fr
 A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed by a transaction (AccTx) and executed by a transaction (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in the data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
 
 \subsection{Coding smart contracts}
-Smart contracts for the NEO blockchain can be developped in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity has been developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts. In this section a simple contract is written once in Solidity and once in \flqq Enhanced Bazo Byte Code\frqq.
+Smart contracts for the NEO blockchain can be developped in C\#, Java, Kotlin, F\# or Python. \cite{neo_whitepaper} There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity has been developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts. In this section a simple contract is written once in Solidity and once in \flqq Enhanced Bazo Byte Code\frqq.
 
 \subsubsection{Sample smart contact in Solidity}
 \begin{figure}[thp]%
