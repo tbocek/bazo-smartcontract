@@ -4,63 +4,10 @@ This chapter covers the evaluation of the work by describing the implementation 
 
 \section{Tokenization Contract}
 \label{tokencontract}
-Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found wide application. New possibilities for funding start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. The tokens of an ICO can be bought by sending money in the form of the blockchain currency to a smart contract. The investor then receives corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem of the company hosting the ICO. \cite{ico_pwc} Since tokenization contracts have become so widely used and because they are generally simple, since they do not need to interact with off-chain data, it was decided to write a tokenization contract. In the very basic implementation, a tokenization contract consists of a map of account addresses and balances and methods to transfer those tokens from one account to another.
-
- \begin{minted}	[
-frame=lines,
-framesep=2mm,
-baselinestretch=1.2,
-fontsize=\footnotesize,
-linenos
-]
-{yaml}
-CALLDATA
-# ------- ABI -------------------------
-DUP
-PUSH 1
-EQ
-CALLIF mint 3
-HALT
-
-# ------ Contract ---------------------
-mint:
-LOAD 1 # load value
-LOAD 0 # load key
-SLOAD 1 # load address of minter
-CALLER
-EQ
-CALLIF adjustBalance 2
-RET
-
-adjustBalance:
-LOAD 1 # load value
-LOAD 0 # load key
-DUP
-SLOAD 2 # load map
-MAPHASKEY
-CALLIF addKeyIfNotExists 2
-LOAD 1 # load value
-LOAD 0 # load key
-SLOAD 2 # load map
-MAPPUSH
-SSTORE 2 # store the map
-HALT
-
-addKeyIfNotExists:
-LOAD 1 # load key
-SLOAD 2 # load map
-MAPGETVAL
-LOAD 0 # load value
-ADD
-LOAD 1 # load key
-SLOAD 2  # load map
-MAPSETVAL
-SSTORE 2 # store the map
-HALT
-\end{minted}
+Tokenization is the process of recording the rights to an asset as a digital token on a blockchain in the form of sub-currencies. \cite{eth_whitepaper} Tokenization is the first use-case for smart contracts that has found wide application. New possibilities for funding start-ups and companies have emerged in the form of initial coin offerings (ICOs) also known as token sales. The tokens of an ICO can be bought by sending money in the form of the blockchain currency to a smart contract. The investor then receives corresponding amount in tokens. Ideally, the token is an integral component within the ecosystem of the company hosting the ICO. \cite{ico_pwc} Since tokenization contracts have become so widely used and because they are generally simple, since they do not need to interact with off-chain data, it was decided to write a tokenization contract. In the very basic implementation, a tokenization contract consists of a map of account addresses and balances and methods to transfer those tokens from one account to another. 
 
 \subsection{Results}
-As a result, a contract was created which allows to store addresses together with balances. Only the account address which is recorded as minter is allowed to change balances. The balance can be reduced by sending negative values or increased by sending positive values. If the map does not yet contain an address, it is added automatically.
+As a result, a contract was created which allows to store addresses together with balances. Only the account address which is recorded as minter is allowed to change balances. The balance can be reduced by sending negative values or increased by sending positive values. If the map does not yet contain an address, it is added automatically. The contract is shown in Appendix \ref{tokenization-contract}.
 
 \section{Benchmarking Contract}
 The performance of the virtual machine is crucial for the speed of execution and the blockchain in general. For this reason a smart contract has been developed which is suitable for comparing the speed of execution on different implementations and platforms. Taking into consideration that blockchains and its use-cases depend heavily on public-key cryptographic, it was decided to implement a smart contract which performs modular exponentiation. Modular exponentiation is a one-way function and frequently used in cryptography. Figure \ref{mod_exp_direct} shows the straightforward method to calculate \textit{c}.
