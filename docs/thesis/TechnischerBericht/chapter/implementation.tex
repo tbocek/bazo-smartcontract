@@ -139,18 +139,22 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 
 
 \subsection{Stack}
-
-% TODO insert crc card for stack
-
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Maximum Stack Size} & 
 Facing the concern of excess memory usage of the contract on the miner, we decided to limit the stack size to 1MB which seems to be well above what the contracts will need. We neglected using the gas amount for maximum storage determination because it would be just a soft limit. \\ \\
 
 \textbf{Data Structure} & 
-As underlying data structure of "Stack", keeping in mind to keep the code of the vm short and simple, we decided to use an array of big.Int. It was important that the datatype used for the underlying datatype was of arbitrary length because splitting up an element into multiple bytes so that it can be saved when using an array of bytes as underlying data structure would have been a lot more complex and more error-prone. Arbitrary length is implemented for example an array of jagged arrays of bytes. On the vm it was very important that the type used in the vm provided mathematical methods and also that it could store and work with values of up to 256 bit size. Only big.Int fulfilled both requirements and therefore it was chosen for the vm. Thanks to big.Int being of arbitrary length we could then use an array of big.Int as underlying data structure which also simplifies our code since we don't have to cast the values retrieved from the stack before working with them.
+As underlying data structure of "Stack", keeping in mind to keep the code of the VM short and simple, we decided to use an array of big.Int. It was important that the datatype used for the underlying datatype was of arbitrary length because splitting up an element into multiple bytes so that it can be saved when using an array of bytes as underlying data structure would have been a lot more complex and more error-prone. 
 
-We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes. \\ \\
+
+
+
+Arbitrary length is implemented for example an array of jagged arrays of bytes. On the VM it was very important that the type used in the VM provided mathematical methods and also that it could store and work with values of up to 256 bit size. Only big.Int fulfilled both requirements and therefore it was chosen for the vm. Thanks to big.Int being of arbitrary length we could then use an array of big.Int as underlying data structure which also simplifies our code since we don't have to cast the values retrieved from the stack before working with them.
+
+We neglected working with pointers because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts.
+
+We neglected using a simple array of bytes as the whole data structure where different datatypes are read using a different amount of bytes, as it is common when having no abstraction layer or using a jagged array of byte arrays because the could becomes a lot more readable in the vm and less conversions from big.Int to byte array are necessary. We accept the dependency on the datatype big.Int which is necessary as it implements all mathematical operations which are very important and because it is of arbitrary precision and the size of other datatypes would not have been sufficient especially for cryptographic purposes. \\ \\
 \end{tabular}
 
 \subsection{VM instruction cycle} \label{exec_cycle}
@@ -185,9 +189,28 @@ Changes to the state variables are loaded and persisted explicit. That means, wh
 
 
 \subsection{Error handling}
-Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes, it is easily to write byte code which is not possible for the vm to execute. An example for this is for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+ \raggedright
+\textbf{Problem} & 
+Since the virtual machine just processes one instruction after another and as the contracts are currently written in the opcodes directly, it is easily possible to make a mistake and write a contract which the VM can not execute. \\ \\
+ 
 
-Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. The message of this error object is later on pushed on the stack of the vm after that the vm halts. Also to make the debugging less complicated, the name of the opcode in which the error occurred is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.
+\raggedright
+\textbf{Example} & 
+An example for this is byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the VM which could terminate the miner. This should neither be possible by accident nor by choice.  \\ \\ 
+ 
+ \raggedright
+\textbf{Solution} & 
+Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. \\ \\
+
+\raggedright
+\textbf{Implementation} & 
+The message of this error object is later on pushed on the stack of the VM after that the VM halts. Also to make the debugging less complicated, the name of the opcode in which the error occurred is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.  \\ \\
+
+\raggedright
+\textbf{Things Left Out} & 
+It would also have been possible to provide the number of the instruction that failed but as the code of a contract gets larger and as the codes are not enumerated it becomes very time consuming to count all codes to determine which one failed. This seemed not to add value or make contract creation easier and therefore this has been neglected. \\ \\
+\end{tabular}
 
 \subsection{Gas calculation}
 As mentioned in the chapter \ref{design_chapter} the goal is to calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
