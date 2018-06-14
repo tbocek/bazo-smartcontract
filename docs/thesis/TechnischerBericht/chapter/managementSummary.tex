@@ -5,17 +5,17 @@
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Introduction} & 
-The Bazo Blockchain is a blockchain to test diverse mechanisms and algorithms. In the current version mechanisms to run it on mobile devices and Proof of Stake are integrated. I is only possible to transfer Bazo coins by now. The idea of this work is to enhance the Bazo Blockchain with smart contracts. \\ \\
+The Bazo Blockchain is a blockchain to test diverse mechanisms and algorithms. In the current version mechanisms to run it on mobile devices and Proof of Stake are integrated. It was only possible to transfer Bazo coins before this thesis. The idea of this work was to enhance the Bazo Blockchain with smart contracts. \\ \\
 
 \raggedright
 \textbf{Solution} & 
-The integration of smart contracts consisted of two sub goals. First a virtual machine had to be implemented which allows to distinguish between instructions by using the values of bytes and their position in the code. Therefore a smart contract can be written as a set of bytes and later on saved in the blockchain with minimal memory usage. The second sub goal was the integration of the virtual machine into the miner. After that the code has been refactored and improved. \\ \\
+The integration of smart contracts consisted of two sub goals. First a virtual machine had to be implemented which allows to use byte values as instructions. Therefore, a smart contract can be written as a set of bytes and stored on the blockchain with minimal memory usage. The second sub goal was the integration of the virtual machine into the miner, the application responsible for processing the transactions. After that, the code has been refactored and improved. \\ \\
 
 \raggedright
 \textbf{Findings} & 
-The work as evaluated with the creation of a tokenization contract to test the functionality and a modular exponentiation contract in comparison with the Go native implementation as a performance test. The tests showed that the required functionality exist. The performance test itself also showed that the resource efficiency of the virtual machine could be increased. \\ \\
+The project was evaluated on functionality and performance. With the creation of a tokenization contract the functionality was tested. In order to evaluate the performance, a modular exponentiation contract was created and compared with a implementation of modular exponentiation written in Go. The tests showed that the required functionality has been implemented. The performance test itself also showed that the resource efficiency of the virtual machine could be increased. \\ \\
 
 \textbf{Outlook} &
-Since writing contracts in the instructions of the virtual machine is rather time consuming and complicated to understand a compiler could be built which compiles a more easy to read high level language into the byte code of the virtual machine.
+Since writing contracts in instructions of the virtual machine is rather time consuming and complicated to understand, a compiler could be built which compiles a more easy to read high level language into the byte code of the virtual machine.
 \\ \\
 \end{tabular}
