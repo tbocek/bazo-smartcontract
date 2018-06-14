@@ -1,9 +1,9 @@
 \chapter{Implementation}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-This chapter focuses on explaining why things were implemented in a certain manner. In this chapter the trade-offs and decisions which were made while building the VM are described in a manner that follow up works get a better understanding of why some parts of the VM are implemented in a certain way so that they either are more certain when changing something or to help them reach the same conclusion faster.
+This chapter focuses on explaining why things were implemented in a certain manner. In this chapter the trade-offs and decisions which were made while building the VM are documented. Since this should be useful for follow-up work, it was done in a way that makes it easier to decide if something needs to be changed or to help them reach the same conclusion faster.
 
 \section{Software Architecture}
-Figure \ref{package overview} shows the structure of the project on package-level and the dependencies among them. The miner application was built with software engineering principles in mind. Particular attention was paid to modularity. This made it easy to integrate the virtual machine into the existing miner application. Furthermore the following figure shows which packages were added and which where modified to successfully integrate the execution of smart contracts into the Bazo blockchain. As the miner and all other projects are written in Go, the new components are written in Go aswell.
+Figure \ref{package overview} shows the structure of the project on package-level and the dependencies among them. The miner application was built with software engineering principles in mind. Particular attention was paid to modularity. This made it easy to integrate the virtual machine into the existing miner application. Furthermore, the following figure shows which packages were added and which where modified to successfully integrate the execution of smart contracts into the Bazo blockchain. As the miner and all other projects are written in Go, the new components are written in Go aswell.
 \begin{figure}[H]
 	\begin{center}
 	\includegraphics[width=0.8\textwidth]{./images/package-diagram}
@@ -13,13 +13,13 @@ Figure \ref{package overview} shows the structure of the project on package-leve
   \end{figure}
 
 \begin{description}
-	\item[Protocol] This package contains the building blocks for the Bazo blockchain. In particular it contains the structure, encoding, decoding and hashing functions of all transaction types, blocks and accounts. In addition a transaction interface is defined, allowing an abstract treatment of transactions. \cite{ba_miner}
+	\item[Protocol] This package contains the building blocks for the Bazo Blockchain. In particular it contains the structure, encoding, decoding and hashing functions of all transaction types, blocks and accounts. In addition a transaction interface is defined, allowing an abstract treatment of transactions. \cite{ba_miner}
 	\item[Miner] The miner package contains all mining related components. This includes the validation and consolidation of transactions into blocks, the calculation of the consensus mechanism and the building of the merkle tree. In addition to that, blockchain related tasks itself such as rollback operation and state changes are contained in this package. Access to P2P and Storage packages are needed in order to handle transactions over the network and signal storage-related operations. \cite{ba_miner} To execute the virtual machine and access its results, the miner also needs access to the VM package.
 	\item[VM] This package contains the virtual machine itself and all its components, namely the evaluation stack, the call stack, implementations of data structures that can be used by the virtual machine such as array and map and all available opcodes.
 	\item[P2P] All networking related operations are implemented in the P2P package \cite{ba_miner}. Since for the integration of the virtual machine nothing had to be changed, the content of this package is not discussed any further.
 	\item[Storage] The storage package is concerned with memory-related tasks. The lower-level functionality was implemented with the external BoltDB package. Since entries are encoded before writing to storage and decoded when loaded \cite{ba_miner}, this package could be left unaltered. For that reason, this package is also not described further.
 	\item[BoltDB] This package shows the BoltDB package which is an external dependency. BoltDB is a simple, lightweight key/value base. \cite{ba_miner}
-	\item[Parser] The Parser package contains the parser, which consists of a Tokenize and Parse function and tokens. This components are needed to compile \flqq Enhanced Bazo byte code\frqq{ } to a byte code instruction set that can be interpreted by the virtual machine. This package is completely stand-alone and does not have any dependencies. The package is also kept in a separate repository.
+	\item[Parser] The Parser package contains the parser, which consists of a Tokenize and Parse function and tokens. This components are needed to compile \flqq Enhanced Bazo Byte Code\frqq{ } to a byte code instruction set that can be interpreted by the virtual machine. This package is completely stand-alone and does not have any dependencies. The package is also kept in a separate repository.
 \end{description}
 
 \section{Protocol}
@@ -145,7 +145,7 @@ Facing the concern of excess memory usage of the contract on the miner, we decid
 
 \raggedright
 \textbf{Data Structure} &
-As underlying data structure of "Stack", keeping in mind to keep the code of the VM as short and simple as possible and without unnecessary conversions it was decided to use a two dimensional byte array. We neglected using a simple array of bytes as data structure where elements of different length are read using a different amount of bytes, as it is common when having no abstraction layer. We also neglected using big.Int as underlying data type which is used by Ethereum for this, is also arbitrary length and is used for the implementation of many operations in our VM because the conversions from signed to unsigned operations and the optimization of eliminating leading zeroes are a problem. A multidimensional byte array  was chosen to achieve simplicity, readability and extendability of the code. The downside of miner conversions from big.Int to byte array are accepted. \\ \\ 
+As underlying data structure of "Stack", keeping in mind to keep the code of the VM as short and simple as possible and without unnecessary conversions it was decided to use a two dimensional byte array. We neglected using a simple array of bytes as data structure where elements of different length are read using a different amount of bytes, as it is common when having no abstraction layer. We also neglected using big.Int as underlying data type which is used by Ethereum for this, is also arbitrary length and is used for the implementation of many operations in our VM because the conversions from signed to unsigned operations and the optimization of eliminating leading zeroes are a problem. A multidimensional byte array  was chosen to achieve simplicity, readability and extendability of the code. The downside of miner conversions from big.Int to byte array are accepted. \\ \\
 
 \raggedright
 \textbf{Data Type} &
@@ -176,8 +176,8 @@ The starting point for the execution cycle of the virtual machine is a set of in
 The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs, the execution is halted by an instruction or the program counter is out of bounds of the instruction set. All this steps are handled in the \mintinline{go}{Exec()} function. These are the three steps:
 \begin{description}
   \item[1. Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
-  \item[2. Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the \mintinline{go}{Exec()} function. Within this section of the function, the costs for the instruction are deducted. Section \ref{fee} describes why a fee is needed and how it is calculated.
-    \item[3. Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcode_table}.
+  \item[2. Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the \mintinline{go}{Exec()} function. Within this section of the function, the costs for the instruction are deducted.
+  \item[3. Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcode_table}.
     \end{description}
 \end{tabular}
 
@@ -217,8 +217,6 @@ It would also have been possible to provide the number of the instruction that f
 \subsection{Gas calculation}
 As mentioned in the chapter \ref{design_chapter} the goal is to calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
 
-%TODO Begründen wieso 64?
-
 \begin{figure}[thp]%
     	\centering
 		$
@@ -227,7 +225,6 @@ As mentioned in the chapter \ref{design_chapter} the goal is to calculate the pr
 		\caption{Gas price equation}
 		\label{gas_factor_calc}
 \end{figure}
-
 
 \subsection{Trace function}
 The trace function is activated by passing true as a parameter to the \mintinline{go}{Exec()} function. The trace function prints the instruction that is being processed, its parameters, the evaluation stack and the memory usage to the console, which is useful for debugging. Every opcode has a list of parameter types. This list shows, which parameters are taken from the instruction set. Available parameter types are \mintinline{go}{BYTES}, \mintinline{go}{BYTE}, \mintinline{go}{ADDR} and \mintinline{go}{LABEL}. The trace function loops through the parameter types list of the current opcode and treats every opcode as specified using a switch statement. Figure \ref{traceoutput} shows an example trace output.
