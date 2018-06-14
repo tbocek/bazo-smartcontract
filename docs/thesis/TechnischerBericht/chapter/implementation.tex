@@ -89,6 +89,7 @@ Figure \ref{new_decode} shows the decoding function of AccTx. The \mintinline{go
 \end{figure}
 
 \section{Miner}
+This section describes what changes had to be made to the miner to integrate the VM.
 \subsection{Constructors}
 AccTxs now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil. 
 
@@ -109,8 +110,7 @@ The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the 
 		]{go}
 func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 	... // Various checks
-	// Check if transaction has data and the receiver account 
-	// has a smart contract
+	// Check if transaction has data and receiver is a smart contract account
 	if tx.Data != nil && b.StateCopy[tx.To].Contract != nil {
 		context := protocol.NewContext(*b.StateCopy[tx.To], *tx)
 		virtualMachine := vm.NewVM(context)
@@ -119,7 +119,6 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 		if !virtualMachine.Exec(false) {
 			return errors.New(virtualMachine.GetErrorMsg())
 		}
-		
 		//Update changes vm has made to the contract variables
 		context.PersistChanges()
 	}
@@ -181,7 +180,6 @@ The \mintinline{go}{Exec()} function returns a boolean. If the return value is t
 Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true. This way, there is no need to roll back if the contract could not be executed successfully.
 \end{tabular}
 
-
 \subsection{Error handling}
 Since the virtual machine just processes one instruction set after another and the smart contracts have to be written directly in these opcodes, it is easily to write byte code which is not possible for the vm to execute. An example for this is for example byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the vm which could terminate the miner. This should neither be possible by accident nor by choice.
 
@@ -189,6 +187,7 @@ Therefore it was paid a lot of attention to put guards around functions possibly
 
 \subsection{Gas calculation}
 As mentioned in the chapter \ref{design_chapter} the goal is to calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
+
 %TODO Begründen wieso 64?
 
 \begin{figure}[thp]%
