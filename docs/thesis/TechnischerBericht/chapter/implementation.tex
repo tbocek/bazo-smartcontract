@@ -156,7 +156,7 @@ It was important that the data type used for the underlying data structure of st
 We neglected working with references because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. In hindsight and considering the results of Chapter \ref{evaluation} working with references and using pass by reference might have improved the performance of the VM in the benchmark test. \\ \\
 \end{tabular}
 
-\subsection{VM instruction cycle} \label{exec_cycle}
+\subsection{VM Instruction Cycle} \label{exec_cycle}
 This section describes the \mintinline{go}{Exec()} function shown in figure \ref{vmexecutioncycle}. The instruction cycle can be described as an end-less loop with a switch statement that interprets the instructions one after another and acts accordingly.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -186,7 +186,7 @@ The \mintinline{go}{Exec()} function returns a boolean. If the return value is t
 Changes to the state variables are loaded and persisted explicitly. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true. This way, there is no need to roll back if the contract could not be executed successfully.
 \end{tabular}
 
-\subsection{Error handling}
+\subsection{Error Handling}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Problem} &
@@ -217,7 +217,7 @@ It would also have been possible to provide the number of the instruction that f
 	\end{center}
 \end{figure}
 
-\subsection{Gas calculation}
+\subsection{Gas Calculation}
 The goal is to calculate the price based on the instruction and based on the size of the elements used by the instruction. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64, rounded up and multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
 
 \begin{figure}[thp]%
@@ -229,7 +229,7 @@ The goal is to calculate the price based on the instruction and based on the siz
 		\label{gas_factor_calc}
 \end{figure}
 
-\subsection{Trace function}
+\subsection{Trace Function}
 The trace function is activated by passing true as a parameter to the \mintinline{go}{Exec()} function. The trace function prints the instruction that is processed, its parameters, the contents of the evaluation stack and the memory usage to the console. This is useful for debugging. Every opcode has a list of parameter types. This list shows, which parameters are taken from the instruction set. Available parameter types are \mintinline{go}{BYTES}, \mintinline{go}{BYTE}, \mintinline{go}{ADDR} and \mintinline{go}{LABEL}. The trace function loops through the parameter types list of the current opcode and treats every opcode as specified using a switch statement. Figure \ref{traceoutput} shows an example trace output.
 \begin{description}
 	\item[BYTES] are variable length, the first byte that follows after the opcode in the instruction set defines how many bytes are pushed. Counting starts at zero, therefore the maximum is 256 bytes.
@@ -262,10 +262,6 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 0006: call   11 (label) [2] (byte)
 	Stack: []
 	0 of max. 1000000 Bytes in use
-...........................................
-0011: load   [0] (byte)
-	Stack: [[0 10]]
-	2 of max. 1000000 Bytes in use
 ...
 	\end{minted}
 	\end{minipage}
@@ -296,6 +292,20 @@ Concerning the implementation of arithmetic opcodes for the VM
 facing the need to provide operations for large elements it was decided to use big.Int. It was and neglected to use Int64 in order to achieve the possibility to work with numbers of at least 256 byte. The downside of adjusting the gas calculation to take the element size into account was accepted. \\
 \end{tabular}
 
+\subsection{Bool Operations}
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Implementation} &
+To the category of bool operations belong \mintinline{go}{EQ}, \mintinline{go}{NEQ}, \mintinline{go}{LT}, \mintinline{go}{GT}, \mintinline{go}{LTE} and \mintinline{go}{GTE}. All of these opcodes use the the operations provided by big.Int and all of them work with signed numbers. Only \mintinline{go}{EQ} and \mintinline{go}{NEQ} work also with bytes. \\ \\
+\raggedright
+\textbf{\mintinline{go}{EQ} and \mintinline{go}{NEQ}} &
+While writing the integration tests it turned out that the opcodes \mintinline{go}{EQ} and \mintinline{go}{NEQ} are oftentimes used for the comparison between function hashes in the ABI. Since function hashes are not signed numbers but just bytes it was decided to make these operations unsigned because the parsing of the signing byte would destroy the byte representation of the hash. As a result, signed numbers and bytes can be compared. \\ \\
+
+\raggedright
+\textbf{Rationale} &
+As mentioned before the most prominent use case for \mintinline{go}{EQ} and \mintinline{go}{NEQ} is the comparison of function hashes. Therefore, they are unsigned. For the other opcodes an order has to exist and therefore the first byte of the elements is parsed to set the sign of the big.Ints on which the operation is performed on.
+\end{tabular}
+
 \subsection{Comparison Operators}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -309,20 +319,6 @@ Important to note is that these operations are primarily thought to be used for 
 \raggedright
 \textbf{Rationale} &
 Concerning the implementation of opcodes for bit operations facing the need to provide operations for large elements it was decided to use the operations provided by big.Int instead implementing the operations by ourselves to achieve the possibility to work with numbers bigger than 256 byte. It was also decided to make the operations unsigned because they are primarily thought of as bit operations. The downsides of having to adjust gas calculation to take element size into account is accepted. If in hindsight these operations are primarily used for numbers the implementation can be changed easily. \\ \\
-\end{tabular}
-
-\subsection{Bool Operations}
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-\textbf{Implementation} &
-To the category of bool operations belong \mintinline{go}{EQ}, \mintinline{go}{NEQ}, \mintinline{go}{LT}, \mintinline{go}{GT}, \mintinline{go}{LTE} and \mintinline{go}{GTE}. All of these opcodes use the the operations provided by big.Int and all of them work with signed numbers. Only \mintinline{go}{EQ} and \mintinline{go}{NEQ} work also with bytes. \\ \\
-\raggedright
-\textbf{\mintinline{go}{EQ} and \mintinline{go}{NEQ}} &
-While writing the integration tests it turned out that the opcodes \mintinline{go}{EQ} and \mintinline{go}{NEQ} are oftentimes used for the comparison between function hashes in the ABI. Since function hashes are not signed numbers but just bytes it was decided to make these operations unsigned because the parsing of the signing byte would destroy the byte representation of the hash. As a result, signed numbers and bytes can be compared. \\ \\
-
-\raggedright
-\textbf{Rationale} &
-As mentioned before the most prominent use case for \mintinline{go}{EQ} and \mintinline{go}{NEQ} is the comparison of function hashes. Therefore, they are unsigned. For the other opcodes an order has to exist and therefore the first byte of the elements is parsed to set the sign of the big.Ints on which the operation is performed on. \\ \\
 \end{tabular}
 
 \subsection{Control Flow Operations}
@@ -425,7 +421,7 @@ To clearly describe which operations the VM uses to access state variables in th
 \section{Parser}
 The language that the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code. The parser package contains two classes and a test file. One file is tokens.go which contains the available opcodes with its arguments and the token types. The second file is parser.go which can be split into two main functions. The following sections contain an elaboration of mentioned files.
 
-\subsection{Tokens file}
+\subsection{Tokens File}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Token Struct and Types} &
@@ -459,13 +455,14 @@ Figure \ref{tokenstruct} shows the Token struct. The tokenType field can be \min
 \raggedright
 \textbf{Opcodes} &
 The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and are int constants. \\ \\
+\raggedright
 \textbf{Array of Opcodes} &
 The array of opcodes shows which opcodes have arguments and how many of them, in order to check if only the allowed amount of words is found in a single line of the contract. If more arguments than defined are passed to an opcode token, an illegal word in line exception is thrown.
  \\ \\
 
 \end{tabular}
 
-\subsection{Parser file}
+\subsection{Parser File}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Tokenize() Function} &
@@ -517,7 +514,7 @@ Figure \ref{tokenset} shows the generated token set to the basic contract shown 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Parse() Function} &
-The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq. Figure \ref{parsefunc} shows the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{BYTES}. If an opcode takes \mintinline{go}{BYTES} as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes. \mintinline{go}{BYTE} appends a single byte value to the instruction set. \mintinline{go}{ADDR} appends 32 bytes to the instruction set.
+The \mintinline{go}{Parse()} function compiles the token set to \flqq Bazo Byte Code\frqq{}. Figure \ref{parsefunc} shows the process of the function. The function iterates over all tokens in the token set and matches the different types. If the type is \mintinline{go}{OPCODE} the matching byte value is added to the instruction set. If the type is \mintinline{go}{LABEL} the value is loaded from the labelMap, which is the jump address. A special type is \mintinline{go}{BYTES}. If an opcode takes \mintinline{go}{BYTES} as an argument the first byte of the value shows the length of the byte representation. That means, that the byte representation of the value must be prepended with the amount of bytes. \mintinline{go}{BYTE} appends a single byte value to the instruction set. \mintinline{go}{ADDR} appends 32 bytes to the instruction set.
 \end{tabular}
 
 \begin{figure}[H]

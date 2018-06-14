@@ -8,13 +8,13 @@ Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the
 
 \begin{figure}[H]
 	\begin{center}
-	\includegraphics[width=\textwidth]{./images/execution-cycle}
-	\caption{Virtual machine execution cycle overview}
+	\includegraphics[width=0.84\textwidth]{./images/execution-cycle}
+	\caption{Virtual machine execution cycle overview adapted from \cite{eth_yellowpaper} and \cite{exec_graphic}}
 	\label{vmexecutioncycle}
 	\end{center}
 \end{figure}
 
-\subsection{Types of virtual machines}
+\subsection{Types of Virtual Machines}
 There are two types of virtual machines. On the one hand, there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other, there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -33,7 +33,7 @@ The data structure of where the operands are stored is based on registers of the
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Stack based} &
-A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions set is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction set to add two numbers as shown in figure \ref{stack vm} are: 
+A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions set is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The \gls{instructionset} to add two numbers as shown in figure \ref{stack vm} are: 
 \end{tabular}
 \begin{figure}[thp]%
     \centering
@@ -64,7 +64,7 @@ A stack based virtual machine is based on a LIFO (last in, first out) stack. Ope
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Design decision} &
-Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine, we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available online. \\ \\
+Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine, we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available online.
 \end{tabular}
 
 \subsection{Guidelines}
@@ -88,13 +88,13 @@ The code should be structured and decoupled enough to make necessary changes or 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Fault Tolerance} &
-As the VM just executes the instructions it receives without any checks, it could enter an error state and panic. It must not be possible to crash the miner with a malicious or erroneous contract. \\ \\
+As the VM just executes the instructions it receives without any checks, it could enter an error state and \gls{panic}. It must not be possible to crash the miner with a malicious or erroneous contract. \\ \\
 
 \textbf{Informative Error Messages} &
 Throughout the implementation of the VM it was paid attention to write informative error messages, since that simplifies the development of a compiler, which is known to be a follow-up project. Furthermore, the debugging of smart contracts should be easy and streamlined as possible. \\ \\
 \end{tabular}
 
-\section{Contract deployment}
+\section{Contract Deployment}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -115,7 +115,7 @@ To make contract creation available for account owners, it needs to be possible 
 Both tasks by themselves would have exceeded the scope of this thesis. \\ \\
 \end{tabular}
 
-\section{Execution of a contract method}
+\section{Execution of a Contract Method}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{State of the Art} &
@@ -180,7 +180,13 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are \textit{Contract} which stores the code of the contract and \textit{ContractVariables} which contains the state variables. \\ \\
+The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. \\ \\
+\end{tabular}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+&
+It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are \textit{Contract} which stores the code of the contract and \textit{ContractVariables} which contains the state variables. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -203,7 +209,7 @@ The account transaction is used to create a new account. As for now, this type o
 			PubKey            [64]byte
 			Sig               [64]byte
 			Contract          []byte
-			ContractVariables []big.Int
+			ContractVariables []byteArray
 		}
 		\end{minted}
 		\caption{Struct of the type AccTx}
@@ -215,7 +221,7 @@ The account transaction is used to create a new account. As for now, this type o
 \textbf{ConfigTx} &
 This type of transaction is used to change system parameters such as block size, block interval or minimum fee. No changes to the configuration transaction were necessary. For more information about this transaction type, see the thesis of Livio Sgier \cite{ba_miner}. \\ \\
 \textbf{StakeTx} &
-Since the Bazo Blockchain is in transition from Proof of Work to Proof of Stake there is a StakeTx transaction type. This type of transaction is being continuously improved in other works. For more information refer to the theses of Simon Bachmann \cite{ba_pos} and Marc-Alain Chételat \cite{ba_client}.
+Since the Bazo Blockchain is in transition from \gls{pow} to Proof of Stake there is a StakeTx transaction type. This type of transaction is being continuously improved in other works. For more information refer to the theses of Simon Bachmann \cite{ba_pos} and Marc-Alain Chételat \cite{ba_client}.
 \end{tabular}
 
 \subsection{Accounts} \label{accounts}
@@ -276,7 +282,7 @@ Specific instructions that get the value from the context and put it on the top 
 \end{tabular}
 
 \section{Parser}
-Since writing all contracts directly in byte code can be very complicated and time-consuming, it was decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using control flow opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. The parser could be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
+Since writing all contracts directly in byte code can be very complicated and time-consuming, it was decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using control flow \glspl{opcode} like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. The parser could be used as foundation for building a compiler which translates a contract written in a high-level language into \frqq Bazo Byte Code\flqq{}. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
 
 \subsection{\flqq Enhanced Bazo Byte Code\frqq}
 Figure \ref{basiccontract_design} shows an example of a contract written in \flqq Enhanced Bazo Byte Code\frqq{}. It is possible to have single line comments and inline comments as well, as seen in line 1 and line 5. Comments and empty lines are ignored by the parser. The first word in line is either an opcode or a label, which ends with a colon. Opcodes are optionally followed by arguments. It is predefined what types of arguments an opcode has. The \mintinline{go}{CALL} opcode in line 4 for instance takes a label and a byte as argument.
@@ -310,16 +316,16 @@ RET
 \label{basiccontract_design}
 \end{figure}
 
-\subsection{Compile process}
+\subsection{Compile Process}
 First the parser splits the contract written in \flqq Enhanced Bazo Byte Code\frqq{} into tokens. A token consists of a token type and a value. The token type represents a kind of lexical unit e.g. opcode, label or a sequence of input characters. The token types are the symbols that are processed by the parser. \cite{aho_compilers:_2007} To get to the \flqq Bazo Byte Code\frqq{} the resulting set is iterated and the token is replaced by the corresponding byte value.
 
-\section{Smart contracts}
+\section{Smart Contracts}
 A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed by a transaction (AccTx) and executed by a transaction (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in the data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
 
-\subsection{Coding smart contracts}
+\subsection{Coding Smart Contracts}
 Smart contracts for the NEO blockchain can be developped in C\#, Java, Kotlin, F\# or Python. \cite{neo_whitepaper} There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity has been developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts. In this section a simple contract is written once in Solidity and once in \flqq Enhanced Bazo Byte Code\frqq.
 
-\subsubsection{Sample smart contact in Solidity}
+\subsubsection{Sample Smart Contact in Solidity}
 \begin{figure}[thp]%
     \centering
 	\begin{minipage}{0.5\textwidth}
