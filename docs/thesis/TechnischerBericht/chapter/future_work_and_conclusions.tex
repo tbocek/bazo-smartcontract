@@ -1,6 +1,23 @@
 \chapter{Conclusion}
 \label{futureworkandconclusions}
-As mentioned in Chapter \ref{descriptionofwork} this thesis consisted of the sub goals of building and integrating a virtual machine. These goals have been achieved and tested with integration tests such as the tokenization contract described in Chapter \ref{tokencontract}. The features of the blockchain implemented in this work could now be extended.
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+\textbf{Summary} & 
+This thesis consisted of the sub goals of building and integrating a virtual machine into the Bazo Blockchain, to make the execution of smart contracts possible. The exact details to realise these requirements were not known at the beginning and were elaborated and defined by the analysis of other smart contract platforms such as Ethereum or Neo and blockchains in general. An important conclusion from this analysis was, that it is very important to ensure the VM is fault-tolerant and does not crash when a malicious contract is executed. It was also considered that follow-up work could build upon our work. For this reason, the VM has been implemented in a manner that new opcodes can be defined easily. For opcodes there are predefined types to arguments from the instruction set. In addition, care was taken to describe the error messages as helpful as possible. \\ \\
+
+\raggedright
+\textbf{Unique Features} & 
+When calculating the gas costs a different approach was chosen, which is not used by another blockchain, as both the instruction and the size of the elements are taken into account. Furthermore, our VM differs from others because it can calculate with numbers of any size, which is a prerequisite for cryptographic functions. The only limitation here is that the current maximum pushable element cannot be larger than 256 bytes. \\ \\
+
+\raggedright
+\textbf{Parser} &
+The parser was originally not part of the scope. The decision to implement this simple parser was made when larger contracts had to be implemented, which contained many control flow opcodes and therefore addresses often had to be counted. This parser could serve as a basis for further work. \\ \\
+
+\raggedright
+\textbf{Concluding statements } &
+The goals of this thesis could have been achieved and were extensively tested. This work laid the foundation for Bazo as a platform for decentralized applications. However, in order to keep up with existing smart contract platforms, performance improvements and an increase in usability for creating and calling contracts would be necessary. The features of the blockchain implemented in this work could now be extended. \\ \\
+\end{tabular}
 
 \section{Future Work}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -8,6 +25,7 @@ As mentioned in Chapter \ref{descriptionofwork} this thesis consisted of the sub
 \textbf{Compiler} & 
 Whilst it is already possible to write contracts using the opcodes of the VM, this is very hard to read for humans. To make the writing of contracts easier a compiler which processes a better understandable language for humans and translates it into the codes of the VM would be useful. \\ \\
 
+\raggedright
 \textbf{IDE} & 
 There should also be an environment in which contracts can be written in the high level language and tested or even directly deployed. \\ \\
 
