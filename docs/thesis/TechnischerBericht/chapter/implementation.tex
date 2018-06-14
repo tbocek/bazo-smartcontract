@@ -26,7 +26,7 @@ Figure \ref{package overview} shows the structure of the project on package-leve
 As mentioned in Section \ref{design_miner} the structs of Account, FundsTx and AccTx had to be adapted. The structs originally had a fixed length. The structs are transferred encoded between the individual components, to achieve loose coupling. The original encoding and decoding functions of those structs is based on the fixed length of the struct. Since the added fields are optional and have an arbitrary length, the encoding and decoding functions had to be redesigned. It was decided to use the gob package, which is a package from the Go standard library. The gob package manages streams of binary values between an encoder and decoder. A stream of gobs is self-describing. \cite{golang_gob} The main disadvantage is, that these functions are no longer platform independent.
 
 \subsection{Encoding}
-The new encoding function for the AccTx struct is shown in figure \ref{new_encode}. Switching to gob has lead to a better readability and to fewer lines of code. The type information is defined in line 2. The function \mintinline{go}{.Encode()} in line 12 makes sure that all type information data is sent before it is needed. \cite{golang_gob} The encoding functions of the other structs, that were redesigned are very similar and therefore not dealt with. 
+The new encoding function for the AccTx struct is shown in figure \ref{new_encode}. Switching to gob has lead to a better readability and to fewer lines of code. The type information is defined in line 2. The function \mintinline{go}{.Encode()} in line 12 makes sure that all type information data is sent before it is needed. \cite{golang_gob} The encoding functions of the other structs, that were redesigned are very similar and therefore not dealt with.
 
 \begin{figure}[thp]%
     	\centering
@@ -89,8 +89,9 @@ Figure \ref{new_decode} shows the decoding function of AccTx. The \mintinline{go
 \end{figure}
 
 \section{Miner}
+This section describes what changes had to be made to the miner to integrate the VM.
 \subsection{Constructors}
-AccTxs now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil. 
+AccTxs now have an optional field for contracts and contract variables, if it remains a standard AccTx nil has to be passed for both parameters in the constructor. The same applies to the FundsTx. If the transaction is intended to be a regular FundsTx, the data field has to be nil.
 
 \subsection{VM entry point}
 The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the block.go class. Therefore this function is the ideal entry point for the virtual machine. Figure \ref{addFundsTx} shows the function without parts that are irrelevant for the integration. Before the function checks whether the transaction calls a smart contact, it performs various checks, i.e. if the account exists or if the sender has a balance high enough to transfer the defined amount of Bazo coins. If all these checks are successful the function validates if the transaction is a valid smart contract call. If so, a new context object with the receiver account and the transaction is created as seen in line 8. As next step the virtual machine is initialized with the context object. In line 12 the \mintinline{go}{Exec()} function is called which starts the virtual machine. If the \mintinline{go}{Exec()} function returns with an error the execution of the addFundsTx is aborted and the context changes are not persisted. After the VM execution, the finalizing steps are carried out, such as updating the balances of both accounts and writing the block header to storage.
@@ -109,8 +110,7 @@ The balance of a FundsTx is updated in the \mintinline{go}{addFundsTx()} in the 
 		]{go}
 func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 	... // Various checks
-	// Check if transaction has data and the receiver account 
-	// has a smart contract
+	// Check if transaction has data and receiver is a smart contract account
 	if tx.Data != nil && b.StateCopy[tx.To].Contract != nil {
 		context := protocol.NewContext(*b.StateCopy[tx.To], *tx)
 		virtualMachine := vm.NewVM(context)
@@ -119,7 +119,6 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 		if !virtualMachine.Exec(false) {
 			return errors.New(virtualMachine.GetErrorMsg())
 		}
-		
 		//Update changes vm has made to the contract variables
 		context.PersistChanges()
 	}
@@ -141,17 +140,17 @@ This chapter describes the most important parts of the VM implementation and the
 \subsection{Stack}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Maximum Stack Size} & 
+\textbf{Maximum Stack Size} &
 Facing the concern of excess memory usage of the contract on the miner, we decided to limit the stack size to 1MB which seems to be well above what the contracts will need. We neglected using the gas amount for maximum storage determination because it would be just a soft limit. \\ \\
 
-\textbf{Data Structure} & 
+\textbf{Data Structure} &
 As underlying data structure of "Stack", keeping in mind to keep the code of the VM as short and simple as possible and without unnecessary conversions it was decided to use a two dimensional byte array.
 
-\textbf{Data Type} & 
-It was important that the datatype used for the underlying data structure of stack was of arbitrary length. Splitting up an element into multiple bytes so that it can be saved when using an array of fixed length as underlying data structure would have been a lot more complex and more error-prone to implement. 
+\textbf{Data Type} &
+It was important that the datatype used for the underlying data structure of stack was of arbitrary length. Splitting up an element into multiple bytes so that it can be saved when using an array of fixed length as underlying data structure would have been a lot more complex and more error-prone to implement.
 
 \textbf{Pass by Reference}
-We neglected working with references because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. In hindsight and considering the results of Chapter \ref{evaluation} working with references and using pass by reference might have improved the performance of the VM in the benchmark test. 
+We neglected working with references because even though there are more elements created on the heap of the physical machine, it shouldn't make a difference considering the vast availability of resources on modern computers and our rather small contracts. In hindsight and considering the results of Chapter \ref{evaluation} working with references and using pass by reference might have improved the performance of the VM in the benchmark test.
 
 
 
@@ -167,11 +166,11 @@ This section describes the \mintinline{go}{Exec()} function shown in figure \ref
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Precondition} & 
+\textbf{Precondition} &
 The virtual machine is embedded into the miner. Precondition that the VM instruction cycle is started is, that the transaction must be sent to a smart contract account and the transaction data field is not empty. If these preconditions can be fulfilled, the VM instruction cycle is started by the miner. \\ \\
 
 \raggedright
-\textbf{Starting point} & 
+\textbf{Starting point} &
 The starting point for the execution cycle of the virtual machine is a set of instructions, an execution context, which are local state variables and an incrementing counter, called the program counter, which points to the instruction that is executed next. \\ \\
 
 \textbf{Steps} &
@@ -180,7 +179,7 @@ The instruction cycle can be divided into three steps which are repeated over an
   \item[1. Fetch] The instruction of the instruction code where the program counter points to is fetched. After it is fetched, the program counter is increased.
   \item[2. Decode] The instruction is interpreted by the decoder. The decoder matches the instructions with pre-defined opcodes, which can be interpreted by the \mintinline{go}{Exec()} function. Within this section of the function, the costs for the instruction are deducted. Section \ref{fee} describes why a fee is needed and how it is calculated.
     \item[3. Execute] The instruction is executed on the stack according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcode_table}.
-    \end{description}    
+    \end{description}
 \end{tabular}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -192,33 +191,33 @@ The \mintinline{go}{Exec()} function returns a boolean. If the return value is t
 Changes to the state variables are loaded and persisted explicit. That means, when loading a state variable a copy is pushed to the stack, all changes are made to the copy. The changes are only persisted if the \mintinline{go}{Exec()} function returns with true. This way, there is no need to roll back if the contract could not be executed successfully.
 \end{tabular}
 
-
 \subsection{Error handling}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
  \raggedright
-\textbf{Problem} & 
+\textbf{Problem} &
 Since the virtual machine just processes one instruction after another and as the contracts are currently written in the opcodes directly, it is easily possible to make a mistake and write a contract which the VM can not execute. \\ \\
- 
+
 
 \raggedright
-\textbf{Example} & 
-An example for this is byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the VM which could terminate the miner. This should neither be possible by accident nor by choice.  \\ \\ 
- 
+\textbf{Example} &
+An example for this is byte code which tells the vm to push six bytes on the stack when there is only one byte left in the instruction set. This of course means that an error occurs somewhere in the VM which could terminate the miner. This should neither be possible by accident nor by choice.  \\ \\
+
  \raggedright
-\textbf{Solution} & 
+\textbf{Solution} &
 Therefore it was paid a lot of attention to put guards around functions possibly throwing an error to avoid calling accordant functions with invalid values and define graceful failures with an error object. \\ \\
 
 \raggedright
-\textbf{Implementation} & 
+\textbf{Implementation} &
 The message of this error object is later on pushed on the stack of the VM after that the VM halts. Also to make the debugging less complicated, the name of the opcode in which the error occurred is added to the front of the error code, therefore it is possible to determine what caused the error up to instruction kind.  \\ \\
 
 \raggedright
-\textbf{Things Left Out} & 
+\textbf{Things Left Out} &
 It would also have been possible to provide the number of the instruction that failed but as the code of a contract gets larger and as the codes are not enumerated it becomes very time consuming to count all codes to determine which one failed. This seemed not to add value or make contract creation easier and therefore this has been neglected. \\ \\
 \end{tabular}
 
 \subsection{Gas calculation}
 As mentioned in the chapter \ref{design_chapter} the goal is to calculate the price based on the instruction and based on the size of the elements on the stack. This was solved by adding a gas price and a gas factor to every opcode. The gas price shows the base price of the instruction. The gas price is subtracted before the operation is executed. The gas factor is a multiplier. The length of any element popped from the stack is divided by 64 and rounded up, which is then multiplied by the gas factor. The result of this equation is the gas cost that is subtracted when elements are popped from the stack. This ensures that a sufficient amount of gas is available, before the actual manipulation is done. Figure \ref{gas_factor_calc} shows how the gasCost is calculated.
+
 %TODO Begründen wieso 64?
 
 \begin{figure}[thp]%
@@ -253,21 +252,21 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 		linenos
 		]
 		{bash}
-0000: push   [10] (bytes)  
-	Stack: [[10]] 
-	1 of max. 1000000 Bytes in use 
-...........................................	
-0003: push   [8] (bytes)  
-	Stack: [[8] [10]] 
-	2 of max. 1000000 Bytes in use 
-...........................................		
-0006: call   11 (label) [2] (byte)  
-	Stack: [] 
-	0 of max. 1000000 Bytes in use 
-...........................................		
-0011: load   [0] (byte)  
-	Stack: [[0 10]] 
-	2 of max. 1000000 Bytes in use 
+0000: push   [10] (bytes)
+	Stack: [[10]]
+	1 of max. 1000000 Bytes in use
+...........................................
+0003: push   [8] (bytes)
+	Stack: [[8] [10]]
+	2 of max. 1000000 Bytes in use
+...........................................
+0006: call   11 (label) [2] (byte)
+	Stack: []
+	0 of max. 1000000 Bytes in use
+...........................................
+0011: load   [0] (byte)
+	Stack: [[0 10]]
+	2 of max. 1000000 Bytes in use
 ...
 	\end{minted}
 	\end{minipage}
@@ -275,83 +274,90 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 	\label{traceoutput}
 \end{figure}
 
-% TODO insert crc card for vm
 \section{Opcodes}
 In this section the implementation of the opcodes of the VM, the most important aspects when working with them and the rationale behind their implementation is described
 \subsection{Arithmetic}
 \label{arithmetic}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Implementation} & 
+\textbf{Implementation} &
 The arithmetic opcodes use the arithmetic operations provided by big.Int. The two elements on top of the stack are popped, the arithmetic operation is executed and the result is pushed back to the stack. \\ \\
 
 \raggedright
-\textbf{Element Size} & 
+\textbf{Element Size} &
 It is not necessary to take care about the length of the elements, since big.Int allows for elements of arbitrary size. \\ \\
 
 \raggedright
-\textbf{Sign} & 
+\textbf{Sign} &
 Important to note is that these operations are always signed. Therefore when pushing a number the sign has to be provided in the first byte by setting it to zero or one. If this is not done an error can occur or worse won't occur because the number starts with one and is used to describe the sign of the number. \\ \\
 
 \raggedright
-\textbf{Rationale for big.Int} & 
+\textbf{Rationale for big.Int} &
 Concerning the implementation of arithmetic opcodes for the VM
 facing the need to provide operations for large elements it was decided to use big.Int and neglected using Int64 in order to achieve the possibility to work with numbers bigger than 256 Byte accepting the downside of adjusting gas calculation to take element size into account. \\
 \end{tabular}
 \subsection{Comparison Operators}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Implementation} & 
+\textbf{Implementation} &
 Bit operations are the two opcodes SHIFTR and SHIFTL for shifting bits to the right and the left. Same as arithmetic, this is based on the implementation of big.int. \\ \\
 
 \raggedright
-\textbf{Unsigned} & 
+\textbf{Unsigned} &
 Important to note is that these operations are primarily thought to be used for bytes. They do not parse the leading byte in order to set the sign in big.Int. This means that when this operations are used on signed numbers the result could be that the signing byte becomes greater than zero or one and the number therefore is set into an invalid state. To avoid this the opcode has to be changed or reimplemented depending on the use case. \\ \\
 
 \raggedright
-\textbf{Rationale} & 
+\textbf{Rationale} &
 Concerning the implementation of opcodes for bit operations facing the need to provide operations for large elements it was decided to use the operations provided by big.Int instead implementing the operations by ourselves to achieve the possibility to work with numbers bigger than 256 Byte. It was also decided to make the operations unsigned because they are primarily thought of as bit operations. The downsides of having to adjust gas calculation to take element size into account. If these operations are primarily used for numbers the implementation can be changed in a minute. \\ \\
 \end{tabular}
 
 \subsection{Bool Operations}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Implementation} & 
+\textbf{Implementation} &
 To the category of bool operations belong EQ, NEQ, LT, GT, LTE and GTE. All of these opcodes use the the operations provided by big.Int and all of them work with signed numbers. Only EQ and NEQ work with bytes. \\ \\
 \raggedright
-\textbf{EQ and NEQ} & 
+\textbf{EQ and NEQ} &
 While writing the integration tests it turned out that the opcodes EQ and NEQ are oftentimes used for the comparison between function hashes in the ABI. Since function hashes are not signed numbers but just bytes it was decided to make these operations unsigned because the parsing of the signing byte would destroy the byte representation. As a result, signed numbers and bytes can be compared. \\ \\
 
 \raggedright
-\textbf{Rationale} & 
+\textbf{Rationale} &
 As mentioned before the most prominent use case for EQ and NEQ is the comparison of function hashes. Therefore they are unsigned. For the other opcodes an order has to exist and therefore the first byte of the elements is parsed to set the sign of the big.Ints on which the operation is performed on.
 See Chapter \ref{arithmetic} for the rationale of arbitrary element size. \\ \\
-
 \end{tabular}
+
 \subsection{Control Flow Operations}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Control Flow Operations} & 
-Control flow opcodes are used to change the  the program counter and therefore changing the sequence of execution. \\ \\
+\textbf{Implementation} &
+Control flow opcodes like \mintinline{yaml}{JMP} are used to change the  the program counter and therefore changing the sequence of execution. These opcodes read labels from the instruction set. Labels are two bytes long. \\ \\
+
+\textbf{Call stack} &
+The \mintinline{yaml}{CALL} and \mintinline{yaml}{CALLIF} opcodes are special, since a new call stack is allocated when they are executed. The call stack has a return address and copies of the values that are passed to the call stack. How many values have to be passed to the call stack is provided by an argument of the \mintinline{yaml}{CALL} and \mintinline{yaml}{CALLIF} opcode. These copies are used for the operations within the scope of the called function. \mintinline{yaml}{RET} is used at the end of the function to jump back to the return address. The remaining values on the call stack are pushed to the evaluation stack and the call stack is deleted. \\ \\
+
+\raggedright
+\textbf{Rationale} &
+Control flow opcodes are essential to make the virtual machine Turing complete. Having this type of opcodes allows the contract creator to build loops and conditions. With the introduction of a call stack, the implementation of function calls was realized. \\ \\
+
 \end{tabular}
 
 \subsection{Data Structures}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Overview} & 
+\textbf{Overview} &
 The two basic data structures map and array are directly implemented as opcodes. Structs could be created on top of an array. For each data structure instructions are available to add, remove, set and retrieve values.\\ \\
 
 \raggedright
-\textbf{Implementation} & 
+\textbf{Implementation} &
 Both data structures are implemented on top of a byte slice with the required methods.
  \\ \\
- 
+
 \raggedright
-\textbf{Rationale} & 
+\textbf{Rationale} &
 Concerning the implementation of the data structures facing the needs of being able to serialize it into a byte slice in order to push it on the stack, reducing the overhead as much as possible and keeping the implementation simple and the contents of the structure viewable in the trace function for debugging, it was decided to implement the data structures on top of byte slice. Therefore neglecting the possibility of using the golang implementation. The reasons for this decision are that the array or map would have to be marshaled and unmarshaled by each opcode in order to pop the data structure from the stack, perform the operation and push it back. Also, a slice of bytes could not be used as an index for a map since it is not comparable. The heightened possibility of errors in the implementation is accepted since the blockchain is a research blockchain although measures have been taken to provide as much correctness as possible.  \\ \\
 \end{tabular}
 \section{Context}
-For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes of a contract execution are persisted. Figure \ref{context_interface} shows the interface for the VM context and it is followed by explanations to the data.  
+For the VM execution to have any effect it is necessary to change the state of the miner eventually. This section describes how the state changes of a contract execution are persisted. Figure \ref{context_interface} shows the interface for the VM context and it is followed by explanations to the data.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -364,7 +370,7 @@ In order to reduce the coupling of the miner it was decided to provide the acces
 
 \raggedright
 \textbf{Readability} &
-To clearly describe the operations used by the VM to set or get state variables in the most readable way as possible in the code and to restrain the VM from using all available methods defined on the context object, an interface was created which the VM uses and the context implements. If necessary this would also allow for easier testing since this makes the mocking and overwriting of specific methods of the context possible. \\ \\ 
+To clearly describe the operations used by the VM to set or get state variables in the most readable way as possible in the code and to restrain the VM from using all available methods defined on the context object, an interface was created which the VM uses and the context implements. If necessary this would also allow for easier testing since this makes the mocking and overwriting of specific methods of the context possible. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -406,7 +412,7 @@ To clearly describe the operations used by the VM to set or get state variables 
   \item[Fee] The maximum price the transaction can cost.
   \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
   \item[Amount] This field shows the amount of Bazo units send in this transaction.
-\end{description} 
+\end{description}
 
 \subsection{Data from the Receiver Account}
 \begin{description}
@@ -417,7 +423,7 @@ To clearly describe the operations used by the VM to set or get state variables 
 \end{description}
 
 \section{Parser}
-The language that the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments and the token types. The second class is parser.go, which can be split into two main functions. 
+The language that the parser processes cannot be described as a high-level programming language and is very strongly aligned to the actual byte code. The parser package contains two classes and a test file. One class is tokens.go, which contains the available opcodes with its arguments and the token types. The second class is parser.go, which can be split into two main functions.
 
 \subsection{Tokens class}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -452,10 +458,10 @@ Code snippet \ref{tokenstruct} shows the Token struct. The tokenType field can b
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Opcodes} &
-The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and also are int constants. \\ \\ 
+The opcodes are needed to replace the opcode token with the matching value and to make sure only valid opcodes are passed. The opcodes need to be the same as in the virtual machine and also are int constants. \\ \\
 \textbf{Map of opcodes} &
 The map of opcodes shows which opcodes have arguments and how many arguments they have, in order to check if only the allowed amount of words is found in a single line of the contract. If more arguments than defined are passed to an opcode token, it comes to an illegal word in line exception.
- \\ \\ 
+ \\ \\
 
 \end{tabular}
 
@@ -463,7 +469,7 @@ The map of opcodes shows which opcodes have arguments and how many arguments the
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Tokenize() function} &
-The function that is run first is the \mintinline{go}{Tokenize()} function. The process of the \mintinline{go}{Tokenize()} function is shown in figure \ref{tokenizefunc}. The source code of the contract written in \flqq Enhanced Bazo Byte Code\frqq{} is passed as a string. The string is converted to a slice of lines. The \mintinline{go}{Tokenize()} function takes every first word in every line and matches it with available token types. Every first word in line must either be a comment, a label, empty or an opcode. The rest of the words in the same line are the parameters of the opcode or an inline comment, marked with a \#. Comments and empty lines are ignored. Labels end with an colon (e.g. addNums:). If the first word is a label it is added to the labelMap, to later replace it with the address. 
+The function that is run first is the \mintinline{go}{Tokenize()} function. The process of the \mintinline{go}{Tokenize()} function is shown in figure \ref{tokenizefunc}. The source code of the contract written in \flqq Enhanced Bazo Byte Code\frqq{} is passed as a string. The string is converted to a slice of lines. The \mintinline{go}{Tokenize()} function takes every first word in every line and matches it with available token types. Every first word in line must either be a comment, a label, empty or an opcode. The rest of the words in the same line are the parameters of the opcode or an inline comment, marked with a \#. Comments and empty lines are ignored. Labels end with an colon (e.g. addNums:). If the first word is a label it is added to the labelMap, to later replace it with the address.
 \end{tabular}
 
 \begin{figure}[H]
@@ -541,7 +547,7 @@ Code snipped \ref{compiledbytecode} shows the resulting byte code instruction se
 ]
 {go}
 {
-  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 50, 28, 0, 28, 1, 4, 24, 
+  0, 1, 217, 228, 0, 0, 5, 21, 0, 13, 2, 50, 28, 0, 28, 1, 4, 24,
 }
 \end{minted}
 \end{minipage}
@@ -566,9 +572,9 @@ The overall statement coverage is 81\%. Every component of the vm package has a 
 \textbf{Parser} &
 The parser should be seen as a utility that is not part of the core project. For this reason, the necessity to test of this package was of low priority. Still a test coverage of 82\% could be achieved, because the package is small and the core class consists only of two main functions and a few helper methods. \\ \\
 \end{tabular}
- 
+
 \subsection{Fuzz Testing} \label{fuzz_testing}
-An instruction set of a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was found it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository using Travis CI and having run it with a billion random contracts over night makes us confident that every bug that could crash the miner was found and mitigated. 
+An instruction set of a smart contract must never be able to crash the miner. Calling a smart contract function with malicious instructions would cause the whole blockchain to collapse. To check if the VM fails gracefully, a fuzz test was implemented which creates contracts with real random bytes and then executes them. Contracts causing the miner to crash were reproduced as unit test in order to find the bug. Once the bug was found it was mitigated. This process was repeated over and over again. Starting the fuzz test with five million random contracts with every commit to the remote repository using Travis CI and having run it with a billion random contracts over night makes us confident that every bug that could crash the miner was found and mitigated.
 
 \subsection{Integration Testing}
 To test whether the virtual machine could be successfully integrated, an integration test was made. The goal of this test is to show that deploying and calling smart contracts over transactions are possible. The integration test consists of multiple small unit tests. It was tested whether it is possible to create smart contract accounts, call functions of these smart contracts and whether state variables are persisted over several transactions.
