@@ -140,8 +140,6 @@ func addFundsTx(b *protocol.Block, tx *protocol.FundsTx) error {
 
 \subsection{Stack}
 
-% TODO insert crc card for stack
-
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Maximum Stack Size} & 
@@ -247,7 +245,6 @@ The trace function is activated by passing true as a parameter to the \mintinlin
 	\label{traceoutput}
 \end{figure}
 
-% TODO insert crc card for vm
 \section{Opcodes}
 In this section the implementation of the opcodes of the VM, the most important aspects when working with them and the rationale behind their implementation is described
 \subsection{Arithmetic}
@@ -298,13 +295,21 @@ While writing the integration tests it turned out that the opcodes EQ and NEQ ar
 \textbf{Rationale} & 
 As mentioned before the most prominent use case for EQ and NEQ is the comparison of function hashes. Therefore they are unsigned. For the other opcodes an order has to exist and therefore the first byte of the elements is parsed to set the sign of the big.Ints on which the operation is performed on.
 See Chapter \ref{arithmetic} for the rationale of arbitrary element size. \\ \\
-
 \end{tabular}
+
 \subsection{Control Flow Operations}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
-\textbf{Control Flow Operations} & 
-Control flow opcodes are used to change the  the program counter and therefore changing the sequence of execution. \\ \\
+\textbf{Implementation} & 
+Control flow opcodes like \mintinline{yaml}{JMP} are used to change the  the program counter and therefore changing the sequence of execution. These opcodes read labels from the instruction set. Labels are two bytes long. \\ \\
+
+\textbf{Call stack} & 
+The \mintinline{yaml}{CALL} and \mintinline{yaml}{CALLIF} opcodes are special, since a new call stack is allocated when they are executed. The call stack has a return address and copies of the values that are passed to the call stack. How many values have to be passed to the call stack is provided by an argument of the \mintinline{yaml}{CALL} and \mintinline{yaml}{CALLIF} opcode. These copies are used for the operations within the scope of the called function. \mintinline{yaml}{RET} is used at the end of the function to jump back to the return address. The remaining values on the call stack are pushed to the evaluation stack and the call stack is deleted. \\ \\
+
+\raggedright
+\textbf{Rationale} & 
+Control flow opcodes are essential to make the virtual machine Turing complete. Having this type of opcodes allows the contract creator to build loops and conditions. With the introduction of a call stack, the implementation of function calls was realized. \\ \\
+
 \end{tabular}
 
 \subsection{Data Structures}
