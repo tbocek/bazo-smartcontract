@@ -1,7 +1,7 @@
 \chapter{Background and Related Work}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
 
-The section Background introduces the tools and technologies used in the Bazo Blockchain. In the section Related Work the theses of other students who worked on the Bazo Blockchain and some independent projects are described.
+The section \textit{Background} introduces the tools and technologies used in the Bazo Blockchain. In the section \textit{Related Work} the theses of other students who worked on the Bazo Blockchain and some independent projects are described.
 
 \section{Background}
 \subsection{Blockchain}
@@ -11,7 +11,7 @@ A blockchain is a distributed database. It consists of blocks of data chained to
 A smart contract is basically an agreement or contract written in computer code, saved in a transaction and therefore distributed over the whole network. The smart contract can then be called by another transaction and is executed by a VM which is part of the miner.
 
 \subsection{Transactions}
-In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As explained in \autoref{sec:transactionTypes} there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account.
+In the context of data base management systems a transaction is a unit of work performed within the system. \cite{dbtransaction} This definition is also applicable for blockchains. As later explained there are multiple transaction types and only some are used to send coins. Others are used mostly to change the system state or create a new account.
 
 \subsection{Virtual Machine}
 A virtual machine is an abstraction layer. A VM abstracts a program or even a whole operating system from the hardware it is actually run on to make it portable.
@@ -64,10 +64,10 @@ The miner will continuously fetch transactions from the unprocessed transactions
 \pagebreak
 
 \subsection{Previous work}
-As the Bazo Blockchain was started in 2017 there were several theses within which different aspects of the blockchain have been implemented. 
+As the Bazo Blockchain was started in 2017 there have been several theses. Within these theses different aspects of the blockchain have been implemented. 
 
 \begin{description}
-	\item [Bazo – A Cryptocurrency from Scratch \cite{ba_miner}] was written by Livio Sgier. He implemented the miner during this work. He partitioned the software into the peer 2 peer, storage, miner and protocol \gls{component}.
+	\item [Bazo – A Cryptocurrency from Scratch \cite{ba_miner}] was written by Livio Sgier. He implemented the miner during this work. He partitioned the software into the peer 2 peer, storage, miner and protocol package.
 	\item [A Progressive Web App (PWA)-based Mobile Wallet for Bazo \cite{ba_wallet}] was written by Jan von der Assen. His work was a proof of concept for a portable wallet which allows for mobile payments in a sandbox environment. In Figure \ref{systemcontextdiagram} the result of his work is represented as the wallet software system.
 	\item [A Blockchain Explorer for Bazo \cite{ba_explorer}] was written by Luc Boillat. The Bazo Blockchain Explorer allows users of the blockchain to inspect blockchain data through a graphical user interface, requiring no installation to use, since the application is available on the internet as a web app. \cite{ba_explorer}
 	\item [Proof of Stake for Bazo \cite{ba_pos}] was written by Simon Bachmann. Simon Bachmann studied multiple algorithms and implementations for PoS and chose the best for the later implementation of PoS which was also part of the work.
@@ -79,12 +79,12 @@ Since the code of NEO and Ethereum is on Github and open source, their implement
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{NEO} &
-NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} Smart contracts for the NEO platform can be written in Java, C\#, VB.Net, F\#, Kotlin and Python. It is planned to add more programming languages in the near future such as Go, C, C++ and JavaScript. NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper}
+NEO is a blockchain project \flqq that utilizes blockchain technology and digital identity to digitize assets, to automate the management of digital assets using smart contracts, and to realize a smart economy with a distributed network.\frqq \cite{neovseth} NEO utilizes a consensus mechanism called the Delegated Byzantine Fault Tolerance. NEO is implemented in C\#. \cite{neo_whitepaper}
 \end{tabular}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \textbf{Ethereum} & 
-The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are multiple languages which can be used to write contracts for Ethereum. The most popular language is Solidity, a language inspired by JavaScript developed by the Ethereum developers. There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is Proof of Work but  a Proof of Stake algorithm is already being developed and likely to go live in 2018. \\ \\
+The goal of Ethereum is to create a platform for the development of decentralized apps in order to create a \flqq more globally accessible, more free, and more trustworthy Internet, an internet 3.0\frqq. \cite{neovseth} There are several implementations of the client such as go-ethereum (written in Go), cpp-ethereum (written in C++) and others. Ethereum's consensus mechanism is Proof of Work but  a Proof of Stake algorithm is already being developed and likely to go live in 2018. \\ \\
 \end{tabular}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}

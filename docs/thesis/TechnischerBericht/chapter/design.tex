@@ -1,10 +1,10 @@
 \chapter{Design} \label{design_chapter}
 \thispagestyle{main} % Needed for Footer and Header on Chapterpage
-As the term software design is generally defined in a broad way to also be suitable for lager systems first an elaboration on how the term design is used. The word design itself is defined as: Do or plan (something) with a specific purpose in mind. \cite{design_definition} 
-In the previous works on Bazo, the chapter design also provides an overview over the software. Therefore it was decided provide an overview over the implementation of the  Bazo VM and the parser and to outline the most important purposes they are built for. This chapter also describes the goals, requirements, restrictions and an overview of the integration of the VM into the miner. Furthermore the orientation taken while building the foundation for the creation, deployment and execution of smart contracts is explained.
+As the term software design is generally defined in a broad way to also be suitable for lager systems first an elaboration on how the term design is used in this thesis. The word design itself is defined as: Do or plan (something) with a specific purpose in mind. \cite{design_definition} 
+In previous theses on Bazo, the chapter design also provides an overview over the software. Therefore, it was decided to provide an overview over the implementation of the  Bazo VM and the parser and to outline the most important purposes they are built for. This chapter also describes the goals, requirements, restrictions and an overview of the integration of the VM into the miner. Furthermore the orientation taken while building the foundation for the creation, deployment and execution of smart contracts is explained.
 
 \section{Virtual Machine}
-Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the VM executes a smart contract. Afterwards different types of VMs are explained and the most important guidelines and goals that were kept in mind throughout the building of the VM are described
+Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the VM executes a smart contract. Afterwards different types of VMs are explained and the most important guidelines and goals that were kept in mind throughout the building of the VM are described.
 
 \begin{figure}[H]
 	\begin{center}
@@ -15,7 +15,7 @@ Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the
 \end{figure}
 
 \subsection{Types of virtual machines}
-There are two types of virtual machines. On the one hand there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
+There are two types of virtual machines. On the one hand, there are register based virtual machines. Examples of register based virtual machines are the Lua VM and the Dalvik VM. On the other, there are stack based virtual machines. The Java Virtual Machine and the .NET CLR are both stack based virtual machines. \cite{stackvsregistervm}
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -33,7 +33,7 @@ The data structure of where the operands are stored is based on registers of the
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Stack based} &
-A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions code is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction to add two numbers as shown in figure \ref{stack vm} are: 
+A stack based virtual machine is based on a LIFO (last in, first out) stack. Operations are carried out by popping and pushing back results on the stack. The main advantage is a stack pointer that implicitly addresses the operands, which means that no addresses are passed in instructions. The instructions set is longer since \mintinline{tasm}{POP} and \mintinline{tasm}{PUSH} instructions have to be included to retrieve and store the operands. \cite{stackvsregistervm} The instruction set to add two numbers as shown in figure \ref{stack vm} are: 
 \end{tabular}
 \begin{figure}[thp]%
     \centering
@@ -64,11 +64,11 @@ A stack based virtual machine is based on a LIFO (last in, first out) stack. Ope
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Design decision} &
-Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available. \\ \\
+Despite the register based virtual machine having advantages such as more possibilities for optimizations and having no overhead from pushing and popping, over a stack based virtual machine, we decided to implement a stack based virtual machine. This decision was most influenced by the implementation of related projects, namely Ethereum and NEO. Besides that, the implementation of a stack based virtual machine is simpler and much more resources are available online. \\ \\
 \end{tabular}
 
 \subsection{Guidelines}
-As the Bazo VM continues to be improved or extended by other students, it was paid careful attention to make the software readable, testable, changeable and extendable. 
+As the Bazo VM continues to be improved or extended by other students, it was paid attention to make the software readable, testable, changeable and extendable. 
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -85,7 +85,7 @@ The code should be structured and decoupled enough to make necessary changes or 
 \end{tabular}
 
 \subsection{Fault Tolerance}
-As the VM just executes the instructions it receives without checking, it could easily enter an error state and panic. Already at the begin of the project it was clear that it is critical that the VM can only be allowed to fail contract execution gracefully without terminating the whole miner. As a result, many guards in front of operations which could panic have been placed. As the error handling of Go works over separate return values they have been added to the functions and if an error value was set by a function because an error occurred, it is pushed on top of the VM stack. To test the graceful failing of the VM, a fuzz test has been created which executes random instructions on the VM and reports if the VM panics. 
+As the VM just executes the instructions it receives without any checks, it could easily enter an error state and panic. From the beginning of the project it was clear that it is important to ensure that the VM could only fail gracefully without terminating the miner. As a result, many guards in front of operations which could panic have been placed. As the error handling of Go works over separate return values they have been added to the functions and if an an error occurs, it is pushed on top of the VM stack.
 
 \subsection{Maximize Human Participation in Resolving Contract Errors}
 While creating the tests for the VM, especially the integration tests with the more complicated contracts, it became clear that it is necessary to include important information such as the kind of instruction that failed and what happened in the error message. As the Virtual Machine itself does not have the knowledge to resolve failures of contract execution, the error handling is pushing an error message which contains a string which describes what failed and the type of opcode that failed. An example for this is provided in Figure \ref{pushtestfailure}, which shows the error message pushed on the top of stack when making the code of a test fail.
@@ -126,11 +126,11 @@ Both tasks by themselves would have exceeded the scope of this thesis. \\ \\
 In other blockchains such as Ethereum, smart contracts can be called via the wallet or the Web API. The results can be checked via API, wallet or block explorer. \\ \\
 \raggedright
 \textbf{Current Contract Execution} &
-In Bazo a transaction which calls a contract has to be added to the unprocessed transactions pool. The miner takes the transaction out of the pool and validates it. If the data field of the transaction is set, the miner will setup the vm context and execute the called function in the VM. After a successful execution, the changed contract variables are written back. \\ \\
+In Bazo a transaction which calls a contract has to be added to the unprocessed transactions pool. The miner takes the transaction out of the pool and validates it. If the data field of the transaction is set, the miner will setup the VM context and execute the called function in the VM. After a successful execution, the changed contract variables are written back. \\ \\
 
 \raggedright
 \textbf{Restrictions} &
-As the features are not yet implemented in the client it is not possible to send this kind of transaction via the Web API of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
+As the features are not yet implemented in the client nor the P2P package, it is not possible to send this kind of transaction via the Web API of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
 
 \raggedright
 \textbf{Rationale} &
@@ -140,10 +140,10 @@ Implementing the features in the other applications as well would have exceeded 
 \pagebreak
 
 \section{VM Integration} \label{design_miner}
-The VM was integrated into the miner. As mentioned before the miner is responsible for processing and validating transactions. This section describes the most important aspects of the already existing miner implementation which influenced the integration of the VM and the reasons for the adjustments made to the miner. The section also introduces the VM context which is used to provide data for the VM, gives an overview over the data the VM has access to and the rationale behind the solution with the context.
+The VM was integrated into the miner. This section describes the most important aspects of the already existing miner implementation which influenced the integration of the VM and the reasons for the adjustments made to the miner. The section also introduces the VM context which is used to provide data for the VM, gives an overview over the data the VM has access to and the rationale behind the solution with the context.
 
-\subsection{Transaction Types} \label{transactionTypes}
-In previous works concerning the miner, different transaction types were implemented or extended. Below it is described what the purpose of these transactions is, how they are extended in this work and why they were chosen.
+\subsection{Transaction Types of the Miner} \label{transactionTypes}
+In previous works concerning the miner, different transaction types were implemented or extended. Below it is described what the purpose of these transactions is, how they are extended in this work and why they were chosen for extention.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
@@ -184,7 +184,7 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The account transaction is used to create a new account. As for now this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of the files in the miner, it would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The fields required are contract which stores the code of the contract and contract variables which contains the state variables. \\ \\
+The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are contract which stores the code of the contract and contract variables which contains the state variables. \\ \\
 \end{tabular}
 
 \begin{figure}[thp]%
@@ -219,11 +219,11 @@ The account transaction is used to create a new account. As for now this type of
 \textbf{ConfigTx} &
 This type of transaction is used to change system parameters such as block size, block interval or minimum fee. No changes to the configuration transaction were necessary. For more information about this transaction type, see the thesis of Livio Sgier \cite{ba_miner}. \\ \\
 \textbf{StakeTx} &
-Since the Bazo Blockchain is in transition from proof of work to proof of stake consensus mechanism there is a StakeTx transaction type. This type of transaction is continuously being improved in other works. For more information refer to the theses of Simon Bachmann \cite{ba_pos} and Marc-Alain Chételat \cite{ba_client}.
+Since the Bazo Blockchain is in transition from Proof of Work to Proof of Stake there is a StakeTx transaction type. This type of transaction is being continuously improved in other works. For more information refer to the theses of Simon Bachmann \cite{ba_pos} and Marc-Alain Chételat \cite{ba_client}.
 \end{tabular}
 
 \subsection{Accounts} \label{accounts}
-An account is the result of processing an account transaction. Account specifically refers to the object created on the heap of the miner created by an account transaction and modified by a funds transaction. Figure \ref{struct_account} shows the struct for Account.
+An account is the result of processing an account transaction. Account specifically refers to the object created on the heap of the miner created by an account transaction. Accounts can be modified by a funds transaction. Figure \ref{struct_account} shows the struct for Account.
 
 \begin{figure}[thp]%
     	\centering
@@ -268,19 +268,19 @@ Smart contract accounts are created and owned by externally owned accounts. The 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Consistency} &
-Since the blockchain is a distributed database and the VM needs to change the data of the blockchain eventually, consistency was a very important aspect of its integration. In order to keep the data of the miner consistent even after a potential failure of the VM the context in which the VM is executed is created by the miner and passed to the VM. This is referred to as execution context. \\ \\ %Especially important hereby is letting the VM only work on copies in order to avoid encapsulation breaches where the VM adjusts a reference values used by the miner directly. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values.
+Since the blockchain is a distributed database and the VM needs to change the data of the blockchain eventually, consistency was a very important aspect of its integration. In order to keep the data of the miner consistent even after a potential failure of the VM, the context in which the VM is executed is created by the miner and passed to the VM. This is referred to as execution context. \\ \\ %Especially important hereby is letting the VM only work on copies in order to avoid encapsulation breaches where the VM adjusts a reference values used by the miner directly. If the VM executes without an error the miner writes the changes back by itself. Therefore in the case of an error the copies just have to be discarded, which is a lot easier than resetting the changed variables back to the old values.
 
 \raggedright
 \textbf{Content of the Context} &
-With data coming from the transaction, the account and the miner the Execution Context is composed. The Execution Context contains all the data needed to start the execution of the contract. Every field is needed and/or can be used by the virtual machine. \\ \\ 
+The execution context is composed With data coming from the transaction and the account. The execution context contains all the data needed to start the execution of the contract. \\ \\ 
 
 \raggedright
 \textbf{Access to the Data} &
-Specific instructions that get the value from the context and put it on the top of the stack are provided. This allows to create functions that for example can only be called by the owner of the smart contract. 
+Specific instructions that get the value from the context and put it on the top of the stack are provided. This for example allows the creation of a contract with functions only the contract issuer can call. In this case, the issuer field is accessed from the contract to verify ownership.
 \end{tabular}
 
 \section{Parser}
-Since writing all contracts directly in byte code can be very complicated and time-consuming, it was decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using flow operation opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. Labels could also be interpreted as jump markers. The parser could also be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
+Since writing all contracts directly in byte code can be very complicated and time-consuming, it was decided to write a very basic parser. The goal of the parser was to make writing contracts easier by allowing the usage of labels and comments. Having labels resolves the problem of counting addresses when using control flow opcodes like \mintinline{yaml}{JMP} and \mintinline{yaml}{CALL} since they generally take an address as argument and change the program counter accordingly. The parser could be used as foundation for building a compiler which translates a contract written in a high-level language into Bazo byte code. For the rest of this thesis the code that can be interpreted by the parser is referred to as \flqq Enhanced Bazo Byte Code\frqq{} and the code the virtual machine operates on and which is stored on the blockchain as \flqq Bazo Byte Code\frqq.
 
 \subsection{\flqq Enhanced Bazo Byte Code\frqq}
 Figure \ref{basiccontract_design} shows an example of a contract written in \flqq Enhanced Bazo Byte Code\frqq{}. It is possible to have single line comments and inline comments as well, as seen in line 1 and line 5. Comments and empty lines are ignored by the parser. The first word in line is either an opcode or a label, which ends with a colon. Opcodes are optionally followed by arguments. It is predefined what types of arguments an opcode has. The \mintinline{go}{CALL} opcode in line 4 for instance takes a label and a byte as argument.
@@ -315,13 +315,13 @@ RET
 \end{figure}
 
 \subsection{Compile process}
-First the parser splits the contract written in \flqq Enhanced Bazo Byte Code\frqq{}, which is basically only a long string, into tokens. A token consists of a token type and a value. The token type represents a kind of lexical unit e.g. opcode, label or a sequence of input characters. The token types are the symbols that are processed by the parser. \cite{aho_compilers:_2007} To get to the \flqq Bazo Byte Code\frqq{} the resulting set is iterated and the token is replaced by the corresponding byte value.
+First the parser splits the contract written in \flqq Enhanced Bazo Byte Code\frqq{} into tokens. A token consists of a token type and a value. The token type represents a kind of lexical unit e.g. opcode, label or a sequence of input characters. The token types are the symbols that are processed by the parser. \cite{aho_compilers:_2007} To get to the \flqq Bazo Byte Code\frqq{} the resulting set is iterated and the token is replaced by the corresponding byte value.
 
 \section{Smart contracts}
-Smart contracts are programs that are stored on the blockchain. A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed by a transaction (AccTx) and executed by a transaction  (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in a designated data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
+A smart contract consists of an ABI (application binary interface) and one or more callable functions. Smart contracts are deployed by a transaction (AccTx) and executed by a transaction (FundsTx). When someone wants to call a certain function in a smart contract, a special transaction to the public address of the smart contract is executed. The transaction contains an identifier in the data field, so the ABI can match the identifier with the function the caller wants to execute. Arguments passed to that function are also transmitted in that field. Since a transaction is processed simultaneously on all nodes of the network, all functions have to be deterministic.
 
 \subsection{Coding smart contracts}
-Smart contracts for the NEO blockchain can be coded in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity has been developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts. In this section a simple contract is written once in Solidity and once in \flqq Bazo Byte Code \frqq.
+Smart contracts for the NEO blockchain can be developped in C\#, Java, Kotlin, F\# or Python. There are different ways to create an Ethereum smart contract. There are different high-level programming languages that can be compiled to Ethereum byte code. Solidity has been developed by the Ethereum community and is the industry standard. Solidity is heavily inspired by JavaScript with the idea to attract JavaScript developers to write smart contracts. In this section a simple contract is written once in Solidity and once in \flqq Enhanced Bazo Byte Code\frqq.
 
 \subsubsection{Sample smart contact in Solidity}
 \begin{figure}[thp]%
@@ -420,14 +420,14 @@ Running a node in the network carries costs and the node operators want to be co
 
 \raggedright
 \textbf{Security Aspects of the Fee} &
-Moreover, the fee can be seen as a way to secure the network. As mentioned before, the execution of a contract must halt eventually. Since the virtual machine is Turing complete, it is possible to create contracts, which stay in an endless loop causing the network to get stuck and not accepting new transactions. Subtracting gas with the processing of every instruction the processing of the transaction comes to an end eventually because no more gas is available. \\ \\
+Moreover, the fee can be seen as a way to secure the network. The execution of a contract must be deterministic. Since the virtual machine is Turing complete, it is possible to create contracts, which stay in an endless loop causing the network to get stuck and not accepting new transactions. Subtracting gas with the processing of every instruction, the processing of the transaction comes to an end eventually because no more gas is available. \\ \\
 
 \raggedright
 \textbf{Fees in other Blockchains} &
-In Ethereum and Neo this fee is called gas. Ethereum calculates the cost depending on which instructions are used and uses the smallest unit of its currency. Neo even separates the fee from the actual currency in order to keep the costs of a transaction stable even if the value of the coin itself rises. Bitcoin calculates the cost depending on the size of the transaction. \\ \\
+In Ethereum and NEO this fee is called gas. Ethereum calculates the cost depending on which instruction is used and uses the smallest unit of its currency. NEO even separates the fee from the actual currency in order to keep the costs of a transaction stable even if the value of the coin itself rises. Bitcoin calculates the cost depending on the size of the transaction. \\ \\
 
 \raggedright
 \textbf{Fees in Bazo} &
-The fee is expressed in the smallest unit of Bazo coins. The cost of execution vary depending on the complexity of the opcode and depending on the size of the processed elements, since it is possible to work with elements of arbitrary size. Since it is possible to operate with elements of arbitrary size, this must be considered when calculating the gas cost. Therefore, it was decided that the calculation should take into account both the type of instruction and the size of the elements. Separating fee from the coins of the blockchain was considered. See Chapter \ref{futureworkandconclusions} for more information.
+The fee is expressed in the smallest unit of Bazo coins. The cost of execution vary depending on the complexity of the opcode and depending on the size of the processed elements, since it is possible to work with elements of arbitrary size. Separating fee from the coins of the blockchain was considered. See Chapter \ref{futureworkandconclusions} for more information.
 \end{tabular}
 
