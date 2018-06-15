@@ -4,7 +4,7 @@ As the term software design is generally defined in a broad way to also be suita
 In previous theses on Bazo, the chapter design also provides an overview over the software. Therefore, it was decided to provide an overview over the implementation of the  Bazo VM and the parser and to outline the most important purposes they are built for. This chapter also describes the goals, requirements, restrictions and an overview of the integration of the VM into the miner. Furthermore, the orientation taken while building the foundation for the creation, deployment and execution of smart contracts is explained.
 
 \section{Virtual Machine}
-Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the VM executes a smart contract. Afterwards different types of VMs are explained and the most important guidelines and goals that were kept in mind throughout the building of the VM are described.
+Figure \ref{vmexecutioncycle} shows the VM execution cycle. It describes how the VM executes a smart contract. Afterwards, different types of VMs are explained and the most important guidelines and goals that were kept in mind throughout the building of the VM are described.
 
 \begin{figure}[H]
 	\begin{center}
@@ -81,7 +81,7 @@ The code has been written using test driven development, which required writing 
  
 \raggedright
 \textbf{Extendability and Changeability} &
-The code should be structured and decoupled enough to make necessary changes or extensions to the VM easy for following projects. As described before, having many tests makes the refactoring of the code easier. \\ \\ 
+The code should be structured and decoupled enough to make necessary changes or extensions to the VM easy for following projects. As described before, having many tests makes the refactoring of the code easier. 
 \end{tabular}
 
 \subsection{Notable Design Aspects}
@@ -91,7 +91,7 @@ The code should be structured and decoupled enough to make necessary changes or 
 As the VM just executes the instructions it receives without any checks, it could enter an error state and \gls{panic}. It must not be possible to crash the miner with a malicious or erroneous contract. \\ \\
 
 \textbf{Informative Error Messages} &
-Throughout the implementation of the VM it was paid attention to write informative error messages, since that simplifies the development of a compiler, which is known to be a follow-up project. Furthermore, the debugging of smart contracts should be easy and streamlined as possible. \\ \\
+Throughout the implementation of the VM it was paid attention to write informative error messages, since that simplifies the development of a compiler, which is known to be a follow-up project. Furthermore, the debugging of smart contracts should be easy and streamlined as possible.
 \end{tabular}
 
 \section{Contract Deployment}
@@ -111,9 +111,8 @@ This means that yet only developers can create new contracts. \\ \\
 
 \raggedright
 \textbf{Rationale} &
-To make contract creation available for account owners, it needs to be possible to create a contract account with any valid key pair of a Bazo account. Also the peer 2 peer package would have to support the features implemented during this work.
-Both tasks by themselves would have exceeded the scope of this thesis. \\ \\
-\end{tabular}
+To make contract creation available for account owners, it needs to be possible to create a contract account with any valid key pair of a Bazo account. Also the \textit{P2P} package would have to support the features implemented during this work.
+Both tasks by themselves would have exceeded the scope of this thesis.\end{tabular}
 
 \section{Execution of a Contract Method}
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
@@ -126,7 +125,7 @@ In Bazo a transaction which calls a contract has to be added to the unprocessed 
 
 \raggedright
 \textbf{Restrictions} &
-As the features are not yet implemented in the client nor the P2P package, it is not possible to send this kind of transaction via the Web API of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
+As the features are not yet implemented in the client nor the \textit{P2P} package, it is not possible to send this kind of transaction via the Web API of the miner. It is also not yet possible to check the result, since smart contracts are not part of the block explorer. \\ \\
 
 \raggedright
 \textbf{Rationale} &
@@ -180,13 +179,7 @@ This type of transaction is used to transfer Bazo coins from one account to anot
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{AccTx} &
-The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. \\ \\
-\end{tabular}
-
-\begin{tabular}[t]{ p{3cm} p{12.5cm}}
-\raggedright
-&
-It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are \textit{Contract} which stores the code of the contract and \textit{ContractVariables} which contains the state variables. \\ \\
+The account transaction is used to create a new account. As for now, this type of transaction is only allowed to root accounts, since the signature has to be signed with the private key of a root account. \cite{ba_miner} It is important to note that since the miner distinguishes between the transaction types for the corresponding functionality by a switch case in most of its files. It would have been very time consuming to extend the miner by another transaction. Therefore and because most importantly a smart contract needs all fields of an account anyway, it was decided to add the required fields for the contract to the account transaction and leave them set to nil in a normal account transaction. The required fields are \textit{Contract} which stores the code of the contract and \textit{ContractVariables} which contains the state variables. 
 \end{tabular}
 
 \begin{figure}[thp]%

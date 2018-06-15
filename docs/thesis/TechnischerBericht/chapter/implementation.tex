@@ -14,7 +14,7 @@ Figure \ref{package overview} shows the structure of the project on package-leve
 
 \begin{description}
 	\item[Protocol] This package contains the building blocks for the Bazo Blockchain. In particular it contains the structure, encoding, decoding and hashing functions of all transaction types, blocks and accounts. In addition a transaction interface is defined, allowing an abstract treatment of transactions. \cite{ba_miner}
-	\item[Miner] The miner package contains all mining related components. This includes the validation and consolidation of transactions into blocks, the calculation of the consensus mechanism and the building of the merkle tree. In addition to that, blockchain related tasks such as rollback operations and state changes are contained in this package. Access to \textit{P2P} and \textit{Storage} packages are needed in order to handle transactions over the network and signal storage-related operations. \cite{ba_miner} To execute the virtual machine and access its results, the miner also needs access to the \textit{VM} package.
+	\item[Miner] The \textit{Miner} package contains all mining related components. This includes the validation and consolidation of transactions into blocks, the calculation of the consensus mechanism and the building of the merkle tree. In addition to that, blockchain related tasks such as rollback operations and state changes are contained in this package. Access to \textit{P2P} and \textit{Storage} packages are needed in order to handle transactions over the network and signal storage-related operations. \cite{ba_miner} To execute the virtual machine and access its results, the miner also needs access to the \textit{VM} package.
 	\item[VM] This package contains the virtual machine itself and all its components, namely the evaluation stack, the call stack, the implementations of data structures and all available opcodes.
 	\item[P2P] All networking related operations are implemented in the \textit{P2P} package \cite{ba_miner}. Since for the integration of the virtual machine nothing had to be changed, the content of this package is not discussed any further.
 	\item[Storage] The storage package is concerned with memory-related tasks. The lower-level functionality was implemented with the external \textit{BoltDB} package. Since entries are encoded before writing to storage and decoded when loaded \cite{ba_miner}, this package could be left unaltered. For that reason, this package is also not described further.
@@ -145,7 +145,7 @@ Facing the concern of excess memory usage of the contract on the miner, we decid
 
 \raggedright
 \textbf{Data Structure} &
-As underlying data structure of the stack, keeping in mind to keep the code of the VM as short and simple as possible and without unnecessary conversions it was decided to use a two dimensional byte array. We neglected using a simple array of bytes as data structure where elements with greater length than a byte are pushed using multiple indexes, as it is common when having no abstraction layer. We have also neglected the use of big.Int as the underlying data type which is used by Ethereum. big.Int is also arbitrarily long. The reason for this decision was that converting signed operations to unsigned operations and optimizing the elimination of leading zeros posed a problem. Still, big.Int was used for many opcodes of the Bazo VM. A multidimensional byte array was chosen to achieve simplicity, readability and extendability of the code. The downside of smaller conversions from big.Int to byte array are accepted. \\ \\
+As underlying data structure of the stack, keeping in mind to keep the code of the VM as short and simple as possible and without unnecessary conversions it was decided to use a two dimensional byte array. We neglected using a simple array of bytes as data structure where elements with greater length than a byte are pushed using multiple indexes, as it is common when having no abstraction layer. We have also neglected the use of big.Int as the underlying data type which is used by Ethereum. Big.Int can also be of arbitrary length. The reason for this decision was that converting signed operations to unsigned operations and optimizing the elimination of leading zeros posed a problem. Still, big.Int was used for many opcodes of the Bazo VM. A multidimensional byte array was chosen to achieve simplicity, readability and extendability of the code. The downside of smaller conversions from big.Int to byte array are accepted. \\ \\
 
 \raggedright
 \textbf{Data Type} &
@@ -172,7 +172,7 @@ At the starting point of the execution cycle the virtual machine contains a set 
 The instruction cycle can be divided into three steps which are repeated over and over again until an invalid instruction occurs. Furthermore, the execution can be halted by an instruction or if the program counter is out of bounds. All this steps are handled in the \mintinline{go}{Exec()} function. These are the three steps:
 \begin{description}
   \item[1. Fetch] The instruction the program counter points to is fetched. After it is fetched, the program counter is increased, which then points to the next element.
-  \item[2. Decode] In this step the instruction is matched with pre-defined opcodes, which can be interpreted by switch statement of the \mintinline{go}{Exec()} function. Within this section of the function, the costs for the instruction are subtract.
+  \item[2. Decode] In this step the instruction is matched with pre-defined opcodes, which can be interpreted by switch statement of the \mintinline{go}{Exec()} function. Within this section of the function, the costs for the instruction are subtracted.
   \item[3. Execute] The instruction is executed according to the opcode. There are opcodes for arithmetic operations, e.g. \mintinline{yaml}{ADD, MOD, SUB}, for flow operations e.g. \mintinline{yaml}{JMP, CALL, RET} which are allowed to change the program counter and therefore move back and forward in the instruction set, cryptographic operations, such as \mintinline{yaml}{SHA3, CHECKSIG} and context operations, e.g. \mintinline{yaml}{ADDRESS, ISSUER, CALLER, CALLDATA} that can be used to push context data composed from the transaction and the receiver account to the stack and opcodes for storing and loading state variables \mintinline{yaml}{SSTORE, SLOAD}. All implemented opcodes are listed in table \ref{opcode_table}.
     \end{description}
 \end{tabular}
@@ -198,7 +198,7 @@ An example for this is an opcode which tells the VM to push six bytes on the sta
 
 \raggedright
 \textbf{Solution} &
-As a result, many guards in front of operations which could panic have been placed. This allows the graceful failure of the VM. As the error handling of Go works over separate return values they have been added to the functions and if an error occurs, it is pushed on top of the VM stack. \\ \\
+As a result, many guards in front of operations which could panic have been placed. This allows the graceful failure of the VM. As the error handling of Go works over separate return values they have been added to the functions. \\ \\
 
 \raggedright
 \textbf{Implementation} &
@@ -318,7 +318,7 @@ Important to note is that these operations are primarily thought to be used for 
 
 \raggedright
 \textbf{Rationale} &
-Concerning the implementation of opcodes for bit operations facing the need to provide operations for large elements it was decided to use the operations provided by big.Int instead implementing the operations by ourselves to achieve the possibility to work with numbers bigger than 256 byte. It was also decided to make the operations unsigned because they are primarily thought of as bit operations. The downsides of having to adjust gas calculation to take element size into account is accepted. If in hindsight these operations are primarily used for numbers the implementation can be changed easily. \\ \\
+Concerning the implementation of opcodes for bit operations facing the need to provide operations for large elements it was decided to use the operations provided by big.Int instead implementing the operations by ourselves to achieve the possibility to work with numbers bigger than 256 byte. It was also decided to make the operations unsigned because they are primarily thought of as bit operations. The downsides of having to adjust gas calculation to take element size into account is accepted. If in hindsight these operations are primarily used for numbers the implementation can be changed easily. 
 \end{tabular}
 
 \subsection{Control Flow Operations}
@@ -332,8 +332,7 @@ The \mintinline{yaml}{CALL} and \mintinline{yaml}{CALLIF} opcodes are special, s
 
 \raggedright
 \textbf{Rationale} &
-Control flow opcodes are essential to make the virtual machine Turing complete. Having this type of opcodes allows the contract creator to build loops and conditions. With the introduction of a call stack, the implementation of function calls was realized. \\ \\
-
+Control flow opcodes are essential to make the virtual machine Turing complete. Having this type of opcodes allows the contract creator to build loops and conditions. With the introduction of a call stack it is possible to make function calls. \\ \\
 \end{tabular}
 
 \subsection{Data Structures}
@@ -350,19 +349,26 @@ The required methods to add, remove, set and retrieve values for both data types
 
 \raggedright
 \textbf{Rationale} &
-The ability to marshal the data structures into a byte array in order to push it on the stack was important. The overhead for doing this should be as low as possible. Further important concerns are keeping the implementation simple and the contents of the structure viewable in the trace function for debugging. It was decided to implement the data structures on top of byte array. The possibility of using the Go native implementation of map and array were neglected. The reasons for this decision are that the array or map would have to be marshalled and unmarshalled by each opcode in order to pop the data structure from the stack, perform the operation and push it back. Also, an array of bytes could not be used as an index for a map since it is not comparable. The heightened possibility of errors in the implementation is accepted since the blockchain is a research blockchain although measures have been taken to provide as much correctness as possible.  \\ \\
+The ability to marshal the data structures into a byte array in order to push it on the stack was important. The overhead for doing this should be as low as possible. Further important concerns are keeping the implementation simple and the contents of the structure viewable in the trace function for debugging. It was decided to implement the data structures on top of byte array. The possibility of using the Go native implementation of map and array were neglected. The reasons for this decision are that the array or map would have to be marshalled and unmarshalled by each opcode in order to pop the data structure from the stack, perform the operation and push it back. Also, an array of bytes could not be used as an index for a map since it is not comparable. The heightened possibility of errors in the implementation in contrast to using the Go standard types was accepted, since the blockchain is a research blockchain although measures have been taken to provide as much correctness as possible.
 \end{tabular}
+
 \section{Context}
-For the VM execution to have any effect it is necessary to change the miner's state eventually. This section describes how the state changes of a contract execution are persisted and explains the data the context is composed with. Furthermore, Figure \ref{context_interface} shows the interface for the VM context.
+For the VM execution to have any effect it is necessary to change the miner's state eventually. This section describes how the state changes of a contract execution are persisted and explains the data the context is composed with. Figure \ref{context_interface} shows the interface for the VM context.
 
 \begin{tabular}[t]{ p{3cm} p{12.5cm}}
 \raggedright
 \textbf{Consistency} &
-One problem with an immediate change of the miner's state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with a rollback but this was neglected since this is more complicated to implement than letting the VM work on copies. Therefore, it was decided to provide the VM with copies of the state variables. \\ \\
+One problem with an immediate change of the miner's state is that the contract execution could fail in the middle of the contract resulting in inconsistencies. Such inconsistencies could be resolved with a rollback but this was neglected since this is more complicated to implement than letting the VM work on copies. Therefore, it was decided to provide the VM with copies of the state variables. \\ \\
 
 \raggedright
 \textbf{Decoupling} &
-In order to reduce the coupling of the miner it was decided to provide the access to the state variables via a context object which implements the necessary getters and setters. The context object contains the logic needed to create copies and to avoid encapsulation breaches. The context object is setup by the miner, the reference to it is then passed to the VM and the changes are written back after a successful execution of the contract by the miner again. \\ \\
+In order to reduce the coupling of the miner it was decided to provide the access to the state variables via a context object which implements the necessary getters and setters. The context object contains the logic needed to create copies and to avoid encapsulation breaches. The context object is setup by the miner, the reference to it is then passed to the VM and the changes are written back after a successful execution of the contract by the miner again.
+\end{tabular}
+
+\begin{tabular}[t]{ p{3cm} p{12.5cm}}
+\raggedright
+ &
+ \\ \\
 
 \raggedright
 \textbf{Readability} &
@@ -406,7 +412,7 @@ To clearly describe which operations the VM uses to access state variables in th
 \begin{description}
   \item[Sender/Address] The sender field shows the public address of the transaction sender 
   \item[Fee] The maximum price the transaction can cost.
-  \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments. In order to identify the function and still being able to override functions and enable polymorphism, the identifier is a hash build from the function signature (name and parameters).
+  \item[TransactionData] This field contains the identifier to the function the sender wants to call on a certain smart contract and its arguments.
   \item[Amount] This field shows the amount of Bazo units send in this transaction.
 \end{description}
 
@@ -414,7 +420,7 @@ To clearly describe which operations the VM uses to access state variables in th
 \begin{description}
   \item[Issuer/Owner] This field contains the public address of the account owner.
   \item[Balance] This field contains the number of coins in this account.
-  \item[Contract] This field is the smart contract itself and contains the byte code. The data type is \mintinline{yaml}{[]byte}, so it can easily be packed into a transaction field.
+  \item[Contract] This field is the smart contract itself and contains the byte code. The data type is \mintinline{yaml}{[]byte}, so it can be packed into a transaction field.
   \item[ContractVariables] This field contains the state variables that are changed by executing transactions.
 \end{description}
 
